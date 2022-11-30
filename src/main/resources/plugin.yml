@@ -1,0 +1,5 @@
+name: TepakapPlugin
+version: '${project.version}'
+main: fr.sny1411.tepakap.Main
+api-version: 1.19
+authors: [ sny1411 ]
