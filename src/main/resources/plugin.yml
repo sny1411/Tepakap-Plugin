@@ -3,3 +3,8 @@ version: '${project.version}'
 main: fr.sny1411.tepakap.Main
 api-version: 1.19
 authors: [ sny1411 ]
+commands:
+  lock:
+    description: permet de proteger un coffre
+  unlock:
+    description: permet de ne plus proteger un coffre

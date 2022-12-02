@@ -27,7 +27,7 @@ public class MysqlDb {
      * @param PORT port de la bdd
      * @param NAMEDB nom de la bdd
      */
-    MysqlDb(Plugin plugin,String USER,String PASS,String URL,int PORT,String NAMEDB) {
+    public MysqlDb(Plugin plugin, String USER, String PASS, String URL, int PORT, String NAMEDB) {
         this.USER = USER;
         this.PASS = PASS;
         this.URL = URL;
@@ -36,6 +36,7 @@ public class MysqlDb {
         this.plugin = plugin;
 
         connect();
+
     }
 
     private void connect() {
@@ -44,12 +45,14 @@ public class MysqlDb {
             public void run() {
                 try {
                     long startTime = System.currentTimeMillis();
-                    Connection connection = DriverManager.getConnection("jbdc:mysql://" + URL + ":" + PORT + "/" + NAMEDB, USER, PASS);
+                    Class.forName("com.mysql.cj.jdbc.Driver");
+                    Connection connection = DriverManager.getConnection("jdbc:mysql://" + URL +":"+PORT+"/"+NAMEDB, USER, PASS);
                     statement = connection.createStatement();
                     Bukkit.getServer().getConsoleSender().sendMessage("§a[INFO BDD] §2BDD CONNECTE EN " +
                             (System.currentTimeMillis() - startTime) + " MS");
                     connected = true;
                 } catch (SQLException e) {
+                    e.printStackTrace();
                     Bukkit.getServer().getConsoleSender().sendMessage("§4[ERREUR BDD] §cERREUR CONNECTION BDD ! (reload nécessaire)");
                     while (!connected) {
                         Bukkit.getServer().getConsoleSender().sendMessage("§4[INFO BDD] §c TENTATIVE DE RECONECTION");
@@ -65,6 +68,8 @@ public class MysqlDb {
                             throw new RuntimeException(ex);
                         }
                     }
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
                 }
             }
         });
@@ -75,12 +80,13 @@ public class MysqlDb {
      * @param requete sql
      * @return ResultSet ou null si la requête échoue
      */
-    private ResultSet search(String requete) {
+    public ResultSet search(String requete) {
         try {
             if (connected) {
                 return statement.executeQuery(requete);
             }
         } catch (SQLException e) {
+            e.printStackTrace(); // test à retirer
             Bukkit.getServer().getConsoleSender().sendMessage("§4[ERREUR BDD] §cLA BDD N'EST PAS CONNECTE !");
             connected = false;
             connect();
@@ -92,7 +98,7 @@ public class MysqlDb {
      * @param requete sql
      * @return ResultSet ou null si la requête échoue
      */
-    private boolean putNewItems(String requete) {
+    public boolean putNewItems(String requete) {
         try {
             if (connected) {
                 statement.executeQuery(requete);
@@ -110,7 +116,7 @@ public class MysqlDb {
      * @param requete sql
      * @return ResultSet ou null si la requête échoue
      */
-    private boolean modifyItems(String requete) {
+    public boolean modifyItems(String requete) {
         try {
             if (connected) {
                 statement.executeUpdate(requete);
