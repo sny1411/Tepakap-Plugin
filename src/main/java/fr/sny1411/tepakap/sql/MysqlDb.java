@@ -101,10 +101,11 @@ public class MysqlDb {
     public boolean putNewItems(String requete) {
         try {
             if (connected) {
-                statement.executeQuery(requete);
+                statement.executeUpdate(requete);
                 return true;
             }
         } catch (SQLException e) {
+            e.printStackTrace(); // test à retirer
             Bukkit.getServer().getConsoleSender().sendMessage("§4[ERREUR BDD] §cLA BDD N'EST PAS CONNECTE !");
             connected = false;
             connect();
