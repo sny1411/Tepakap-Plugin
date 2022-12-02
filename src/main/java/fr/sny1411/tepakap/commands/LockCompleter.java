@@ -18,7 +18,7 @@ public class LockCompleter implements TabCompleter {
             assert args != null;
             switch (args.length) {
                 case 1 :
-                    return new ArrayList<String>(Arrays.asList("add", "remove", "info", "auto"));
+                    return new ArrayList<>(Arrays.asList("add", "remove", "info", "auto"));
                 case 2:
                     return null;
                 default :

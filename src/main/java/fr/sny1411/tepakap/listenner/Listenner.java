@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -24,28 +25,30 @@ public class Listenner implements Listener {
 
     @EventHandler
     public void onPLayerJoin(PlayerJoinEvent e) {
-
-        Bukkit.getScheduler().runTaskAsynchronously(main, new Runnable() {
-            @Override
-            public void run() {
-                Player player = e.getPlayer();
-                ResultSet result = bdd.search("SELECT COUNT(*) FROM JOUEUR WHERE UUID='" + player.getUniqueId() + "'");
-                int nbreBddPlayer = 1;
-                try {
-                    result.next();
-                    nbreBddPlayer = result.getInt("COUNT(*)");
-                } catch (SQLException exception) {
-                    exception.printStackTrace();
-                }
-                String datetime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-                if (nbreBddPlayer == 0) {
-                    player.sendMessage("bienvenue"); // message à changer (new player)
-                    bdd.putNewItems("INSERT INTO JOUEUR VALUES ('"+ player.getUniqueId() + "','" + player.getName() + "','" + datetime+ "','" +datetime + "')");
-                } else if (nbreBddPlayer > 0) {
-                    player.sendMessage("salut"); // message à changer (player pas nouveau co)
-                    bdd.modifyItems("UPDATE JOUEUR SET derniere_co='" + datetime + "' WHERE UUID='" + player.getUniqueId() + "'");
-                }
+        e.setJoinMessage("§8[§a+§8] §e"+ e.getPlayer().getName());
+        Bukkit.getScheduler().runTaskAsynchronously(main, () -> {
+            Player player = e.getPlayer();
+            ResultSet result = bdd.search("SELECT COUNT(*) FROM JOUEUR WHERE UUID='" + player.getUniqueId() + "'");
+            int nbreBddPlayer = 1;
+            try {
+                result.next();
+                nbreBddPlayer = result.getInt("COUNT(*)");
+            } catch (SQLException exception) {
+                exception.printStackTrace();
+            }
+            String datetime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+            if (nbreBddPlayer == 0) {
+                player.sendMessage("bienvenue");
+                bdd.putNewItems("INSERT INTO JOUEUR VALUES ('"+ player.getUniqueId() + "','" + player.getName() + "','" + datetime+ "','" +datetime + "')");
+            } else if (nbreBddPlayer > 0) {
+                bdd.modifyItems("UPDATE JOUEUR SET derniere_co='" + datetime + "' WHERE UUID='" + player.getUniqueId() + "'");
             }
         });
     }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent e) {
+        e.setQuitMessage("§8[§c-§8] §e" + e.getPlayer().getName());
+    }
+
 }

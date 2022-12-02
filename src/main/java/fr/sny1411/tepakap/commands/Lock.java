@@ -4,12 +4,12 @@ import fr.sny1411.tepakap.sql.MysqlDb;
 import fr.sny1411.tepakap.utils.secureChest.Lockable;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -23,14 +23,12 @@ public class Lock implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender,@NotNull Command command,@NotNull String label, String[] args) {
         if (sender instanceof Player) {
             Player player = (Player) sender;
             Block targeBlock = player.getTargetBlock(null,5);
             if (args.length == 0) {
-                if (Lockable.inList(targeBlock.getType())) {
                     lock(targeBlock,player);
-                }
             } else {
                 switch (args[0]) {
                     case "info":
@@ -59,10 +57,10 @@ public class Lock implements CommandExecutor {
             double Y = locBlock.getY();
             double Z = locBlock.getZ();
             String world = Objects.requireNonNull(locBlock.getWorld()).getName();
-            player.sendMessage(Objects.requireNonNull(locBlock.getWorld()).getName());
             ResultSet result = bdd.search("SELECT COUNT(id_coffre) AS 'nb_coffre' FROM COFFRE " +
-                                                 "WHERE coordX=" + X + " AND coordY=" + Y +
-                                                 " AND coordZ=" + Z + " AND monde='"+ world + "'");
+                    "WHERE coordX=" + X + " AND coordY=" + Y +
+                    " AND coordZ=" + Z + " AND monde='"+ world + "'");
+
             int nb_coffre = -1;
             try {
                 result.next();
@@ -71,12 +69,15 @@ public class Lock implements CommandExecutor {
                 e.printStackTrace();
             }
             if (nb_coffre == 0) {
-                bdd.putNewItems("INSERT INTO COFFRE(coordX,coordY,coordZ,monde,UUID) VALUES(" + X + "," + Y+","+Z + "," + world + "," + player.getUniqueId());
+                bdd.putNewItems("INSERT INTO COFFRE(coordX,coordY,coordZ,monde,UUID) VALUES(" + X + "," + Y+","+Z + "," + world + ",'" + player.getUniqueId() + "')");
+                player.sendMessage("§2[SecureChest] §aCoffre sécurisé");
             } else {
                 player.sendMessage("§4 [SecureChest] §cCe coffre est déjà sécurisé");
             }
 
 
+        } else {
+            player.sendMessage("§4[SecureChest] §cCe block n'est pas protégeable");
         }
     }
 }

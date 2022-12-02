@@ -10,16 +10,15 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.Objects;
 
 public final class Main extends JavaPlugin {
-    private MysqlDb bdd;
     @Override
     public void onEnable() {
         // Global
-        this.bdd = new MysqlDb(this,
-                                "minecraft_262975",
-                                "123456",
-                                 "minecraft1011.omgserv.com",
-                                3306,
-                             "minecraft_262975");
+        MysqlDb bdd = new MysqlDb(this,
+                "minecraft_262975",
+                "123456",
+                "minecraft1011.omgserv.com",
+                3306,
+                "minecraft_262975");
 
         Bukkit.getServer().getPluginManager().registerEvents(new Listenner(bdd,this),this);
 
