@@ -69,13 +69,11 @@ public class Lock implements CommandExecutor {
                 e.printStackTrace();
             }
             if (nb_coffre == 0) {
-                bdd.putNewItems("INSERT INTO COFFRE(coordX,coordY,coordZ,monde,UUID) VALUES(" + X + "," + Y+","+Z + "," + world + ",'" + player.getUniqueId() + "')");
+                bdd.putNewItems("INSERT INTO COFFRE(coordX,coordY,coordZ,monde,UUID) VALUES(" + X + "," + Y+","+Z + ",'" + world + "','" + player.getUniqueId() + "')");
                 player.sendMessage("§2[SecureChest] §aCoffre sécurisé");
             } else {
                 player.sendMessage("§4 [SecureChest] §cCe coffre est déjà sécurisé");
             }
-
-
         } else {
             player.sendMessage("§4[SecureChest] §cCe block n'est pas protégeable");
         }
