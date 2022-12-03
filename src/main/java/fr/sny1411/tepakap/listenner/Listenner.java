@@ -5,6 +5,7 @@ import fr.sny1411.tepakap.sql.MysqlDb;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -42,9 +43,9 @@ public class Listenner implements Listener {
             }
             String datetime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
             if (nbreBddPlayer == 0) { // nouveau joueur
-                player.sendMessage("§m--------------" + ChatColor.of("#E6C1F3") + "§lTepakap§r§f§m-------------\n§r \n" +
+                player.sendMessage("\n§m--------------" + ChatColor.of("#E6C1F3") + "§lTepakap§r§f§m-------------\n§r \n" +
                                       "§r \u2600 "+ ChatColor.of("#5CB2E5") +"Bienvenue sur le serveur "+ ChatColor.of("#17539C") + player.getName() + " §f\u2600\n \n" +
-                                      "§f§m-----------------------------------");
+                                      "§f§m-----------------------------------\n");
                 bdd.putNewItems("INSERT INTO JOUEUR VALUES ('"+ player.getUniqueId() + "','" + player.getName() + "','" + datetime+ "','" +datetime + "')");
             } else if (nbreBddPlayer > 0) {
                 bdd.modifyItems("UPDATE JOUEUR SET derniere_co='" + datetime + "' WHERE UUID='" + player.getUniqueId() + "'");
@@ -59,28 +60,34 @@ public class Listenner implements Listener {
 
     @EventHandler
     public void onInventoryOpen(InventoryOpenEvent e) {
+        Bukkit.getConsoleSender().sendMessage("1");
         Player player = (Player) e.getPlayer();
-        if (player.isOp()) {
-            return;
-        }
         Location location = e.getInventory().getLocation();
+        Bukkit.getConsoleSender().sendMessage("2");
         try {
             assert location != null;
             ResultSet result = bdd.search("SELECT id_coffre,UUID FROM COFFRE WHERE coordX=" + location.getX() +
                                                                           " AND coordY=" + location.getY() +
                                                                           " AND coordZ=" + location.getZ() +
                                                                           " AND monde='" + Objects.requireNonNull(location.getWorld()).getName() + "'");
+            Bukkit.getConsoleSender().sendMessage("3");
             if (result.next()) {
                 String playerUUID = player.getUniqueId().toString();
+                Bukkit.getConsoleSender().sendMessage("4");
                 if (!playerUUID.equals( result.getString("UUID"))) {
+                    Bukkit.getConsoleSender().sendMessage("5");
                     String coffreID = result.getString("id_coffre");
                     ResultSet resultAccede = bdd.search("SELECT UUID FROM ACCEDE WHERE id_coffre='" + coffreID + "' AND UUID='" + playerUUID + "'");
                     if (!resultAccede.next()) {
+                        Bukkit.getConsoleSender().sendMessage("6");
+                        player.sendMessage("§4[SecureChest] §cVous n'avez pas les permissions requise pour acceder à cette inventaire");
+                        Bukkit.getConsoleSender().sendMessage("[][][][][][][][]");
                         e.setCancelled(true);
                     }
                 }
             }
         } catch (Exception ex) {
+            ex.printStackTrace();
             throw new RuntimeException(ex);
         }
     }
