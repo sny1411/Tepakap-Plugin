@@ -35,7 +35,11 @@ public class Lock implements CommandExecutor {
                         // open gui info
                         break;
                     case "add":
-                        // ajouter user
+                        if (args.length == 2) {
+                            addPlayerAcces(targeBlock,player,args[1]);
+                        } else {
+                            player.sendMessage("§4[SecureChest] §cUtilise /lock add <nomJoueur>");
+                        }
                         break;
                     case "remove":
                         // delete user
@@ -50,6 +54,54 @@ public class Lock implements CommandExecutor {
         return false;
     }
 
+    public static void addPlayerAcces(Block block,Player player,String addPlayer) {
+        if (Lockable.inList(block.getType())) {
+            Location locBlock = block.getLocation();
+            double X = locBlock.getX();
+            double Y = locBlock.getY();
+            double Z = locBlock.getZ();
+            String world = Objects.requireNonNull(locBlock.getWorld()).getName();
+            ResultSet result = bdd.search("SELECT UUID,id_coffre FROM COFFRE " +
+                    "WHERE coordX=" + X + " AND coordY=" + Y +
+                    " AND coordZ=" + Z + " AND monde='"+ world + "'");
+
+            try {
+                if (result.next()) {
+                    int idCoffre = result.getInt("id_coffre");
+                    if (result.getString("UUID").equals(player.getUniqueId().toString())) {
+                        ResultSet searchPlayerAdd = bdd.search("SELECT UUID FROM JOUEUR WHERE pseudo='" + addPlayer + "'");
+                        if (searchPlayerAdd.next()) {
+                            String UUIDFriend = searchPlayerAdd.getString("UUID");
+                            ResultSet resultInBdd = bdd.search("SELECT * FROM ACCEDE WHERE UUID='" + UUIDFriend + "'");
+                            if (!resultInBdd.next()) {
+                                ResultSet resultNbreFriends = bdd.search("SELECT COUNT(*) AS 'nbre_friends' FROM ACCEDE WHERE id_coffre=" + idCoffre);
+                                resultNbreFriends.next();
+                                int nbreFriends = resultNbreFriends.getInt("nbre_friends");
+                                if (nbreFriends < 7) {
+                                    bdd.putNewItems("INSERT INTO ACCEDE VALUES ('" + UUIDFriend + "'," + idCoffre + ")");
+                                    player.sendMessage("§2[SecureChest] §aVotre ami(e) à était ajouté(e)");
+                                } else {
+                                    player.sendMessage("§4[SecureChest] §cVous avez atteins la limite de personne ayant accès à votre block");
+                                }
+
+                            } else {
+                                player.sendMessage("§4[SecureChest] §cCette personne à déjà accès à ce block");
+                            }
+
+                        } else {
+                            player.sendMessage("§4[SecureChest] §cVotre ami(e) n'a pas était trouvé :'(");
+                        }
+                    } else {
+                        player.sendMessage("§4[SecureChest] §cCe block ne vous appartient pas");
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
+
+        }
+    }
     public static void lock(Block block,Player player) {
         if (Lockable.inList(block.getType())) {
             Location locBlock = block.getLocation();
