@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Lockable {
-    public static ArrayList<Material> listBlocks = new ArrayList<Material>(Arrays.asList(Material.CHEST,
-                                                                                         Material.TRAPPED_CHEST,
-                                                                                         Material.SHULKER_BOX));
+    public static ArrayList<Material> listBlocks = new ArrayList<>(Arrays.asList(Material.CHEST,
+            Material.TRAPPED_CHEST,
+            Material.SHULKER_BOX));
     public static ArrayList<Material> getList() {
         return listBlocks;
     }

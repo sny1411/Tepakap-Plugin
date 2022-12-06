@@ -65,7 +65,7 @@ public class Lock implements CommandExecutor {
                     }
                 }
             } else {
-                Bukkit.getServer().getConsoleSender().sendMessage("§4[SecureCHEST] §cCommande non executable par la console");
+                Bukkit.getConsoleSender().sendMessage("§4[SecureCHEST] §cCommande non executable par la console");
             }
         });
 
@@ -102,6 +102,7 @@ public class Lock implements CommandExecutor {
                             SkullMeta skullMetaOwner = (SkullMeta)OwnerHead.getItemMeta();
                             assert skullMetaOwner != null;
                             skullMetaOwner.setOwningPlayer(Owner);
+                            skullMetaOwner.setDisplayName(Owner.getName());
                             OwnerHead.setItemMeta(skullMetaOwner);
                             infoGui.setItem(i, OwnerHead);
                             break;

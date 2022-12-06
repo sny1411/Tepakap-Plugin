@@ -2,6 +2,8 @@ package fr.sny1411.tepakap;
 
 import fr.sny1411.tepakap.commands.Lock;
 import fr.sny1411.tepakap.commands.LockCompleter;
+import fr.sny1411.tepakap.commands.Unlock;
+import fr.sny1411.tepakap.commands.UnlockCompleter;
 import fr.sny1411.tepakap.listenner.Listenner;
 import fr.sny1411.tepakap.sql.MysqlDb;
 import org.bukkit.Bukkit;
@@ -24,7 +26,9 @@ public final class Main extends JavaPlugin {
 
         // Secure Chest
         Objects.requireNonNull(getCommand("lock")).setExecutor(new Lock(bdd,this));
-        Objects.requireNonNull(getCommand("lock")).setTabCompleter(new LockCompleter(bdd));
+        Objects.requireNonNull(getCommand("lock")).setTabCompleter(new LockCompleter());
+        Objects.requireNonNull(getCommand("unlock")).setExecutor(new Unlock(bdd));
+        Objects.requireNonNull(getCommand("unlock")).setTabCompleter(new UnlockCompleter());
     }
 
     @Override
