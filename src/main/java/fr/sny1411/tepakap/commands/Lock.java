@@ -1,5 +1,6 @@
 package fr.sny1411.tepakap.commands;
 
+import fr.sny1411.tepakap.Main;
 import fr.sny1411.tepakap.sql.MysqlDb;
 import fr.sny1411.tepakap.utils.secureChest.Lockable;
 import org.bukkit.Bukkit;
@@ -25,44 +26,49 @@ import java.util.UUID;
 
 public class Lock implements CommandExecutor {
     private static MysqlDb bdd;
+    private static Main main;
 
-    public Lock(MysqlDb bdd) {
+    public Lock(MysqlDb bdd,Main main) {
         Lock.bdd = bdd;
+        Lock.main = main;
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender,@NotNull Command command,@NotNull String label, String[] args) {
-        if (sender instanceof Player) {
-            Player player = (Player) sender;
-            Block targeBlock = player.getTargetBlock(null,5);
-            if (args.length == 0) {
+        Bukkit.getScheduler().runTaskAsynchronously(main, () -> {
+            if (sender instanceof Player) {
+                Player player = (Player) sender;
+                Block targeBlock = player.getTargetBlock(null,5);
+                if (args.length == 0) {
                     lock(targeBlock,player);
-            } else {
-                switch (args[0]) {
-                    case "info":
-                        infoGui(player,targeBlock);
-                        break;
-                    case "add":
-                        if (args.length == 2) {
-                            addPlayerAcces(targeBlock,player,args[1]);
-                        } else {
-                            player.sendMessage("§4[SecureChest] §cUtilise /lock add <nomJoueur>");
-                        }
-                        break;
-                    case "remove":
-                        if (args.length == 2) {
-                            removePlayerAcces(targeBlock,player,args[1]);
-                        } else {
-                            player.sendMessage("§4[SecureChest] §cUtilise /lock remove <nomJoueur>");
-                        }
-                        break;
-                    case "auto":
-                        // mode autolock
+                } else {
+                    switch (args[0]) {
+                        case "info":
+                            infoGui(player,targeBlock);
+                            break;
+                        case "add":
+                            if (args.length == 2) {
+                                addPlayerAcces(targeBlock,player,args[1]);
+                            } else {
+                                player.sendMessage("§4[SecureChest] §cUtilise /lock add <nomJoueur>");
+                            }
+                            break;
+                        case "remove":
+                            if (args.length == 2) {
+                                removePlayerAcces(targeBlock,player,args[1]);
+                            } else {
+                                player.sendMessage("§4[SecureChest] §cUtilise /lock remove <nomJoueur>");
+                            }
+                            break;
+                        case "auto":
+                            // mode autolock
+                    }
                 }
+            } else {
+                Bukkit.getServer().getConsoleSender().sendMessage("§4[SecureCHEST] §cCommande non executable par la console");
             }
-        } else {
-            Bukkit.getServer().getConsoleSender().sendMessage("§4[SecureCHEST] §cCommande non executable par la console");
-        }
+        });
+
         return false;
     }
 
@@ -71,15 +77,18 @@ public class Lock implements CommandExecutor {
         double X = locBlock.getX();
         double Y = locBlock.getY();
         double Z = locBlock.getZ();
+        Bukkit.getConsoleSender().sendRawMessage(locBlock.toString());
         String world = Objects.requireNonNull(locBlock.getWorld()).getName();
         ResultSet result = searchCoffre(block,X,Y,Z,world, player);
         try {
+            assert result != null;
             if (result.next()) {
                 String UUIDowner = result.getString("UUID");
                 int id_coffre = result.getInt("id_coffre");
                 Inventory infoGui = Bukkit.createInventory(null, InventoryType.CHEST, "info");
                 ItemStack itemGlass = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
                 ItemMeta metaGlass = itemGlass.getItemMeta();
+                assert metaGlass != null;
                 metaGlass.setDisplayName(" ");
                 itemGlass.setItemMeta(metaGlass);
 
@@ -91,6 +100,7 @@ public class Lock implements CommandExecutor {
                             OfflinePlayer Owner = Bukkit.getOfflinePlayer(UUID.fromString(UUIDowner));
                             ItemStack OwnerHead = new ItemStack(Material.PLAYER_HEAD);
                             SkullMeta skullMetaOwner = (SkullMeta)OwnerHead.getItemMeta();
+                            assert skullMetaOwner != null;
                             skullMetaOwner.setOwningPlayer(Owner);
                             OwnerHead.setItemMeta(skullMetaOwner);
                             infoGui.setItem(i, OwnerHead);
@@ -104,9 +114,11 @@ public class Lock implements CommandExecutor {
                         case 16:
                             if (resultListFriends.next()) {
                                 String UUIDFriend = resultListFriends.getString("UUID");
+                                Bukkit.getConsoleSender().sendMessage(UUIDFriend);
                                 OfflinePlayer friend = Bukkit.getOfflinePlayer(UUID.fromString(UUIDFriend));
                                 ItemStack friendHead = new ItemStack(Material.PLAYER_HEAD);
                                 SkullMeta skullMeta = (SkullMeta)friendHead.getItemMeta();
+                                assert skullMeta != null;
                                 skullMeta.setOwningPlayer(friend);
                                 friendHead.setItemMeta(skullMeta);
                                 infoGui.setItem(i, friendHead);
@@ -117,7 +129,9 @@ public class Lock implements CommandExecutor {
                             break;
                     }
                 }
-                player.openInventory(infoGui);
+                Bukkit.getScheduler().runTask(main, () -> {
+                    player.openInventory(infoGui);
+                });
             } else {
                 player.sendMessage("§4[SecureChest] §cBlock non protégé");
             }
@@ -136,10 +150,11 @@ public class Lock implements CommandExecutor {
         String world = Objects.requireNonNull(locBlock.getWorld()).getName();
         ResultSet result = searchCoffre(block,X,Y,Z,world, player);
         try {
+            assert result != null;
             if (result.next()) {
                 int idCoffre = result.getInt("id_coffre");
                 String UUIDProprio = result.getString("UUID");
-                if (UUIDProprio.equals(player.getUniqueId())) {
+                if (UUIDProprio.equals(player.getUniqueId().toString())) {
                     ResultSet searchPlayerAdd = bdd.search("SELECT UUID FROM JOUEUR WHERE pseudo='" + addPlayer + "'");
                     if (searchPlayerAdd.next()) {
                         String UUIDFriend = searchPlayerAdd.getString("UUID");
@@ -170,6 +185,7 @@ public class Lock implements CommandExecutor {
         String world = Objects.requireNonNull(locBlock.getWorld()).getName();
         ResultSet result = searchCoffre(block,X,Y,Z,world, player);
         try {
+            assert result != null;
             if (result.next()) {
                 int idCoffre = result.getInt("id_coffre");
                 if (result.getString("UUID").equals(player.getUniqueId().toString())) {
@@ -211,6 +227,7 @@ public class Lock implements CommandExecutor {
         String world = Objects.requireNonNull(locBlock.getWorld()).getName();
         ResultSet result = searchCoffre(block,X,Y,Z,world, player);
         try {
+            assert result != null;
             if (!result.next()) {
                 bdd.putNewItems("INSERT INTO COFFRE(coordX,coordY,coordZ,monde,UUID) VALUES(" + X + "," + Y+","+Z + ",'" + world + "','" + player.getUniqueId() + "')");
                 player.sendMessage("§2[SecureChest] §aCoffre sécurisé");
@@ -224,10 +241,9 @@ public class Lock implements CommandExecutor {
 
     public static ResultSet searchCoffre(Block block,double X,double Y,double Z,String world,Player player) {
         if (Lockable.inList(block.getType())) {
-            ResultSet result = bdd.search("SELECT UUID,id_coffre FROM COFFRE " +
+            return bdd.search("SELECT UUID,id_coffre FROM COFFRE " +
                     "WHERE coordX=" + X + " AND coordY=" + Y +
                     " AND coordZ=" + Z + " AND monde='" + world + "'");
-            return result;
         } else {
             player.sendMessage("§4[SecureChest] §cCe block n'est pas protégeable");
         }

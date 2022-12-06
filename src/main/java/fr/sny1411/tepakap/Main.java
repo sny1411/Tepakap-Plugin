@@ -23,8 +23,8 @@ public final class Main extends JavaPlugin {
         Bukkit.getServer().getPluginManager().registerEvents(new Listenner(bdd,this),this);
 
         // Secure Chest
-        Objects.requireNonNull(getCommand("lock")).setExecutor(new Lock(bdd));
-        Objects.requireNonNull(getCommand("lock")).setTabCompleter(new LockCompleter());
+        Objects.requireNonNull(getCommand("lock")).setExecutor(new Lock(bdd,this));
+        Objects.requireNonNull(getCommand("lock")).setTabCompleter(new LockCompleter(bdd));
     }
 
     @Override

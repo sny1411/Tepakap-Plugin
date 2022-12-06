@@ -1,5 +1,6 @@
 package fr.sny1411.tepakap.commands;
 
+import fr.sny1411.tepakap.sql.MysqlDb;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
@@ -12,6 +13,11 @@ import java.util.Collections;
 import java.util.List;
 
 public class LockCompleter implements TabCompleter {
+    private static MysqlDb bdd;
+    public LockCompleter(MysqlDb bdd) {
+        LockCompleter.bdd = bdd;
+    }
+
     @Override
     public List<String> onTabComplete(@Nullable CommandSender sender,@Nullable Command command,@Nullable String label,@Nullable String[] args) {
         if (sender instanceof Player) {

@@ -61,27 +61,29 @@ public class Listenner implements Listener {
     public void onInventoryOpen(InventoryOpenEvent e) {
         Player player = (Player) e.getPlayer();
         Location location = e.getInventory().getLocation();
-        try {
-            assert location != null;
-            ResultSet result = bdd.search("SELECT id_coffre,UUID FROM COFFRE WHERE coordX=" + location.getX() +
-                                                                          " AND coordY=" + location.getY() +
-                                                                          " AND coordZ=" + location.getZ() +
-                                                                          " AND monde='" + Objects.requireNonNull(location.getWorld()).getName() + "'");
-            if (result.next()) {
-                String playerUUID = player.getUniqueId().toString();
-                if (!playerUUID.equals( result.getString("UUID"))) {
-                    String coffreID = result.getString("id_coffre");
-                    ResultSet resultAccede = bdd.search("SELECT UUID FROM ACCEDE WHERE id_coffre='" + coffreID + "' AND UUID='" + playerUUID + "'");
-                    if (!resultAccede.next()) {
-                        player.sendMessage("§4[SecureChest] §cVous n'avez pas les permissions requise pour acceder à cette inventaire");
-                        e.setCancelled(true);
+        if (location != null) {
+            try {
+                ResultSet result = bdd.search("SELECT id_coffre,UUID FROM COFFRE WHERE coordX=" + location.getX() +
+                        " AND coordY=" + location.getY() +
+                        " AND coordZ=" + location.getZ() +
+                        " AND monde='" + Objects.requireNonNull(location.getWorld()).getName() + "'");
+                if (result.next()) {
+                    String playerUUID = player.getUniqueId().toString();
+                    if (!playerUUID.equals( result.getString("UUID"))) {
+                        String coffreID = result.getString("id_coffre");
+                        ResultSet resultAccede = bdd.search("SELECT UUID FROM ACCEDE WHERE id_coffre='" + coffreID + "' AND UUID='" + playerUUID + "'");
+                        if (!resultAccede.next()) {
+                            player.sendMessage("§4[SecureChest] §cVous n'avez pas les permissions requise pour acceder à cette inventaire");
+                            e.setCancelled(true);
+                        }
                     }
                 }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                throw new RuntimeException(ex);
             }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            throw new RuntimeException(ex);
         }
+
     }
 
 
