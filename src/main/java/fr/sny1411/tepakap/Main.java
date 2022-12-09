@@ -27,7 +27,7 @@ public final class Main extends JavaPlugin {
         // Secure Chest
         Objects.requireNonNull(getCommand("lock")).setExecutor(new Lock(bdd,this));
         Objects.requireNonNull(getCommand("lock")).setTabCompleter(new LockCompleter());
-        Objects.requireNonNull(getCommand("unlock")).setExecutor(new Unlock(bdd));
+        Objects.requireNonNull(getCommand("unlock")).setExecutor(new Unlock(bdd,this));
         Objects.requireNonNull(getCommand("unlock")).setTabCompleter(new UnlockCompleter());
     }
 

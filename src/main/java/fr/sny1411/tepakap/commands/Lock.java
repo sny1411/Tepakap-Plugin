@@ -62,6 +62,9 @@ public class Lock implements CommandExecutor {
                             break;
                         case "auto":
                             // mode autolock
+                        default :
+                            player.sendMessage("§4 [SecureChest] §cArguments faux");
+                            break;
                     }
                 }
             } else {
@@ -141,8 +144,6 @@ public class Lock implements CommandExecutor {
         }
     }
 
-
-
     public static void removePlayerAcces(Block block,Player player,String addPlayer) {
         Location locBlock = block.getLocation();
         double X = locBlock.getX();
@@ -220,6 +221,7 @@ public class Lock implements CommandExecutor {
             throw new RuntimeException(e);
         }
     }
+    
     public static void lock(Block block,Player player) {
         Location locBlock = block.getLocation();
         double X = locBlock.getX();
