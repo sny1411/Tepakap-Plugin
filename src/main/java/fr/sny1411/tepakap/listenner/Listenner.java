@@ -2,21 +2,27 @@ package fr.sny1411.tepakap.listenner;
 
 import fr.sny1411.tepakap.Main;
 import fr.sny1411.tepakap.commands.Lock;
+import fr.sny1411.tepakap.commands.Unlock;
 import fr.sny1411.tepakap.sql.MysqlDb;
 import fr.sny1411.tepakap.utils.secureChest.Lockable;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockExpEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.Inventory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -113,9 +119,91 @@ public class Listenner implements Listener {
         }
     }
 
-    public void onExplode2(BlockExpEvent e) {
-
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onExplode2(BlockBreakEvent e) {
+        Block block = e.getBlock();
+        if (Lockable.inList(block.getType())) {
+            ResultSet result = bdd.search("SELECT UUID,id_coffre FROM COFFRE " +
+                    "WHERE coordX=" + block.getX() + " AND coordY=" + block.getY() +
+                    " AND coordZ=" + block.getZ() + " AND monde='" + block.getWorld().getName() + "'");
+            try {
+                if (result.next()) {
+                    int idCoffre = result.getInt("id_coffre");
+                    if (!e.getPlayer().getUniqueId().toString().equals(result.getString("UUID"))) {
+                        e.getPlayer().sendMessage("§4[SecureChest] §cCe coffre est protégé");
+                        e.setCancelled(true);
+                    } else {
+                        bdd.modifyItems("DELETE FROM ACCEDE WHERE id_coffre=" + idCoffre);
+                        bdd.modifyItems("DELETE FROM COFFRE WHERE id_coffre=" + idCoffre);
+                    }
+                }
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
     }
 
+    @EventHandler
+    public void onHopperPickup(InventoryMoveItemEvent e) {
+        Inventory inv = e.getSource();
+        if (!inv.getType().equals(Material.COMPOSTER)) {
+            Bukkit.getConsoleSender().sendMessage("test");
+            Location invLoc = inv.getLocation();
+            ResultSet result = bdd.search("SELECT UUID,id_coffre FROM COFFRE " +
+                    "WHERE coordX=" + invLoc.getX() + " AND coordY=" + invLoc.getY() +
+                    " AND coordZ=" + invLoc.getZ() + " AND monde='" + invLoc.getWorld().getName() + "'");
+            try {
+                if (result.next()) {
+                    e.setCancelled(true);
+                }
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+    }
+
+    private void blockPlaceVerif(BlockPlaceEvent e, int x, int y, int z, String world, Block block) {
+        ResultSet result = bdd.search("SELECT UUID,id_coffre FROM COFFRE " +
+                "WHERE coordX=" + x + " AND coordY=" + y +
+                " AND coordZ=" + z + " AND monde='" + world + "'");
+
+        try {
+            if (result.next()) {
+                if (e.getPlayer().getUniqueId().toString().equals(result.getString("UUID"))) {
+                    Lock.lock(block,e.getPlayer());
+                } else {
+                    e.getPlayer().sendMessage("§4[SecureChest] §cUn coffre proche est sécurisé par une autre personne");
+                    e.setCancelled(true);
+                }
+            }
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+    @EventHandler
+    public void onBlockPlace (BlockPlaceEvent e) {
+        Block block = e.getBlock();
+        Material blockType = block.getType();
+        if (blockType == Material.CHEST || blockType == Material.TRAPPED_CHEST) {
+            String world = block.getWorld().getName();
+            Location blockLoc = block.getLocation();
+            int x = (int) blockLoc.getX();
+            int y = (int) blockLoc.getY();
+            int z = (int) blockLoc.getZ();
+
+            if (Bukkit.getWorld(world).getBlockAt(x - 1, y, z).getType() == blockType) {
+                blockPlaceVerif(e, x - 1, y, z, world, block);
+            }
+            if (Bukkit.getWorld(world).getBlockAt(x + 1, y, z).getType() == blockType) {
+                blockPlaceVerif(e, x + 1, y, z, world, block);
+            }
+            if (Bukkit.getWorld(world).getBlockAt(x, y, z - 1).getType() == blockType) {
+                blockPlaceVerif(e, x, y, z - 1, world, block);
+            }
+            if (Bukkit.getWorld(world).getBlockAt(x, y, z + 1).getType() == blockType) {
+                blockPlaceVerif(e, x, y, z + 1, world, block);
+            }
+        }
+    }
 
 }

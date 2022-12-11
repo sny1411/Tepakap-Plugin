@@ -63,7 +63,7 @@ public class Lock implements CommandExecutor {
                         case "auto":
                             // mode autolock
                         default :
-                            player.sendMessage("§4 [SecureChest] §cArguments faux");
+                            player.sendMessage("§4[SecureChest] §cArguments faux");
                             break;
                     }
                 }
@@ -235,7 +235,7 @@ public class Lock implements CommandExecutor {
                 bdd.putNewItems("INSERT INTO COFFRE(coordX,coordY,coordZ,monde,UUID) VALUES(" + X + "," + Y+","+Z + ",'" + world + "','" + player.getUniqueId() + "')");
                 player.sendMessage("§2[SecureChest] §aCoffre sécurisé");
             } else {
-                player.sendMessage("§4 [SecureChest] §cCe coffre est déjà sécurisé");
+                player.sendMessage("§4[SecureChest] §cCe coffre est déjà sécurisé");
             }
         } catch (SQLException e) {
             e.printStackTrace();
