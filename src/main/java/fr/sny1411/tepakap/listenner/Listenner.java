@@ -20,8 +20,10 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerResourcePackStatusEvent;
 import org.bukkit.inventory.Inventory;
 
 import java.sql.ResultSet;
@@ -41,7 +43,7 @@ public class Listenner implements Listener {
     }
 
     @EventHandler
-    public void onPLayerJoin(PlayerJoinEvent e) {
+    private void onPLayerJoin(PlayerJoinEvent e) {
         e.setJoinMessage("§8[§a+§8] §e"+ e.getPlayer().getName());
         Bukkit.getScheduler().runTaskAsynchronously(main, () -> {
             Player player = e.getPlayer();
@@ -62,42 +64,82 @@ public class Listenner implements Listener {
             } else if (nbreBddPlayer > 0) {
                 bdd.modifyItems("UPDATE JOUEUR SET derniere_co='" + datetime + "' WHERE UUID='" + player.getUniqueId() + "'");
             }
-        });
-    }
-
-    @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent e) {
-        e.setQuitMessage("§8[§c-§8] §e" + e.getPlayer().getName());
-    }
-
-    @EventHandler
-    public void onInventoryOpen(InventoryOpenEvent e) {
-        Bukkit.getScheduler().runTaskAsynchronously(main, () -> {
-            Player player = (Player) e.getPlayer();
-            Location location = e.getInventory().getLocation();
-            if (location != null) {
-                try {
-                    ResultSet result = bdd.search("SELECT id_coffre,UUID FROM COFFRE WHERE coordX=" + location.getX() +
-                            " AND coordY=" + location.getY() +
-                            " AND coordZ=" + location.getZ() +
-                            " AND monde='" + Objects.requireNonNull(location.getWorld()).getName() + "'");
-                    if (result.next()) {
-                        String playerUUID = player.getUniqueId().toString();
-                        if (!playerUUID.equals( result.getString("UUID"))) {
-                            String coffreID = result.getString("id_coffre");
-                            ResultSet resultAccede = bdd.search("SELECT UUID FROM ACCEDE WHERE id_coffre='" + coffreID + "' AND UUID='" + playerUUID + "'");
-                            if (!resultAccede.next()) {
-                                player.sendMessage("§4[SecureChest] §cVous n'avez pas les permissions requise pour acceder à cette inventaire");
-                                e.setCancelled(true);
-                            }
-                        }
-                    }
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                    throw new RuntimeException(ex);
-                }
+            if (player.isOp()) {
+                player.sendMessage("§c§l[ADMIN] §r§fBonsoir Chef !");
+            }
+            if (!Lock.lockAuto.containsKey(player.getUniqueId())) {
+                Lock.lockAuto.put(player.getUniqueId(), false);
             }
         });
+    }
+
+    @EventHandler
+    private void onPlayerQuit(PlayerQuitEvent e) {
+        Player player = e.getPlayer();
+        e.setQuitMessage("§8[§c-§8] §e" + player.getName());
+        Lock.lockAuto.remove(player.getUniqueId());
+    }
+
+    @EventHandler
+    private void onInventoryOpen(InventoryOpenEvent e) {
+        Location location = e.getInventory().getLocation();
+        if (location == null) return;{
+        }
+        try {
+            ResultSet chestBdd = bdd.search("SELECT id_coffre,UUID FROM COFFRE WHERE coordX=" + (int) location.getX() +
+                    " AND coordY=" + location.getY() +
+                    " AND coordZ=" + (int) location.getZ() +
+                    " AND monde='" + location.getWorld().getName() + "'");
+
+            if (chestBdd.next()) { // Si le coffre est dans la bdd
+                Player openerPlayer = (Player) e.getPlayer();
+                if (!openerPlayer.getUniqueId().toString().equalsIgnoreCase(chestBdd.getString("UUID"))) { // Si le joueur n'est pas le propriétaire du coffre
+                    openerPlayer.sendMessage("§4[SecureChest] §c Ce coffre est verrouillé !");
+                    e.setCancelled(true); // On annule l'ouverture du coffre
+                }
+            }
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    @EventHandler
+    private void onBlockBreak(BlockBreakEvent e) {
+        Block block = e.getBlock();
+        if (!Lockable.inList(block.getType())) {
+            return;
+        }
+
+        Location location = block.getLocation();
+        try {
+            ResultSet chestBdd = bdd.search("SELECT id_coffre,UUID FROM COFFRE WHERE coordX=" + (int) location.getX() +
+                    " AND coordY=" + location.getY() +
+                    " AND coordZ=" + (int) location.getZ() +
+                    " AND monde='" + location.getWorld().getName() + "'");
+
+            if (chestBdd.next()) { // Si le coffre est dans la bdd
+                Player breakerPlayer = e.getPlayer();
+                if (breakerPlayer.getUniqueId().toString().equalsIgnoreCase(chestBdd.getString("UUID"))) { // Si le joueur n'est pas le propriétaire du coffre
+                    bdd.modifyItems("DELETE FROM COFFRE WHERE id_coffre=" + chestBdd.getInt("id_coffre"));
+                } else {
+                    breakerPlayer.sendMessage("§4[SecureChest] §c Ce coffre est verrouillé !");
+                    e.setCancelled(true); // On annule la destruction du coffre
+                }
+            }
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    @EventHandler
+    private void hopperMove(InventoryMoveItemEvent e) {
+        Inventory inv = e.getSource();
+        if (inv.getType().equals(Material.COMPOSTER)) {
+            return;
+        }
+        if (ChestInBdd(inv.getLocation())) {
+            e.setCancelled(true);
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGH)
@@ -105,15 +147,8 @@ public class Listenner implements Listener {
         List<Block> blocksExplode = e.blockList();
         for (Block temp : blocksExplode) {
             if (Lockable.inList(temp.getType())) {
-                ResultSet result = bdd.search("SELECT UUID,id_coffre FROM COFFRE " +
-                        "WHERE coordX=" + temp.getX() + " AND coordY=" + temp.getY() +
-                        " AND coordZ=" + temp.getZ() + " AND monde='" + temp.getWorld().getName() + "'");
-                try {
-                    if (result.next()) {
-                        e.setCancelled(true);
-                    }
-                } catch (SQLException ex) {
-                    throw new RuntimeException(ex);
+                if (ChestInBdd(temp.getLocation())) {
+                    e.setCancelled(true);
                 }
             }
         }
@@ -144,66 +179,63 @@ public class Listenner implements Listener {
     }
 
     @EventHandler
-    public void onHopperPickup(InventoryMoveItemEvent e) {
-        Inventory inv = e.getSource();
-        if (!inv.getType().equals(Material.COMPOSTER)) {
-            Bukkit.getConsoleSender().sendMessage("test");
-            Location invLoc = inv.getLocation();
-            ResultSet result = bdd.search("SELECT UUID,id_coffre FROM COFFRE " +
-                    "WHERE coordX=" + invLoc.getX() + " AND coordY=" + invLoc.getY() +
-                    " AND coordZ=" + invLoc.getZ() + " AND monde='" + invLoc.getWorld().getName() + "'");
-            try {
-                if (result.next()) {
-                    e.setCancelled(true);
-                }
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+    private void onBlockPlace(BlockPlaceEvent e) {
+        Block block = e.getBlock();
+        if (!Lockable.inList(block.getType())) {
+            return;
+        }
+        Player player = e.getPlayer();
+        if (Lock.lockAuto.get(player.getUniqueId())) {
+            int xChest = block.getX();
+            int yChest = block.getY();
+            int zChest = block.getZ();
+            String world = block.getWorld().getName();
+            if (ChestInBddOtherPlayer(xChest - 1,yChest,zChest,world,player)) {
+                player.sendMessage("§4[SecureChest] §cIl y a un coffre verrouillé à proximité par un autre joueur !");
+                e.setCancelled(true);
+            }
+            if (ChestInBddOtherPlayer(xChest + 1,yChest,zChest,world,player)) {
+                player.sendMessage("§4[SecureChest] §cIl y a un coffre verrouillé à proximité par un autre joueur !");
+                e.setCancelled(true);
+            }
+            if (ChestInBddOtherPlayer(xChest,yChest,zChest - 1,world,player)) {
+                player.sendMessage("§4[SecureChest] §cIl y a un coffre verrouillé à proximité par un autre joueur !");
+                e.setCancelled(true);
+            }
+            if (ChestInBddOtherPlayer(xChest,yChest,zChest + 1,world,player)) {
+                player.sendMessage("§4[SecureChest] §cIl y a un coffre verrouillé à proximité par un autre joueur !");
+                e.setCancelled(true);
             }
         }
     }
 
-    private void blockPlaceVerif(BlockPlaceEvent e, int x, int y, int z, String world, Block block) {
+    private boolean ChestInBddOtherPlayer(int x,int y,int z,String world, Player player) {
         ResultSet result = bdd.search("SELECT UUID,id_coffre FROM COFFRE " +
                 "WHERE coordX=" + x + " AND coordY=" + y +
                 " AND coordZ=" + z + " AND monde='" + world + "'");
-
         try {
             if (result.next()) {
-                if (e.getPlayer().getUniqueId().toString().equals(result.getString("UUID"))) {
-                    Lock.lock(block,e.getPlayer());
-                } else {
-                    e.getPlayer().sendMessage("§4[SecureChest] §cUn coffre proche est sécurisé par une autre personne");
-                    e.setCancelled(true);
+                if (!result.getString("UUID").equals(player.getUniqueId().toString())) {
+                    return true;
                 }
             }
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
         }
+        return false;
     }
-    @EventHandler
-    public void onBlockPlace (BlockPlaceEvent e) {
-        Block block = e.getBlock();
-        Material blockType = block.getType();
-        if (blockType == Material.CHEST || blockType == Material.TRAPPED_CHEST) {
-            String world = block.getWorld().getName();
-            Location blockLoc = block.getLocation();
-            int x = (int) blockLoc.getX();
-            int y = (int) blockLoc.getY();
-            int z = (int) blockLoc.getZ();
 
-            if (Bukkit.getWorld(world).getBlockAt(x - 1, y, z).getType() == blockType) {
-                blockPlaceVerif(e, x - 1, y, z, world, block);
+    private boolean ChestInBdd(Location loc) {
+        ResultSet result = bdd.search("SELECT UUID,id_coffre FROM COFFRE " +
+                "WHERE coordX=" + loc.getX() + " AND coordY=" + loc.getY() +
+                " AND coordZ=" + loc.getZ() + " AND monde='" + loc.getWorld().getName() + "'");
+        try {
+            if (result.next()) {
+               return true;
             }
-            if (Bukkit.getWorld(world).getBlockAt(x + 1, y, z).getType() == blockType) {
-                blockPlaceVerif(e, x + 1, y, z, world, block);
-            }
-            if (Bukkit.getWorld(world).getBlockAt(x, y, z - 1).getType() == blockType) {
-                blockPlaceVerif(e, x, y, z - 1, world, block);
-            }
-            if (Bukkit.getWorld(world).getBlockAt(x, y, z + 1).getType() == blockType) {
-                blockPlaceVerif(e, x, y, z + 1, world, block);
-            }
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
         }
+        return false;
     }
-
-}
+ }

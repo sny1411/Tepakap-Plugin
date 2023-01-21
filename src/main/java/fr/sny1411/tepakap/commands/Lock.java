@@ -21,12 +21,14 @@ import org.jetbrains.annotations.NotNull;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
 
 public class Lock implements CommandExecutor {
     private static MysqlDb bdd;
     private static Main main;
+    public static HashMap<UUID,Boolean> lockAuto = new HashMap<>();
 
     public Lock(MysqlDb bdd,Main main) {
         Lock.bdd = bdd;
@@ -39,6 +41,10 @@ public class Lock implements CommandExecutor {
             if (sender instanceof Player) {
                 Player player = (Player) sender;
                 Block targeBlock = player.getTargetBlock(null,5);
+                if (!Lockable.inList(targeBlock.getType())) {
+                    player.sendMessage("§4[SecureChest] §cCeci n'est pas un block verrouillable !");
+                    return;
+                }
                 if (args.length == 0) {
                     lock(targeBlock,player);
                 } else {
@@ -61,9 +67,9 @@ public class Lock implements CommandExecutor {
                             }
                             break;
                         case "auto":
-                            // mode autolock
+                            changeLockAuto(player);
                         default :
-                            player.sendMessage("§4[SecureChest] §cArguments faux");
+                            player.sendMessage("§4[SecureChest] §cArgument faux");
                             break;
                     }
                 }
@@ -75,15 +81,24 @@ public class Lock implements CommandExecutor {
         return false;
     }
 
+    private void changeLockAuto(Player player) {
+        UUID uuid = player.getUniqueId();
+        lockAuto.put(uuid,!lockAuto.get(uuid));
+        if (lockAuto.get(uuid)) {
+            player.sendMessage("§4[SecureChest] §aLe verrouillage automatique est activé");
+        } else {
+            player.sendMessage("§4[SecureChest] §cLe verrouillage automatique est désactivé");
+        }
+    }
+
     public static void infoGui(Player player, Block block) {
         Location locBlock = block.getLocation();
         double X = locBlock.getX();
         double Y = locBlock.getY();
         double Z = locBlock.getZ();
-        Bukkit.getConsoleSender().sendRawMessage(locBlock.toString());
         String world = Objects.requireNonNull(locBlock.getWorld()).getName();
-        ResultSet result = searchCoffre(block,X,Y,Z,world, player);
         try {
+            ResultSet result = searchCoffre(block,X,Y,Z,world, player);
             assert result != null;
             if (result.next()) {
                 String UUIDowner = result.getString("UUID");
@@ -221,7 +236,7 @@ public class Lock implements CommandExecutor {
             throw new RuntimeException(e);
         }
     }
-    
+
     public static void lock(Block block,Player player) {
         Location locBlock = block.getLocation();
         double X = locBlock.getX();

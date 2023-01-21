@@ -16,11 +16,11 @@ public final class Main extends JavaPlugin {
     public void onEnable() {
         // Global
         MysqlDb bdd = new MysqlDb(this,
-                "minecraft_262975",
+                "minecraft_390685",
                 "123456",
-                "minecraft1011.omgserv.com",
+                "minecraft1051.omgserv.com",
                 3306,
-                "minecraft_262975");
+                "minecraft_390685");
 
         Bukkit.getServer().getPluginManager().registerEvents(new Listenner(bdd,this),this);
 
