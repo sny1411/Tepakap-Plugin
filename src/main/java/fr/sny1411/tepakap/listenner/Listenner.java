@@ -1,8 +1,7 @@
 package fr.sny1411.tepakap.listenner;
 
 import fr.sny1411.tepakap.Main;
-import fr.sny1411.tepakap.commands.Lock;
-import fr.sny1411.tepakap.commands.Unlock;
+import fr.sny1411.tepakap.commands.secureChest.Lock;
 import fr.sny1411.tepakap.sql.MysqlDb;
 import fr.sny1411.tepakap.utils.secureChest.Lockable;
 import net.md_5.bungee.api.ChatColor;
@@ -15,15 +14,14 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockExpEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerResourcePackStatusEvent;
 import org.bukkit.inventory.Inventory;
 
 import java.sql.ResultSet;
@@ -31,7 +29,6 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 public class Listenner implements Listener {
     private final MysqlDb bdd;
@@ -93,11 +90,22 @@ public class Listenner implements Listener {
 
             if (chestBdd.next()) { // Si le coffre est dans la bdd
                 Player openerPlayer = (Player) e.getPlayer();
-                if (!openerPlayer.getUniqueId().toString().equalsIgnoreCase(chestBdd.getString("UUID"))) { // Si le joueur n'est pas le propriétaire du coffre
-                    openerPlayer.sendMessage("§4[SecureChest] §c Ce coffre est verrouillé !");
-                    e.setCancelled(true); // On annule l'ouverture du coffre
+                if (openerPlayer.getUniqueId().toString().equalsIgnoreCase(chestBdd.getString("UUID"))) { // Si le joueur n'est pas le propriétaire du coffre
+                    return;
                 }
+
+                int idChest = chestBdd.getInt("id_coffre");
+                ResultSet AccedeBdd = bdd.search("SELECT UUID FROM ACCEDE WHERE id_coffre=" + idChest);
+                while (AccedeBdd.next()) {
+                    if (openerPlayer.getUniqueId().toString().equalsIgnoreCase(AccedeBdd.getString("UUID"))) {
+                        return;
+                    }
+                }
+
+                openerPlayer.sendMessage("§4[SecureChest] §c Ce coffre est verrouillé !");
+                e.setCancelled(true);
             }
+
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
         }
@@ -134,7 +142,7 @@ public class Listenner implements Listener {
     @EventHandler
     private void hopperMove(InventoryMoveItemEvent e) {
         Inventory inv = e.getSource();
-        if (inv.getType().equals(Material.COMPOSTER)) {
+        if (inv.getType().equals(InventoryType.COMPOSTER)) {
             return;
         }
         if (ChestInBdd(inv.getLocation())) {
@@ -171,18 +179,22 @@ public class Listenner implements Listener {
             if (ChestInBddOtherPlayer(xChest - 1,yChest,zChest,world,player)) {
                 player.sendMessage("§4[SecureChest] §cIl y a un coffre verrouillé à proximité par un autre joueur !");
                 e.setCancelled(true);
+                return;
             }
             if (ChestInBddOtherPlayer(xChest + 1,yChest,zChest,world,player)) {
                 player.sendMessage("§4[SecureChest] §cIl y a un coffre verrouillé à proximité par un autre joueur !");
                 e.setCancelled(true);
+                return;
             }
             if (ChestInBddOtherPlayer(xChest,yChest,zChest - 1,world,player)) {
                 player.sendMessage("§4[SecureChest] §cIl y a un coffre verrouillé à proximité par un autre joueur !");
                 e.setCancelled(true);
+                return;
             }
             if (ChestInBddOtherPlayer(xChest,yChest,zChest + 1,world,player)) {
                 player.sendMessage("§4[SecureChest] §cIl y a un coffre verrouillé à proximité par un autre joueur !");
                 e.setCancelled(true);
+                return;
             }
         }
 
@@ -209,8 +221,8 @@ public class Listenner implements Listener {
 
     private boolean ChestInBdd(Location loc) {
         ResultSet result = bdd.search("SELECT UUID,id_coffre FROM COFFRE " +
-                "WHERE coordX=" + loc.getX() + " AND coordY=" + loc.getY() +
-                " AND coordZ=" + loc.getZ() + " AND monde='" + loc.getWorld().getName() + "'");
+                "WHERE coordX=" + (int) loc.getX() + " AND coordY=" + loc.getY() +
+                " AND coordZ=" + (int) loc.getZ() + " AND monde='" + loc.getWorld().getName() + "'");
         try {
             if (result.next()) {
                return true;
@@ -219,5 +231,13 @@ public class Listenner implements Listener {
             throw new RuntimeException(ex);
         }
         return false;
+    }
+
+    @EventHandler
+    private void onPlayerClick(InventoryClickEvent e) {
+        String invName = e.getView().getTitle();
+        if (invName.equalsIgnoreCase("§linfo")) {
+            e.setCancelled(true);
+        }
     }
  }

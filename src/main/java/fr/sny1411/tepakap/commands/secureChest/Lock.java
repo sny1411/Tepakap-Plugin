@@ -1,4 +1,4 @@
-package fr.sny1411.tepakap.commands;
+package fr.sny1411.tepakap.commands.secureChest;
 
 import fr.sny1411.tepakap.Main;
 import fr.sny1411.tepakap.sql.MysqlDb;
@@ -41,18 +41,22 @@ public class Lock implements CommandExecutor {
             if (sender instanceof Player) {
                 Player player = (Player) sender;
                 Block targeBlock = player.getTargetBlock(null,5);
-                if (!Lockable.inList(targeBlock.getType())) {
-                    player.sendMessage("§4[SecureChest] §cCeci n'est pas un block verrouillable !");
-                    return;
-                }
                 if (args.length == 0) {
                     lock(targeBlock,player);
                 } else {
                     switch (args[0]) {
                         case "info":
+                            if (!Lockable.inList(targeBlock.getType())) {
+                                player.sendMessage("§4[SecureChest] §cCeci n'est pas un block verrouillable !");
+                                return;
+                            }
                             infoGui(player,targeBlock);
                             break;
                         case "add":
+                            if (!Lockable.inList(targeBlock.getType())) {
+                                player.sendMessage("§4[SecureChest] §cCeci n'est pas un block verrouillable !");
+                                return;
+                            }
                             if (args.length == 2) {
                                 addPlayerAcces(targeBlock,player,args[1]);
                             } else {
@@ -60,6 +64,10 @@ public class Lock implements CommandExecutor {
                             }
                             break;
                         case "remove":
+                            if (!Lockable.inList(targeBlock.getType())) {
+                                player.sendMessage("§4[SecureChest] §cCeci n'est pas un block verrouillable !");
+                                return;
+                            }
                             if (args.length == 2) {
                                 removePlayerAcces(targeBlock,player,args[1]);
                             } else {
@@ -68,6 +76,7 @@ public class Lock implements CommandExecutor {
                             break;
                         case "auto":
                             changeLockAuto(player);
+                            break;
                         default :
                             player.sendMessage("§4[SecureChest] §cArgument faux");
                             break;
@@ -85,9 +94,9 @@ public class Lock implements CommandExecutor {
         UUID uuid = player.getUniqueId();
         lockAuto.put(uuid,!lockAuto.get(uuid));
         if (lockAuto.get(uuid)) {
-            player.sendMessage("§4[SecureChest] §aLe verrouillage automatique est activé");
+            player.sendMessage("§2[SecureChest] §aLe verrouillage automatique est activé");
         } else {
-            player.sendMessage("§4[SecureChest] §cLe verrouillage automatique est désactivé");
+            player.sendMessage("§2[SecureChest] §aLe verrouillage automatique est désactivé");
         }
     }
 
@@ -103,7 +112,7 @@ public class Lock implements CommandExecutor {
             if (result.next()) {
                 String UUIDowner = result.getString("UUID");
                 int id_coffre = result.getInt("id_coffre");
-                Inventory infoGui = Bukkit.createInventory(null, InventoryType.CHEST, "info");
+                Inventory infoGui = Bukkit.createInventory(null, InventoryType.CHEST, "§linfo");
                 ItemStack itemGlass = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
                 ItemMeta metaGlass = itemGlass.getItemMeta();
                 assert metaGlass != null;
@@ -133,7 +142,6 @@ public class Lock implements CommandExecutor {
                         case 16:
                             if (resultListFriends.next()) {
                                 String UUIDFriend = resultListFriends.getString("UUID");
-                                Bukkit.getConsoleSender().sendMessage(UUIDFriend);
                                 OfflinePlayer friend = Bukkit.getOfflinePlayer(UUID.fromString(UUIDFriend));
                                 ItemStack friendHead = new ItemStack(Material.PLAYER_HEAD);
                                 SkullMeta skullMeta = (SkullMeta)friendHead.getItemMeta();

@@ -1,4 +1,4 @@
-package fr.sny1411.tepakap.commands;
+package fr.sny1411.tepakap.commands.secureChest;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;

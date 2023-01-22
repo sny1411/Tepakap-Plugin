@@ -1,12 +1,13 @@
 package fr.sny1411.tepakap;
 
-import fr.sny1411.tepakap.commands.Lock;
-import fr.sny1411.tepakap.commands.LockCompleter;
-import fr.sny1411.tepakap.commands.Unlock;
-import fr.sny1411.tepakap.commands.UnlockCompleter;
+import fr.sny1411.tepakap.commands.secureChest.Lock;
+import fr.sny1411.tepakap.commands.secureChest.LockCompleter;
+import fr.sny1411.tepakap.commands.secureChest.Unlock;
+import fr.sny1411.tepakap.commands.secureChest.UnlockCompleter;
 import fr.sny1411.tepakap.listenner.Listenner;
 import fr.sny1411.tepakap.sql.MysqlDb;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Objects;
@@ -25,6 +26,7 @@ public final class Main extends JavaPlugin {
         Bukkit.getServer().getPluginManager().registerEvents(new Listenner(bdd,this),this);
 
         // Secure Chest
+        initLockAuto();
         Objects.requireNonNull(getCommand("lock")).setExecutor(new Lock(bdd,this));
         Objects.requireNonNull(getCommand("lock")).setTabCompleter(new LockCompleter());
         Objects.requireNonNull(getCommand("unlock")).setExecutor(new Unlock(bdd,this));
@@ -35,4 +37,11 @@ public final class Main extends JavaPlugin {
     public void onDisable() {
         // Plugin shutdown logic
     }
+
+    private void initLockAuto() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            Lock.lockAuto.put(player.getUniqueId(), false);
+        }
+    }
+
 }
