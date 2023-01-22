@@ -154,42 +154,20 @@ public class Listenner implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
-    public void onExplode2(BlockBreakEvent e) {
-        Block block = e.getBlock();
-        if (Lockable.inList(block.getType())) {
-            ResultSet result = bdd.search("SELECT UUID,id_coffre FROM COFFRE " +
-                    "WHERE coordX=" + block.getX() + " AND coordY=" + block.getY() +
-                    " AND coordZ=" + block.getZ() + " AND monde='" + block.getWorld().getName() + "'");
-            try {
-                if (result.next()) {
-                    int idCoffre = result.getInt("id_coffre");
-                    if (!e.getPlayer().getUniqueId().toString().equals(result.getString("UUID"))) {
-                        e.getPlayer().sendMessage("§4[SecureChest] §cCe coffre est protégé");
-                        e.setCancelled(true);
-                    } else {
-                        bdd.modifyItems("DELETE FROM ACCEDE WHERE id_coffre=" + idCoffre);
-                        bdd.modifyItems("DELETE FROM COFFRE WHERE id_coffre=" + idCoffre);
-                    }
-                }
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
-            }
-        }
-    }
-
     @EventHandler
     private void onBlockPlace(BlockPlaceEvent e) {
         Block block = e.getBlock();
         if (!Lockable.inList(block.getType())) {
             return;
         }
+
         Player player = e.getPlayer();
-        if (Lock.lockAuto.get(player.getUniqueId())) {
-            int xChest = block.getX();
-            int yChest = block.getY();
-            int zChest = block.getZ();
-            String world = block.getWorld().getName();
+        int xChest = block.getX();
+        int yChest = block.getY();
+        int zChest = block.getZ();
+        String world = block.getWorld().getName();
+
+        if (block.getType().equals(Material.CHEST) || block.getType().equals(Material.TRAPPED_CHEST)) {
             if (ChestInBddOtherPlayer(xChest - 1,yChest,zChest,world,player)) {
                 player.sendMessage("§4[SecureChest] §cIl y a un coffre verrouillé à proximité par un autre joueur !");
                 e.setCancelled(true);
@@ -206,6 +184,10 @@ public class Listenner implements Listener {
                 player.sendMessage("§4[SecureChest] §cIl y a un coffre verrouillé à proximité par un autre joueur !");
                 e.setCancelled(true);
             }
+        }
+
+        if (Lock.lockAuto.get(player.getUniqueId())) {
+            Lock.lock(block,player);
         }
     }
 
