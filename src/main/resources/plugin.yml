@@ -8,3 +8,5 @@ commands:
     description: permet de proteger un coffre
   unlock:
     description: permet de ne plus proteger un coffre
+  admin:
+    description: permet d'executer des commandes admin

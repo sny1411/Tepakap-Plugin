@@ -45,6 +45,12 @@ public class Listenner implements Listener {
         Bukkit.getScheduler().runTaskAsynchronously(main, () -> {
             Player player = e.getPlayer();
             ResultSet result = bdd.search("SELECT COUNT(*) FROM JOUEUR WHERE UUID='" + player.getUniqueId() + "'");
+            if (result == null) {
+                Bukkit.getScheduler().runTask(main, () -> {
+                    player.kickPlayer("Base de donnée en cours de connexion, veuillez réessayer dans quelques secondes");
+                });
+                return;
+            }
             int nbreBddPlayer = 1;
             try {
                 result.next();
@@ -197,10 +203,11 @@ public class Listenner implements Listener {
                 return;
             }
         }
-
-        if (Lock.lockAuto.get(player.getUniqueId())) {
-            Lock.lock(block,player);
-        }
+        Bukkit.getScheduler().runTaskAsynchronously(main, () -> {
+            if (Lock.lockAuto.get(player.getUniqueId())) {
+                Lock.lock(block,player);
+            }
+        });
     }
 
     private boolean ChestInBddOtherPlayer(int x,int y,int z,String world, Player player) {
