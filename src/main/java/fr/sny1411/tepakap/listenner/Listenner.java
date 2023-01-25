@@ -3,12 +3,16 @@ package fr.sny1411.tepakap.listenner;
 import fr.sny1411.tepakap.Main;
 import fr.sny1411.tepakap.commands.secureChest.Lock;
 import fr.sny1411.tepakap.sql.MysqlDb;
+import fr.sny1411.tepakap.utils.larguage.EventsManager;
 import fr.sny1411.tepakap.utils.secureChest.Lockable;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -20,8 +24,7 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.Inventory;
 
 import java.sql.ResultSet;
@@ -241,10 +244,19 @@ public class Listenner implements Listener {
     }
 
     @EventHandler
-    private void onPlayerClick(InventoryClickEvent e) {
+    private void onPlayerClickInv(InventoryClickEvent e) {
         String invName = e.getView().getTitle();
         if (invName.equalsIgnoreCase("§linfo")) {
             e.setCancelled(true);
         }
     }
+
+    @EventHandler
+    private void onPlayerClickArmorStand(PlayerInteractAtEntityEvent e) {
+        Entity entity = e.getRightClicked();
+        if (entity.getType().equals(EntityType.ARMOR_STAND)) {
+            e.setCancelled(true);
+        }
+    }
+
  }

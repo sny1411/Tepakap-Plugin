@@ -37,6 +37,7 @@ public final class Main extends JavaPlugin {
 
         // Larguage
         ClockEvents.plugin = this;
+        ClockEvents.bdd = bdd;
         ClockEvents.startEvent();
 
         // ADMIN

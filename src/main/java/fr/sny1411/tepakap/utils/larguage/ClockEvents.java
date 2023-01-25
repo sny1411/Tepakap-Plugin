@@ -1,19 +1,18 @@
 package fr.sny1411.tepakap.utils.larguage;
 
 import fr.sny1411.tepakap.Main;
+import fr.sny1411.tepakap.sql.MysqlDb;
 import fr.sny1411.tepakap.utils.Random;
 import org.bukkit.Bukkit;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class ClockEvents {
     private static int timeSecond = 0;
     private static final int MAX_TIME_SECOND = 14400; // 4h
     private static final int MIN_TIME_SECOND = 9000; // 2h30
-    public static List<Event> listEvent = new ArrayList<>();
     public static Main plugin;
+    public static MysqlDb bdd;
 
     private static void startCountEvent(int TickStop) throws InterruptedException {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
@@ -22,7 +21,10 @@ public class ClockEvents {
                     timeSecond++;
                     TimeUnit.SECONDS.sleep(1);
                 }
-
+                Event event = new Event(plugin,bdd);
+                event.chestSpawn();
+                EventsManager.listEvent.add(event);
+                EventsManager.ChestAttack.put(event.armorStand.getUniqueId(),false);
                 startEvent();
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -33,7 +35,7 @@ public class ClockEvents {
     public static void startEvent() {
         java.time.LocalTime time = java.time.LocalTime.now();
         int nextEventSeconds = Random.random(MIN_TIME_SECOND,MAX_TIME_SECOND);
-        if ((((((int)(nextEventSeconds/3600))+time.getHour())%24) < 3)) {
+        if (((((nextEventSeconds/3600) +time.getHour())%24) < 3)) {
             return;
         }
         try {

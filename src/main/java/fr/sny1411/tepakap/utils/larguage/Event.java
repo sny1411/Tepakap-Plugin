@@ -26,13 +26,14 @@ public class Event {
     private int coordX;
     private int coordZ;
     private Location locChest;
+    public Rarete rarete;
 
     public Event(Main plugin, MysqlDb bdd) {
         this.plugin = plugin;
         this.bdd = bdd;
     }
 
-    private ArmorStand armorStand;
+    public ArmorStand armorStand;
     public void chestSpawn() {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             AtomicBoolean canSpawn = new AtomicBoolean(false);
@@ -60,7 +61,7 @@ public class Event {
             } while (!canSpawn.get());
 
             String datetime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-            Rarete rarete = Rarete.choiceRare();
+            rarete = Rarete.choiceRare();
             bdd.putNewItems("INSERT INTO LARGUAGE(type_larguage,date_larguage,larguage_obtenu,UUID) VALUES('" + rarete.name() + "','"
                                                                     + datetime + "',"
                                                                     + "FALSE,"
@@ -70,7 +71,7 @@ public class Event {
         });
     }
 
-    public void armorStandSpawn(Location loc) {
+    private void armorStandSpawn(Location loc) {
         Bukkit.getScheduler().runTask(plugin, () -> {
             double debut = System.currentTimeMillis();
             Bukkit.getConsoleSender().sendMessage("Chest spawn in : " + loc.getX() + " " + loc.getZ());
@@ -117,4 +118,6 @@ public class Event {
 
         Bukkit.broadcastMessage("§a[Larguage] Un larguage viens d'apparaitre aux  alentours de " + x + " " + z);
     }
+
+
 }
