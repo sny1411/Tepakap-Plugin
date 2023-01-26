@@ -4,26 +4,24 @@ import fr.sny1411.tepakap.utils.Random;
 
 public enum Rarete {
     COMMUN(1),RARE(5),EPIQUE(7),LEGENDAIRE(10);
-    private final int rare;
+    private final int rarete;
 
     Rarete(int rare) {
-        this.rare = rare;
+        this.rarete = rare;
     }
 
     public static Rarete choiceRare() {
         int rand = Random.random(0,10);
-        if (rand >= LEGENDAIRE.rare) {
+        if (rand >= LEGENDAIRE.rarete) {
             return LEGENDAIRE;
         }
-        if (rand >= EPIQUE.rare) {
+        if (rand >= EPIQUE.rarete) {
             return EPIQUE;
         }
-        if (rand >= RARE.rare) {
+        if (rand >= RARE.rarete) {
             return RARE;
-        }
-        if (rand >= COMMUN.rare) {
+        } else {
             return COMMUN;
         }
-        return null;
     }
 }

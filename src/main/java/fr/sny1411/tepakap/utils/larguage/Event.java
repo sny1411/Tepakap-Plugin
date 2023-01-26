@@ -4,14 +4,20 @@ import fr.sny1411.tepakap.Main;
 import fr.sny1411.tepakap.sql.MysqlDb;
 import fr.sny1411.tepakap.utils.PaperGenerator;
 import fr.sny1411.tepakap.utils.Random;
+import net.kyori.adventure.audience.Audience;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.loot.LootTables;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -21,7 +27,9 @@ public class Event {
     private static final int COORD_MIN = -10000;
     private static final int COORD_MAX = 10000;
     private static MysqlDb bdd;
+    public Player slayer;
     private static Main plugin;
+    public List<UUID> listMobsId = new ArrayList<>();
 
     private int coordX;
     private int coordZ;
@@ -60,12 +68,8 @@ public class Event {
                 }
             } while (!canSpawn.get());
 
-            String datetime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+
             rarete = Rarete.choiceRare();
-            bdd.putNewItems("INSERT INTO LARGUAGE(type_larguage,date_larguage,larguage_obtenu,UUID) VALUES('" + rarete.name() + "','"
-                                                                    + datetime + "',"
-                                                                    + "FALSE,"
-                                                                    + "NULL)");
             coordApproximate(coordX,coordZ);
             armorStandSpawn(locChest);
         });
@@ -89,7 +93,21 @@ public class Event {
             armorStand.setRightArmPose(armorStand.getRightArmPose().setX(0.0));
             armorStand.setRightArmPose(armorStand.getRightArmPose().setZ(0.0));
             Bukkit.getConsoleSender().sendMessage("armorStandSpawn : " + (System.currentTimeMillis() - debut));
+            EventsManager.ChestAttack.put(armorStand.getUniqueId(),false);
+            String datetime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+            bdd.putNewItems("INSERT INTO LARGUAGE(type_larguage,date_larguage,larguage_obtenu,UUID,UUID_CHEST) VALUES('" + rarete.name() + "','"
+                    + datetime + "',"
+                    + "FALSE,"
+                    + "NULL,'"
+                    + armorStand.getUniqueId() +"')");
         });
+    }
+
+    public void mobsDespawn() {
+        for (UUID mobId : listMobsId) {
+            Bukkit.getServer().getEntity(mobId).remove();
+        }
+        listMobsId.clear();
     }
 
     public void chestDespawn() {
@@ -119,5 +137,145 @@ public class Event {
         Bukkit.broadcastMessage("§a[Larguage] Un larguage viens d'apparaitre aux  alentours de " + x + " " + z);
     }
 
+    public void attack() {
+        EventsManager.ChestAttack.put(armorStand.getUniqueId(),true);
+        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            slayer.sendMessage("§a[Largage] §f Largage de type : " + rarete);
+            slayer.sendMessage("Préparez vous !");
+            try {
+                TimeUnit.MILLISECONDS.sleep(500);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            for (int i = 3; i > 1; i--) {
+                slayer.sendMessage(String.valueOf(i));
+                try {
+                    TimeUnit.SECONDS.sleep(1);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            Bukkit.getScheduler().runTask(plugin, () -> {
+                spawnMobs();
+            });
+        });
+    }
+
+private Location approximateSpawn() {
+    int xChoice  = Random.random(0,1);
+    int zChoice  = Random.random(0,1);
+    int x = (int) locChest.getX();
+    int z = (int) locChest.getZ();
+
+    if (xChoice == 0) {
+        x -= Random.random(0,3);
+    } else {
+        x += Random.random(0,3);
+    }
+
+    if (zChoice == 0) {
+        z -= Random.random(0,3);
+    } else {
+        z += Random.random(0,3);
+    }
+
+    return new Location(locChest.getWorld(),x,locChest.getY()+3,z);
+}
+
+    private void spawnMobs() {
+        switch (rarete) {
+            case COMMUN:
+                for (int i = 0; i < 10; i++) {
+                    Location loc = approximateSpawn();
+                    Zombie zombie = (Zombie) loc.getWorld().spawnEntity(loc, EntityType.ZOMBIE);
+                    zombie.getEquipment().setChestplate(new ItemStack(Material.IRON_CHESTPLATE));
+                    zombie.setShouldBurnInDay(false);
+                    zombie.setLootTable(LootTables.EMPTY.getLootTable());
+                    listMobsId.add(zombie.getUniqueId());
+                }
+                for (int i = 0; i < 5; i++) {
+                    Location loc = approximateSpawn();
+                    Skeleton skeleton = (Skeleton) loc.getWorld().spawnEntity(loc, EntityType.SKELETON);
+                    skeleton.setShouldBurnInDay(false);
+                    skeleton.setLootTable(LootTables.EMPTY.getLootTable());
+                    listMobsId.add(skeleton.getUniqueId());
+                }
+                for (int i = 0; i < 3; i++) {
+                    Location loc = approximateSpawn();
+                    Zombie zombie = (Zombie) loc.getWorld().spawnEntity(loc, EntityType.ZOMBIE);
+                    zombie.setShouldBurnInDay(false);
+                    zombie.setBaby();
+                    zombie.setLootTable(LootTables.EMPTY.getLootTable());
+                    listMobsId.add(zombie.getUniqueId());
+                }
+                break;
+            case RARE:
+                for (int i = 0; i < 10; i++) {
+                    Location loc = approximateSpawn();
+                    Spider spider = (Spider) loc.getWorld().spawnEntity(loc, EntityType.SPIDER);
+                    spider.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 600, 1));
+                    spider.setLootTable(LootTables.EMPTY.getLootTable());
+                    listMobsId.add(spider.getUniqueId());
+                }
+                for (int i = 0; i < 10; i++) {
+                    Location loc = approximateSpawn();
+                    Silverfish silverfish = (Silverfish) loc.getWorld().spawnEntity(loc, EntityType.SILVERFISH);
+                    silverfish.setLootTable(LootTables.EMPTY.getLootTable());
+                    listMobsId.add(silverfish.getUniqueId());
+                }
+                for (int i = 0; i < 5; i++) {
+                    Location loc = approximateSpawn();
+                    Stray stray = (Stray) loc.getWorld().spawnEntity(loc, EntityType.STRAY);
+                    stray.setLootTable(LootTables.EMPTY.getLootTable());
+                    listMobsId.add(stray.getUniqueId());
+                }
+                break;
+            case EPIQUE:
+                for (int i = 0; i < 10; i++) {
+                    Location loc = approximateSpawn();
+                    CaveSpider caveSpider = (CaveSpider) loc.getWorld().spawnEntity(loc, EntityType.CAVE_SPIDER);
+                    caveSpider.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 600, 1));
+                    caveSpider.setLootTable(LootTables.EMPTY.getLootTable());
+                    listMobsId.add(caveSpider.getUniqueId());
+                }
+
+                for (int i = 0; i < 5; i++) {
+                    Location loc = approximateSpawn();
+                    Spider spider = (Spider) loc.getWorld().spawnEntity(loc, EntityType.SPIDER);
+                    spider.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 600, 2));
+                    spider.setLootTable(LootTables.EMPTY.getLootTable());
+                    listMobsId.add(spider.getUniqueId());
+                }
+
+                for (int i = 0; i < 2; i++) {
+                    Location loc = approximateSpawn();
+                    Illusioner illusioner = (Illusioner) loc.getWorld().spawnEntity(loc, EntityType.ILLUSIONER);
+                    illusioner.setLootTable(LootTables.EMPTY.getLootTable());
+                    listMobsId.add(illusioner.getUniqueId());
+                }
+                break;
+            case LEGENDAIRE:
+                Location loc1 = approximateSpawn();
+                Ravager ravager = (Ravager) loc1.getWorld().spawnEntity(loc1,EntityType.RAVAGER);
+                ravager.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 600, 1));
+                ravager.setLootTable(LootTables.EMPTY.getLootTable());
+                listMobsId.add(ravager.getUniqueId());
+
+                for (int i = 0; i < 3; i++) {
+                    Location loc = approximateSpawn();
+                    Evoker evoker = (Evoker) loc.getWorld().spawnEntity(loc,EntityType.EVOKER);
+                    evoker.setLootTable(LootTables.EMPTY.getLootTable());
+                    listMobsId.add(evoker.getUniqueId());
+                }
+
+                for (int i = 0; i < 5; i++) {
+                    Location loc = approximateSpawn();
+                    Vindicator vindicator = (Vindicator) loc.getWorld().spawnEntity(loc,EntityType.VINDICATOR);
+                    vindicator.setLootTable(LootTables.EMPTY.getLootTable());
+                    listMobsId.add(vindicator.getUniqueId());
+                }
+                break;
+        }
+    }
 
 }

@@ -3,8 +3,10 @@ package fr.sny1411.tepakap.listenner;
 import fr.sny1411.tepakap.Main;
 import fr.sny1411.tepakap.commands.secureChest.Lock;
 import fr.sny1411.tepakap.sql.MysqlDb;
+import fr.sny1411.tepakap.utils.larguage.Event;
 import fr.sny1411.tepakap.utils.larguage.EventsManager;
 import fr.sny1411.tepakap.utils.secureChest.Lockable;
+import net.kyori.adventure.text.ComponentLike;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -19,6 +21,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
@@ -26,12 +29,16 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 public class Listenner implements Listener {
     private final MysqlDb bdd;
@@ -252,10 +259,71 @@ public class Listenner implements Listener {
     }
 
     @EventHandler
+    private void onEntityDeath(EntityDeathEvent e) {
+        UUID idDeathMob = e.getEntity().getUniqueId();
+        Iterator<Event> itrEvent = EventsManager.listEvent.iterator();
+        Boolean find = false;
+        UUID aSupprimer = null;
+        Event eventConcerne = null;
+        while (itrEvent.hasNext() && !find) {
+            Event event = itrEvent.next();
+            Iterator<UUID> itrListMobs = event.listMobsId.iterator();
+            if (event.listMobsId.contains(idDeathMob)) {
+                while (itrListMobs.hasNext() && !find) {
+                    UUID idMob = itrListMobs.next();
+                    if (idMob.equals(idDeathMob)) {
+                        aSupprimer = idMob;
+                        eventConcerne = event;
+                        event.slayer.sendMessage("Reste : " + (event.listMobsId.size()-1));
+                        find = true;
+                    }
+                }
+            }
+
+            if (find) {
+                eventConcerne.listMobsId.remove(aSupprimer);
+                if (event.listMobsId.isEmpty()) {
+                    bdd.modifyItems("UPDATE LARGUAGE SET UUID='" + event.slayer.getUniqueId() + "',larguage_obtenu=TRUE WHERE UUID_CHEST='" + event.armorStand.getUniqueId() + "'");
+                    event.slayer.sendMessage("GG !");
+                    ItemStack key = new ItemStack(Material.PAPER);
+                    ItemMeta keyMeta = key.getItemMeta();
+                    keyMeta.setCustomModelData(2);
+                    key.setItemMeta(keyMeta);
+                    event.slayer.getInventory().addItem(key);
+                }
+            }
+        }
+    }
+
+    @EventHandler
     private void onPlayerClickArmorStand(PlayerInteractAtEntityEvent e) {
         Entity entity = e.getRightClicked();
         if (entity.getType().equals(EntityType.ARMOR_STAND)) {
-            e.setCancelled(true);
+            e.getPlayer().sendMessage(String.valueOf(EventsManager.ChestAttack));
+            ArmorStand armorStand = (ArmorStand) entity;
+            UUID idArmorStand = armorStand.getUniqueId();
+            if (EventsManager.ChestAttack.containsKey(idArmorStand)) {
+                e.getPlayer().sendMessage(String.valueOf(!EventsManager.ChestAttack.get(idArmorStand)));
+                if (!EventsManager.ChestAttack.get(idArmorStand)) {
+                    for (Event event : EventsManager.listEvent) {
+                        if (event.armorStand.getUniqueId().equals(idArmorStand)) {
+                            event.attack();
+                            event.slayer = e.getPlayer();
+                        }
+                    }
+                } else {
+                    ItemStack itemHand = e.getPlayer().getItemOnCursor();
+                    if (itemHand.getItemMeta().getCustomModelData() == 2 && itemHand.getType() == Material.PAPER) {
+                        for (Event event : EventsManager.listEvent) {
+                            if (event.armorStand.getUniqueId().equals(idArmorStand)) {
+                                event.chestDespawn();
+                                // Recompenses
+                            }
+                        }
+                    }
+                }
+                e.setCancelled(true);
+            }
         }
     }
 

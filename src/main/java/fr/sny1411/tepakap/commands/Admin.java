@@ -4,6 +4,7 @@ import fr.sny1411.tepakap.Main;
 import fr.sny1411.tepakap.sql.MysqlDb;
 import fr.sny1411.tepakap.utils.RessourcePack;
 import fr.sny1411.tepakap.utils.larguage.Event;
+import fr.sny1411.tepakap.utils.larguage.EventsManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -33,9 +34,11 @@ public class Admin implements CommandExecutor {
                 case "chestLarguage":
                     larguage = new Event(plugin,bdd);
                     larguage.chestSpawn();
+                    EventsManager.listEvent.add(larguage);
                     break;
                 case "chestDespawn":
                     larguage.chestDespawn();
+                    larguage.mobsDespawn();
                     break;
                 case "CustomsModels":
                     if (args.length > 1) {

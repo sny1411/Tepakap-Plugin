@@ -24,7 +24,6 @@ public class ClockEvents {
                 Event event = new Event(plugin,bdd);
                 event.chestSpawn();
                 EventsManager.listEvent.add(event);
-                EventsManager.ChestAttack.put(event.armorStand.getUniqueId(),false);
                 startEvent();
             } catch (InterruptedException e) {
                 e.printStackTrace();

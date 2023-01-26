@@ -13,7 +13,7 @@ public class RessourcePack {
         Inventory inv = Bukkit.createInventory(null, 54, "Admin customs texture");
         player.sendMessage(String.valueOf((1 * (nPage-1)*45) + 1));
         player.sendMessage(String.valueOf(nPage*45 + 1));
-        for (int i = (1 * (nPage-1)*45); i < nPage*45 && i <= 193; i++) {
+        for (int i = (1 * (nPage-1)*45); i < nPage*45 && i <= 276; i++) {
             ItemStack customItem = new ItemStack(Material.PAPER);
             ItemMeta metaCustoms = customItem.getItemMeta();
             metaCustoms.setCustomModelData(i+1);
