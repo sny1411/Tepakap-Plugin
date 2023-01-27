@@ -90,6 +90,7 @@ public class MysqlDb {
             Bukkit.getServer().getConsoleSender().sendMessage("§4[ERREUR BDD] §cLA BDD N'EST PAS CONNECTE !");
             connected = false;
             connect();
+            search(requete);
         }
         return null;
     }
@@ -109,6 +110,7 @@ public class MysqlDb {
             Bukkit.getServer().getConsoleSender().sendMessage("§4[ERREUR BDD] §cLA BDD N'EST PAS CONNECTE !");
             connected = false;
             connect();
+            putNewItems(requete);
         }
         return false;
     }
@@ -127,6 +129,7 @@ public class MysqlDb {
             Bukkit.getServer().getConsoleSender().sendMessage("§4[ERREUR BDD] §cLA BDD N'EST PAS CONNECTE !");
             connected = false;
             connect();
+            modifyItems(requete);
         }
         return false;
     }

@@ -165,6 +165,7 @@ public class Event {
             int tempMax = Rarete.tempRound(rarete);
             while (tempMax!=0 && EventsManager.ChestAttack.get(armorStand.getUniqueId())) {
                 try {
+                    slayer.sendMessage(String.valueOf(tempMax));
                     TimeUnit.SECONDS.sleep(1);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);

@@ -131,7 +131,18 @@ public class Listenner implements Listener {
     private void onBlockBreak(BlockBreakEvent e) {
         Block block = e.getBlock();
         if (!Lockable.inList(block.getType())) {
-            return;
+            ItemStack itemBreak = e.getPlayer().getItemOnCursor();
+            switch (itemBreak.getType()) {
+                case STONE_PICKAXE:
+                    // verif pioche spawner
+                    break;
+                case DIAMOND_PICKAXE:
+                    if (itemBreak.getItemMeta().getCustomModelData()==2) {
+                        // mine 3x3
+
+                    }
+                    break;
+            }
         }
 
         Location location = block.getLocation();
