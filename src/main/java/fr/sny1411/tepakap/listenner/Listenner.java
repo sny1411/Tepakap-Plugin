@@ -290,6 +290,7 @@ public class Listenner implements Listener {
                     keyMeta.setCustomModelData(2);
                     key.setItemMeta(keyMeta);
                     event.slayer.getInventory().addItem(key);
+                    EventsManager.ChestAttack.put(event.armorStand.getUniqueId(),false);
                 }
             }
         }

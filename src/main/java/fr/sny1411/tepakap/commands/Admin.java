@@ -5,6 +5,7 @@ import fr.sny1411.tepakap.sql.MysqlDb;
 import fr.sny1411.tepakap.utils.RessourcePack;
 import fr.sny1411.tepakap.utils.larguage.Event;
 import fr.sny1411.tepakap.utils.larguage.EventsManager;
+import fr.sny1411.tepakap.utils.larguage.Rarete;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -43,6 +44,11 @@ public class Admin implements CommandExecutor {
                 case "CustomsModels":
                     if (args.length > 1) {
                         RessourcePack.showCustomsRessources(Integer.parseInt(args[1]), (Player) commandSender);
+                    }
+                    break;
+                case "testRarete":
+                    for (int i = 0; i < 10;i++) {
+                        commandSender.sendMessage(Rarete.choiceRare().name());
                     }
                     break;
                 default:

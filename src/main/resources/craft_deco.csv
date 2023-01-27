@@ -1,0 +1,274 @@
+nomItem,customModelData,nomLot,craft
+Parasol fleuri,4,Parasols,MANGROVE_FENCE*3+STICK*14+WHITE_CARPET*9
+Parasol,5,Parasols,MANGROVE_FENCE*3+STICK*14+CYAN_CARPET*9
+Statue de Zeus,6,Statue de Zeus,STONE*32+COBBLESTONE*32
+Sac en toile,7,Sac en toile,BROWN_WOOL*8+STRING*4
+Bassine d'eau,8,Bassine d'eau,BARREL*1+WATER_BUCKET*1
+Banc,9,Bancs1,OAK_WOOD*8
+Banc,10,Bancs1,MANGROVE_PLANKS*12+COBBLED_DEEPSLATE*6
+Feu de camp,11,Camp de forêt,OAK_WOOD*6+FLINT_AND_STEEL*1
+Panneau directionnel,12,Camp de forêt,OAK_WOOD*2+SPRUCE_SIGN*2
+Marmite suspendue,13,Marmites,CAULDRON*1+WATER_BUCKET*1+CHAIN*1
+Marmite,14,Marmites,CAULDRON*1+WATER_BUCKET*1+STICK*1
+Chaise,15,Chaises,SPRUCE_PLANKS*12+STICK*6
+Tabouret,16,Chaises,SPRUCE_PLANKS*6+STICK*4
+Bottes de paille,17,Fermier,HAY_BLOCK*4+STONE_SHOVEL*1
+Charrette de paille,18,Fermier,HAY_BLOCK*2+STICK*16+SPRUCE_PLANKS*8+COBBLED_DEEPSLATE*16+STONE_BUTTON*4
+Epouvantail,19,Fermier,HAY_BLOCK*3+ARMOR_STAND*1+LEATHER_HELMET*1+LEATHER_CHESTPLATE*1+LEATHER_LEGGINGS*1
+Lampadaire,20,Lampadaires1,OAK_WOOD*4+SMOOTH_STONE*1+LEAD*1+LANTERN*1
+Lampadaire croix,21,Lampadaires1,OAK_WOOD*10+SMOOTH_STONE*1+LEAD*4+LANTERN*4
+Lampadaire double,22,Lampadaires1,OAK_WOOD*6+SMOOTH_STONE*1+LEAD*2+LANTERN*2
+Lampadaire mural,23,Lampadaires1,OAK_WOOD*3+LEAD*1+LANTERN*1
+Table 2x1,24,Tables,OAK_FENCE*4+SPRUCE_PLANKS*3
+Table 2x2,25,Tables,OAK_FENCE*4+SPRUCE_PLANKS*6
+Table 1x1,26,Tables,OAK_FENCE*1+JUNGLE_PLANKS*7+STICK*4
+Chariot violet,27,Chariots,APPLE*6+BREAD*4+WHITE_WOOL*4+PURPLE_WOOL*4+COBBLED_DEEPSLATE*8+SPRUCE_PLANKS*10+STICK*14+STONE_BUTTON*2
+Chariot rouge,28,Chariots,APPLE*6+BREAD*4+WHITE_WOOL*4+RED_WOOL*4+COBBLED_DEEPSLATE*8+SPRUCE_PLANKS*10+STICK*14+STONE_BUTTON*2
+Pile de bûches,29,Bûches,OAK_LOG*10
+Caisse de construction,30,Bûches,OAK_PLANKS*8+BARREL*1
+Tronc d'arbre,31,Bûches,SPRUCE_LOG*2
+Pot de fleur en métal,32,Plantes1,GRASS_BLOCK*1+LARGE_FERN*1+CAULDRON*1
+Pot de fleur en bois,33,Plantes1,GRASS_BLOCK*1+AZURE_BLUET*2+BARREL*1
+Bonsai,34,Plantes1,DIRT*1+OAK_SAPLING*1+FLOWER_POT*1
+Table de pique-nique,35,Pique-Nique,STICK*8+MANGROVE_PLANKS*9
+Table avec nappe,36,Pique-Nique,STICK*8+MANGROVE_PLANKS*9+RED_CARPET*4+WHITE_CARPET*4
+Panier,37,Pique-Nique,GRASS*6+STRING*2+FLOWER_POT*1+OAK_TRAPDOOR*2
+Panier de fruits,38,Pique-Nique,GRASS*6+STRING*2+FLOWER_POT*1+OAK_TRAPDOOR*2+APPLE*5
+Stèle japonaise,39,Stèle japonaise,POLISHED_DEEPSLATE*8+CHISELED_DEEPSLATE*1+BONE_MEAL*4
+Lampadaire,40,Lampadaires2,LANTERN*1+OAK_WOOD*3+COBBLED_DEEPSLATE*2+CHAIN*1
+Lampadaire double,41,Lampadaires2,LANTERN*2+OAK_WOOD*3+COBBLED_DEEPSLATE*4+CHAIN*2
+Lampdaire croix,42,Lampadaires2,LANTERN*4+OAK_WOOD*3+COBBLED_DEEPSLATE*8+CHAIN*4
+Lampadaire supérieur,43,Lampadaires3,LANTERN*1+OAK_WOOD*2+COBBLED_DEEPSLATE*1
+Lampadaire supérieur double,44,Lampadaires3,LANTERN*2+OAK_WOOD*2+COBBLED_DEEPSLATE*2
+Lampadaire supérieur triple,45,Lampadaires3,LANTERN*3+OAK_WOOD*2+COBBLED_DEEPSLATE*4
+Lampadaire supérieur croix,46,Lampadaires3,LANTERN*4+OAK_WOOD*2+COBBLED_DEEPSLATE*8
+Etagère murale,47,Géographe,STICK*3+OAK_PLANKS*5
+Globe terrestre,48,Géographe,RED_WOOL*1+DARK_OAK_PLANKS*3+IRON_BARS*1+EMPTY_MAP*1
+Bougie,49,Géographe,RED_WOOL*1+DARK_OAK_PLANKS*3+CANDLE*1+FLINT_AND_STEEL*1
+Couteaux,50,Couteaux,STICK*2+IRON_INGOT*3
+Couteau,51,Couteaux,STICK*1+IRON_INGOT*1
+Couteau de cuisine,52,Couteaux,STICK*1+IRON_INGOT*2
+Pain,53,Nourriture,BREAD*1
+Pain coupé,54,Nourriture,BREAD*1
+Carottes,55,Nourriture,CARROT*2
+Grand panier,56,Paniers,TALL_GRASS*6+STRING*2+FLOWER_POT*1
+Petit panier,57,Paniers,GRASS*6+STRING*2+FLOWER_POT*1
+Cagette vide en palétuvier,58,Cagettes vides,MANGROVE_PLANKS*10
+Cagette vide en acacia,59,Cagettes vides,ACACIA_PLANKS*10
+Cagette vide en bouleau,60,Cagettes vides,BIRCH_PLANKS*10
+Cagette vide en carmin,61,Cagettes vides,CRIMSON_PLANKS*10
+Cagette vide en chêne noir,62,Cagettes vides,DARK_OAK_PLANKS*10
+Cagette vide en acajou,63,Cagettes vides,JUNGLE_PLANKS*10
+Cagette vide en chêne,64,Cagettes vides,OAK_PLANKS*10
+Cagette vide en sapin,65,Cagettes vides,SPRUCE_PLANKS*10
+Cagette vide en bois bleu,66,Cagettes vides,WARPED_PLANKS*10
+Cagette de pommes d'or en palétuvier,67,Cagettes de pommes d'or,MANGROVE_PLANKS*10+GOLDEN_APPLE*6
+Cagette de pommes d'or en acacia,68,Cagettes de pommes d'or,ACACIA_PLANKS*10+GOLDEN_APPLE*6
+Cagette de pommes d'or en bouleau,69,Cagettes de pommes d'or,BIRCH_PLANKS*10+GOLDEN_APPLE*6
+Cagette de pommes d'or en carmin,70,Cagettes de pommes d'or,CRIMSON_PLANKS*10+GOLDEN_APPLE*6
+Cagette de pommes d'or en chêne noir,71,Cagettes de pommes d'or,DARK_OAK_PLANKS*10+GOLDEN_APPLE*6
+Cagette de pommes d'or en acajou,72,Cagettes de pommes d'or,JUNGLE_PLANKS*10+GOLDEN_APPLE*6
+Cagette de pommes d'or en chêne,73,Cagettes de pommes d'or,OAK_PLANKS*10+GOLDEN_APPLE*6
+Cagette de pommes d'or en sapin,74,Cagettes de pommes d'or,SPRUCE_PLANKS*10+GOLDEN_APPLE*6
+Cagette de pommes d'or en bois bleu,75,Cagettes de pommes d'or,WARPED_PLANKS*10+GOLDEN_APPLE*6
+Cagette de pommes vertes en palétuvier,76,Cagettes de pommes vertes,MANGROVE_PLANKS*10+APPLE*6
+Cagette de pommes vertes en acacia,77,Cagettes de pommes vertes,ACACIA_PLANKS*10+APPLE*6
+Cagette de pommes vertes en bouleau,78,Cagettes de pommes vertes,BIRCH_PLANKS*10+APPLE*6
+Cagette de pommes vertes en carmin,79,Cagettes de pommes vertes,CRIMSON_PLANKS*10+APPLE*6
+Cagette de pommes vertes en chêne noir,80,Cagettes de pommes vertes,DARK_OAK_PLANKS*10+APPLE*6
+Cagette de pommes vertes en acajou,81,Cagettes de pommes vertes,JUNGLE_PLANKS*10+APPLE*6
+Cagette de pommes vertes en chêne,82,Cagettes de pommes vertes,OAK_PLANKS*10+APPLE*6
+Cagette de pommes vertes en sapin,83,Cagettes de pommes vertes,SPRUCE_PLANKS*10+APPLE*6
+Cagette de pommes vertes en bois bleu,84,Cagettes de pommes vertes,WARPED_PLANKS*10+APPLE*6
+Cagette de melons en palétuvier,85,Cagettes de melons,MANGROVE_PLANKS*10+MELON*2
+Cagette de melons en acacia,86,Cagettes de melons,ACACIA_PLANKS*10+MELON*2
+Cagette de melons en bouleau,87,Cagettes de melons,BIRCH_PLANKS*10+MELON*2
+Cagette de melons en carmin,88,Cagettes de melons,CRIMSON_PLANKS*10+MELON*2
+Cagette de melons en chêne noir,89,Cagettes de melons,DARK_OAK_PLANKS*10+MELON*2
+Cagette de melons en acajou,90,Cagettes de melons,JUNGLE_PLANKS*10+MELON*2
+Cagette de melons en chêne,91,Cagettes de melons,OAK_PLANKS*10+MELON*2
+Cagette de melons en sapin,92,Cagettes de melons,SPRUCE_PLANKS*10+MELON*2
+Cagette de melons en bois bleu,93,Cagettes de melons,WARPED_PLANKS*10+MELON*2
+Cagette de citrouilles en palétuvier,94,Cagettes de citrouilles,MANGROVE_PLANKS*10+PUMPKIN*2
+Cagette de citrouilles en acacia,95,Cagettes de citrouilles,ACACIA_PLANKS*10+PUMPKIN*2
+Cagette de citrouilles en bouleau,96,Cagettes de citrouilles,BIRCH_PLANKS*10+PUMPKIN*2
+Cagette de citrouilles en carmin,97,Cagettes de citrouilles,CRIMSON_PLANKS*10+PUMPKIN*2
+Cagette de citrouilles en chêne noir,98,Cagettes de citrouilles,DARK_OAK_PLANKS*10+PUMPKIN*2
+Cagette de citrouilles en acajou,99,Cagettes de citrouilles,JUNGLE_PLANKS*10+PUMPKIN*2
+Cagette de citrouilles en chêne,100,Cagettes de citrouilles,OAK_PLANKS*10+PUMPKIN*2
+Cagette de citrouilles en sapin,101,Cagettes de citrouilles,SPRUCE_PLANKS*10+PUMPKIN*2
+Cagette de citrouilles en bois bleu,102,Cagettes de citrouilles,WARPED_PLANKS*10+PUMPKIN*2
+Cagette de pommes rouges en palétuvier,103,Cagettes de pommes rouges,MANGROVE_PLANKS*10+APPLE*6
+Cagette de pommes rouges en acacia,104,Cagettes de pommes rouges,ACACIA_PLANKS*10+APPLE*6
+Cagette de pommes rouges en bouleau,105,Cagettes de pommes rouges,BIRCH_PLANKS*10+APPLE*6
+Cagette de pommes rouges en carmin,106,Cagettes de pommes rouges,CRIMSON_PLANKS*10+APPLE*6
+Cagette de pommes rouges en chêne noir,107,Cagettes de pommes rouges,DARK_OAK_PLANKS*10+APPLE*6
+Cagette de pommes rouges en acajou,108,Cagettes de pommes rouges,JUNGLE_PLANKS*10+APPLE*6
+Cagette de pommes rouges en chêne,109,Cagettes de pommes rouges,OAK_PLANKS*10+APPLE*6
+Cagette de pommes rouges en sapin,110,Cagettes de pommes rouges,SPRUCE_PLANKS*10+APPLE*6
+Cagette de pommes rouges en bois bleu,111,Cagettes de pommes rouges,WARPED_PLANKS*10+APPLE*6
+Banc en palétuvier,112,Bancs2,MANGROVE_PLANKS*18
+Banc en acacia,113,Bancs2,ACACIA_PLANKS*18
+Banc en bouleau,114,Bancs2,BIRCH_PLANKS*18
+Banc en carmin,115,Bancs2,CRIMSON_PLANKS*18
+Banc en chêne noir,116,Bancs2,DARK_OAK_PLANKS*18
+Banc en acajou,117,Bancs2,JUNGLE_PLANKS*18
+Banc en chêne,118,Bancs2,OAK_PLANKS*18
+Banc en sapin,119,Bancs2,SPRUCE_PLANKS*18
+Banc en bois bleu,120,Bancs2,WARPED_PLANKS*18
+Caisse en palétuvier,121,Caisses,MANGROVE_PLANKS*8
+Caisse en acacia,122,Caisses,ACACIA_PLANKS*8
+Caisse en bouleau,123,Caisses,BIRCH_PLANKS*8
+Caisse en carmin,124,Caisses,CRIMSON_PLANKS*8
+Caisse en chêne noir,125,Caisses,DARK_OAK_PLANKS*8
+Caisse en acajou,126,Caisses,JUNGLE_PLANKS*8
+Caisse en chêne,127,Caisses,OAK_PLANKS*8
+Caisse en sapin,128,Caisses,SPRUCE_PLANKS*8
+Caisse en bois bleu,129,Caisses,WARPED_PLANKS*8
+Caisse de carottes en palétuvier,130,Caisses de carottes,MANGROVE_PLANKS*8+CARROT*16
+Caisse de carottes en acacia,131,Caisses de carottes,ACACIA_PLANKS*8+CARROT*16
+Caisse de carottes en bouleau,132,Caisses de carottes,BIRCH_PLANKS*8+CARROT*16
+Caisse de carottes en carmin,133,Caisses de carottes,CRIMSON_PLANKS*8+CARROT*16
+Caisse de carottes en chêne noir,134,Caisses de carottes,DARK_OAK_PLANKS*8+CARROT*16
+Caisse de carottes en acajou,135,Caisses de carottes,JUNGLE_PLANKS*8+CARROT*16
+Caisse de carottes en chêne,136,Caisses de carottes,OAK_PLANKS*8+CARROT*16
+Caisse de carottes en sapin,137,Caisses de carottes,SPRUCE_PLANKS*8+CARROT*16
+Caisse de carottes en bois bleu,138,Caisses de carottes,WARPED_PLANKS*8+CARROT*16
+Caisse vide en palétuvier,139,Caisses vides,MANGROVE_PLANKS*8
+Caisse vide en acacia,140,Caisses vides,ACACIA_PLANKS*8
+Caisse vide en bouleau,141,Caisses vides,BIRCH_PLANKS*8
+Caisse vide en carmin,142,Caisses vides,CRIMSON_PLANKS*8
+Caisse vide en chêne noir,143,Caisses vides,DARK_OAK_PLANKS*8
+Caisse vide en acajou,144,Caisses vides,JUNGLE_PLANKS*8
+Caisse vide en chêne,145,Caisses vides,OAK_PLANKS*8
+Caisse vide en sapin,146,Caisses vides,SPRUCE_PLANKS*8
+Caisse vide en bois bleu,147,Caisses vides,WARPED_PLANKS*8
+Caisse de carottes dorées en palétuvier,148,Caisses de carottes dorées,MANGROVE_PLANKS*8+GOLDEN_CARROT*16
+Caisse de carottes dorées en acacia,149,Caisses de carottes dorées,ACACIA_PLANKS*8+GOLDEN_CARROT*16
+Caisse de carottes dorées en bouleau,150,Caisses de carottes dorées,BIRCH_PLANKS*8+GOLDEN_CARROT*16
+Caisse de carottes dorées en carmin,151,Caisses de carottes dorées,CRIMSON_PLANKS*8+GOLDEN_CARROT*16
+Caisse de carottes dorées en chêne noir,152,Caisses de carottes dorées,DARK_OAK_PLANKS*8+GOLDEN_CARROT*16
+Caisse de carottes dorées en acajou,153,Caisses de carottes dorées,JUNGLE_PLANKS*8+GOLDEN_CARROT*16
+Caisse de carottes dorées en chêne,154,Caisses de carottes dorées,OAK_PLANKS*8+GOLDEN_CARROT*16
+Caisse de carottes dorées en sapin,155,Caisses de carottes dorées,SPRUCE_PLANKS*8+GOLDEN_CARROT*16
+Caisse de carottes dorées en bois bleu,156,Caisses de carottes dorées,WARPED_PLANKS*8+GOLDEN_CARROT*16
+Caisse de patates en palétuvier,157,Caisses de patates,MANGROVE_PLANKS*8+POTATO*16
+Caisse de patates en acacia,158,Caisses de patates,ACACIA_PLANKS*8+POTATO*16
+Caisse de patates en bouleau,159,Caisses de patates,BIRCH_PLANKS*8+POTATO*16
+Caisse de patates en carmin,160,Caisses de patates,CRIMSON_PLANKS*8+POTATO*16
+Caisse de patates en chêne noir,161,Caisses de patates,DARK_OAK_PLANKS*8+POTATO*16
+Caisse de patates en acajou,162,Caisses de patates,JUNGLE_PLANKS*8+POTATO*16
+Caisse de patates en chêne,163,Caisses de patates,OAK_PLANKS*8+POTATO*16
+Caisse de patates en sapin,164,Caisses de patates,SPRUCE_PLANKS*8+POTATO*16
+Caisse de patates en bois bleu,165,Caisses de patates,WARPED_PLANKS*8+POTATO*16
+Boîte aux lettres en palétuvier,166,Boîte aux lettres,MANGROVE_PLANKS*7+MANGROVE_TRAPDOOR*1+TRIPWIRE_HOOK*1
+Boîte aux lettres en acacia,167,Boîte aux lettres,ACACIA_PLANKS*7+ACACIA_TRAPDOOR*1+TRIPWIRE_HOOK*1
+Boîte aux lettres en bouleau,168,Boîte aux lettres,BIRCH_PLANKS*7+BIRCH_TRAPDOOR*1+TRIPWIRE_HOOK*1
+Boîte aux lettres en carmin,169,Boîte aux lettres,CRIMSON_PLANKS*7+CRIMSON_TRAPDOOR*1+TRIPWIRE_HOOK*1
+Boîte aux lettres en chêne noir,170,Boîte aux lettres,DARK_OAK_PLANKS*7+DARK_OAK_TRAPDOOR*1+TRIPWIRE_HOOK*1
+Boîte aux lettres en acajou,171,Boîte aux lettres,JUNGLE_PLANKS*7+JUNGLE_TRAPDOOR*1+TRIPWIRE_HOOK*1
+Boîte aux lettres en chêne,172,Boîte aux lettres,OAK_PLANKS*7+OAK_TRAPDOOR*1+TRIPWIRE_HOOK*1
+Boîte aux lettres en sapin,173,Boîte aux lettres,SPRUCE_PLANKS*7+SPRUCE_TRAPDOOR*1+TRIPWIRE_HOOK*1
+Boîte aux lettres en bois bleu,174,Boîte aux lettres,WARPED_PLANKS*7+WARPED_TRAPDOOR*1+TRIPWIRE_HOOK*1
+Main de zombie enterrée,175,Zombie,ROTTEN_FLESH*8
+Bras de zombie,176,Zombie,ROTTEN_FLESH*8+BONE*1
+Poumons,177,Zombie,ROTTEN_FLESH*24+PINK_DYE*6
+Yeux,178,Zombie,ROTTEN_FLESH*6+SPIDER_EYE*2
+Cervelle,179,Zombie,ROTTEN_FLESH*12+PINK_DYE*3
+Cercle de rituel,180,Mort,REDSTONE*16
+Pierre tombale,181,Mort,STONE*6+BLACK_DYE*1
+Os,182,Mort,BONE*1
+Pile d'os,183,Mort,BONE*3
+Citrouille sculptée,184,Halloween,CARVED_PUMPKIN*1
+Citrouille,185,Halloween,PUMPKIN*1
+Aquarium,186,Aquarium,SPRUCE_PLANKS*4+GLASS*3+SAND_*4+STONE*4+KELP*3+TROPICAL_FISH_BUCKET*1
+Caisse,187,Caisses et Barrils,SPRUCE_PLANKS*6
+Baril,188,Caisses et Barrils,BARREL*1
+Barils,189,Caisses et Barrils,BARREL*3
+Caisses,190,Caisses et Barrils,SPRUCE_PLANKS*18
+Baril d'armes,191,Caisses et Barrils,BARREL*1+STONE_AXE*1+ARROW*4
+Vase 1,192,Vases,TERRACOTTA*2
+Vase 2,193,Vases,ORANGE_TERRACOTTA*4
+Vase 3,194,Vases,DRIPSTONE_BLOCK*6
+Vase 4,195,Vases,WHITE_CONCRETE*3
+Vase 5,196,Vases,WHITE_CONCRETE*4
+Sofa double,197,Sofas,SPRUCE_PLANKS*12+GREEN_WOOL*4+LIME_WOOL*4
+Sofa,198,Sofas,SPRUCE_PLANKS*6+GREEN_WOOL*2+LIME_WOOL*2
+Bouée canard,199,Piscine,YELLOW_WOOL*6+ORANGE_CARPET*1
+Bouée penguin,200,Piscine,BLACK_WOOL*6+WHITE_WOOL*1
+Piscine,201,Piscine,BLUE_WOOL*10+WHITE_WOOL*8+WATER_BUCKET*1
+Tondeuse,202,Jardinier,IRON_INGOT*8+BLACK_WOOL*7+RED_CONCRETE*4
+Brouette,203,Jardinier,GREEN_TERRACOTTA*5+BLACK_WOOL*3+DIRT*1+MINECART*1
+Arrosoir,204,Jardinier,LIME_TERRACOTTA*6+BLACK_WOOL*1
+Cabane à oiseaux,205,Jardin,MANGROVE_PLANKS*8+JUNGLE_PLANKS*4+STICK*1
+Trampoline,206,Jardin,BLUE_WOOL*8+IRON_INGOT*4+STRING*4+BLACK_CARPET*4
+Barbecue,207,Jardin,IRON_BLOCK*1+IRON_TRAPDOOR*2+CHARCOAL*6
+Niche,208,Jardin,OAK_PLANKS*12
+Balançoire,209,Jardin,OAK_PLANKS*2+MANGROVE_PLANKS*14+LEAD*4
+Mannequin,210,Mannequin,ARMOR_STAND*1+BIRCH_PLANKS*8
+Poubelle,211,Poubelles,IRON_INGOT*8+IRON_TRAPDOOR*1+GREEN_DYE*1
+Poubelle ouverte,212,Poubelles,IRON_INGOT*8+IRON_TRAPDOOR*1+GREEN_DYE*1
+Ordinateur,213,Ordinateurs,CYAN_TERRACOTTA*8+BLACK_WOOL*5+STONE_BUTTON*1
+Bureau Gaming,214,Ordinateurs,CYAN_TERRACOTTA*6+BLACK_WOOL*6+STONE_BUTTON*1+OBSERVER*2+RED_WOOL*4+REDSTONE*16+END_ROD*4+AXOLOTL_BUCKET*1
+Pot suspendu,215,Plantes suspendues,FLOWER_POT*1+LEAD*2+DIRT*1
+Plante suspendue 1,216,Plantes suspendues,FLOWER_POT*1+LEAD*2+DIRT*1+WHITE_TULIP*2
+Plante suspendue 2,217,Plantes suspendues,FLOWER_POT*1+LEAD*2+DIRT*1+ALLIUM*2
+Plante suspendue 3,218,Plantes suspendues,FLOWER_POT*1+LEAD*2+DIRT*1+POPPY*2
+Plante suspendue 4,219,Plantes suspendues,FLOWER_POT*1+LEAD*2+DIRT*1+DANDELION*2
+Plante suspendue 5,220,Plantes suspendues,FLOWER_POT*1+LEAD*2+DIRT*1+GRASS*2
+Plante suspendue 6,221,Plantes suspendues,FLOWER_POT*1+LEAD*2+DIRT*1+FERN*2
+Plante suspendue 7,222,Plantes suspendues,FLOWER_POT*1+LEAD*2+DIRT*1+BLUE_ORCHID*2
+Plante suspendue 8,223,Plantes suspendues,FLOWER_POT*1+LEAD*2+DIRT*1+ROSE_BUSH*2
+Pot,224,Plantes2,FLOWER_POT*1+DIRT*1
+Plante 1,225,Plantes2,FLOWER_POT*1+DIRT*1+TALL_GRASS*2
+Plante 2,226,Plantes2,FLOWER_POT*1+DIRT*1+ROSE_BUSH*2
+Plante 3,227,Plantes2,FLOWER_POT*1+DIRT*1+LARGE_FERN*2
+Plante 4,228,Plantes2,FLOWER_POT*1+DIRT*1+DANDELION*2
+Plante 5,229,Plantes2,FLOWER_POT*1+DIRT*1+RED_TULIP*2
+Plante 6,230,Plantes2,FLOWER_POT*1+DIRT*1+ALLIUM*2
+Plante 7,231,Plantes2,FLOWER_POT*1+DIRT*1+AZALEA*2
+Plante 8,232,Plantes2,FLOWER_POT*1+DIRT*1+AZALEA*1
+Plante 9,233,Plantes2,FLOWER_POT*1+DIRT*1+WHITE_TULIP*2
+Plante 10,234,Plantes2,FLOWER_POT*1+DIRT*1+OAK_SAPLING*2
+Plante 11,235,Plantes2,FLOWER_POT*1+DIRT*1+SPRUCE_SAPLING*2
+Plante 12,236,Plantes2,FLOWER_POT*1+DIRT*1+SPRUCE_SAPLING*2
+Plante 13,237,Plantes2,FLOWER_POT*1+DIRT*1+SPRUCE_SAPLING*2
+Plante 14,238,Plantes2,FLOWER_POT*1+DIRT*1+KELP*2
+Plante 15,239,Plantes2,FLOWER_POT*1+DIRT*1+BIRCH_SAPLING*2
+Plante 16,240,Plantes2,FLOWER_POT*1+DIRT*1+BIRCH_SAPLING*2
+Plante 17,241,Plantes2,FLOWER_POT*1+DIRT*1+BIRCH_SAPLING*2
+Plante 18,242,Plantes2,FLOWER_POT*1+DIRT*1+KELP*2
+Plante 19,243,Plantes2,FLOWER_POT*1+DIRT*1+STICK*1+RED_WOOL*2
+Plante 20,244,Plantes2,FLOWER_POT*1+DIRT*1+STICK*1+FERN*2
+Bac de tulipes,245,Plantes3,SPRUCE_PLANKS*8+DIRT*3+PINK_TULIP*2+RED_TULIP*2+ORANGE_TULIP*2
+Bac d'allium,246,Plantes3,SPRUCE_PLANKS*8+DIRT*3+ALLIUM*6
+Cactus,247,Plantes3,FLOWER_POT*1+DIRT*1+CACTUS*1
+Chanvre,248,Plantes3,FLOWER_POT*1+DIRT*1+JUNGLE_LEAVES*4
+Ficus,249,Plantes3,FLOWER_POT*1+DIRT*1+AZALEA_LEAVES*1
+Figuier,250,Plantes3,FLOWER_POT*1+DIRT*1+BIG_DRIPLEAF*2
+Marguerites suspendues,251,Plantes3,FLOWER_POT*1+DIRT*1+AZURE_BLUET*2+LEAD*2
+Monstère,252,Plantes3,FLOWER_POT*1+DIRT*1+SMALL_DRIPLEAF*1
+Aralia,253,Plantes3,FLOWER_POT*1+DIRT*1+AZALEA_LEAVES*1
+Tulipes,254,Plantes3,FLOWER_POT*1+DIRT*1+PINK_TULIP*2
+Alliums,255,Plantes3,FLOWER_POT*1+DIRT*1+ALLIUM*2
+Pothos suspendu,256,Plantes3,FLOWER_POT*1+DIRT*1+VINE*2+LEAD*2
+Sagoutier,257,Plantes3,FLOWER_POT*1+DIRT*1+JUNGLE_SAPLING*2
+Sapin,258,Plantes3,FLOWER_POT*1+DIRT*1+SPRUCE_SAPLING*2
+Sapin de Noël,259,Plantes3,DARK_OAK_LOG*4+DARK_OAK_LEAVES*10+RED_CONCRETE*2+WHITE_CONCRETE*2+PURPLE_CONCRETE*2+GOLD_BLOCK*1
+Bouteille,260,Verrerie,GLASS_BOTTLE*1
+Bouteilles,261,Verrerie,GLASS_BOTTLE*4
+Verre,262,Verrerie,GLASS_BOTTLE*1
+Verres,263,Verrerie,GLASS_BOTTLE*3
+Jarre,264,Verrerie,GLASS_BOTTLE*1
+Jarres,265,Verrerie,GLASS_BOTTLE*3
+Bouteille renversée,266,Verrerie,GLASS_BOTTLE*1+PURPLE_DYE*1+SWEET_BERRIES*1
+Plateau de café,267,Verrerie,GLASS_BOTTLE*1+OAK_PLANKS*1+DROPPER*1
+Table de forgeron,268,Table de forgeron,ANVIL*3
+Pièces d'or,269,Casino,GOLD_INGOT*4
+Billets,270,Casino,EMERALD*3+PAPER*3
+Jukebox,271,Casino,JUKEBOX*1+REDSTONE_LAMP*4+REDSTONE*8
+Tirelire cochon,272,Casino,PINK_WOOL*2+PORKCHOP*1+GOLD_INGOT*1
+Cadre photo,273,Petites décorations,PAINTING*1+ITEM_FRAME*1
+Parchemins,274,Petites décorations,PAPER*3+RED_CARPET*3
+Cahiers,275,Petites décorations,BOOK*3+PAPER*4
+Coupe en or,276,Petites décorations,GOLD_BLOCK*2

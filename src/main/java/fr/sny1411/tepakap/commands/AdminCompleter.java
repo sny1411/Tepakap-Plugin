@@ -20,7 +20,7 @@ public class AdminCompleter implements TabCompleter {
             assert args != null;
             switch (args.length) {
                 case 1 :
-                    return new ArrayList<>(Arrays.asList("chestLarguage","chestDespawn","CustomsModels"));
+                    return new ArrayList<>(Arrays.asList("chestLarguage","chestDespawn","CustomsModels","testRarete"));
                 default :
                     return Collections.singletonList("");
             }

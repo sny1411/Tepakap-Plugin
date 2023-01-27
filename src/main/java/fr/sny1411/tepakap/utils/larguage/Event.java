@@ -29,16 +29,18 @@ public class Event {
     private static MysqlDb bdd;
     public Player slayer;
     private static Main plugin;
-    public List<UUID> listMobsId = new ArrayList<>();
+    public List<UUID> listMobsId;
 
     private int coordX;
     private int coordZ;
     private Location locChest;
     public Rarete rarete;
 
+
     public Event(Main plugin, MysqlDb bdd) {
         this.plugin = plugin;
         this.bdd = bdd;
+        this.listMobsId = new ArrayList<>();
     }
 
     public ArmorStand armorStand;
@@ -72,6 +74,7 @@ public class Event {
             rarete = Rarete.choiceRare();
             coordApproximate(coordX,coordZ);
             armorStandSpawn(locChest);
+            // clock 30 min
         });
     }
 
@@ -116,6 +119,7 @@ public class Event {
         armorStand.setInvisible(false);
         UUID asUUID = armorStand.getUniqueId();
         Bukkit.getServer().getEntity(asUUID).remove();
+        EventsManager.listEvent.remove(this);
     }
 
     private void coordApproximate(int x, int z) {
@@ -158,6 +162,23 @@ public class Event {
             Bukkit.getScheduler().runTask(plugin, () -> {
                 spawnMobs();
             });
+            int tempMax = Rarete.tempRound(rarete);
+            while (tempMax!=0 && EventsManager.ChestAttack.get(armorStand.getUniqueId())) {
+                try {
+                    TimeUnit.SECONDS.sleep(1);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                tempMax--;
+            }
+            if (tempMax==0) {
+                Bukkit.getScheduler().runTask(plugin, () -> {
+                    slayer.sendMessage("Temps écoulé");
+                    mobsDespawn();
+                });
+            }
+
+
         });
     }
 
