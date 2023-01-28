@@ -5,6 +5,7 @@ import fr.sny1411.tepakap.commands.secureChest.Lock;
 import fr.sny1411.tepakap.sql.MysqlDb;
 import fr.sny1411.tepakap.utils.larguage.Event;
 import fr.sny1411.tepakap.utils.larguage.EventsManager;
+import fr.sny1411.tepakap.utils.pioches.Pioche3x3;
 import fr.sny1411.tepakap.utils.secureChest.Lockable;
 import net.kyori.adventure.text.ComponentLike;
 import net.md_5.bungee.api.ChatColor;
@@ -12,6 +13,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -23,10 +26,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryMoveItemEvent;
-import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -131,15 +131,17 @@ public class Listenner implements Listener {
     private void onBlockBreak(BlockBreakEvent e) {
         Block block = e.getBlock();
         if (!Lockable.inList(block.getType())) {
-            ItemStack itemBreak = e.getPlayer().getItemOnCursor();
+            ItemStack itemBreak = e.getPlayer().getInventory().getItemInMainHand();
             switch (itemBreak.getType()) {
                 case STONE_PICKAXE:
                     // verif pioche spawner
                     break;
                 case DIAMOND_PICKAXE:
                     if (itemBreak.getItemMeta().getCustomModelData()==2) {
-                        // mine 3x3
-
+                        BlockFace blockFace = e.getPlayer().getTargetBlockFace(6);
+                        if (blockFace != null) {
+                            Pioche3x3.casser(block, blockFace);
+                        }
                     }
                     break;
             }
@@ -266,6 +268,10 @@ public class Listenner implements Listener {
         String invName = e.getView().getTitle();
         if (invName.equalsIgnoreCase("§linfo")) {
             e.setCancelled(true);
+        } else if (e.getInventory().getType() == InventoryType.ANVIL) {
+            if (e.getCurrentItem().getType() == Material.BARRIER) {
+                e.setCancelled(true);
+            }
         }
     }
 
@@ -339,4 +345,19 @@ public class Listenner implements Listener {
         }
     }
 
+
+
+    @EventHandler
+    private void onPrepareAnvilCraft(PrepareAnvilEvent e) {
+        ItemStack itemResult = e.getInventory().getResult();
+        if (itemResult != null && itemResult.getItemMeta().hasCustomModelData()) {
+            Bukkit.getConsoleSender().sendMessage(itemResult.displayName());
+            Bukkit.getConsoleSender().sendMessage(itemResult.getEnchantments().toString());
+            Bukkit.getConsoleSender().sendMessage(String.valueOf(itemResult.getEnchantments().containsKey(Enchantment.MENDING)));
+            Bukkit.getConsoleSender().sendMessage(String.valueOf(itemResult.getItemMeta().getCustomModelData() == 2));
+            if (itemResult.getEnchantments().containsKey(Enchantment.MENDING) && itemResult.getItemMeta().getCustomModelData() == 2) {
+                e.setResult(new ItemStack(Material.BARRIER));
+            }
+        }
+    }
  }

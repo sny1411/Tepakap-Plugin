@@ -20,6 +20,23 @@ public class RessourcePack {
             customItem.setItemMeta(metaCustoms);
             inv.setItem(i%45,customItem);
         }
+        ItemStack customItem = new ItemStack(Material.DIAMOND_PICKAXE);
+        ItemMeta metaCustoms = customItem.getItemMeta();
+        metaCustoms.setCustomModelData(1);
+        customItem.setItemMeta(metaCustoms);
+        inv.addItem(customItem);
+
+        metaCustoms.setCustomModelData(2);
+        customItem.setItemMeta(metaCustoms);
+        inv.addItem(customItem);
+
+        metaCustoms.setCustomModelData(2);
+
+        customItem = new ItemStack(Material.WOODEN_PICKAXE);
+        metaCustoms = customItem.getItemMeta();
+        metaCustoms.setCustomModelData(1);
+        customItem.setItemMeta(metaCustoms);
+        inv.addItem(customItem);
 
         player.openInventory(inv);
     }
