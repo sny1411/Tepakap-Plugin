@@ -8,6 +8,7 @@ import fr.sny1411.tepakap.commands.secureChest.Unlock;
 import fr.sny1411.tepakap.commands.secureChest.UnlockCompleter;
 import fr.sny1411.tepakap.listenner.Listenner;
 import fr.sny1411.tepakap.sql.MysqlDb;
+import fr.sny1411.tepakap.utils.RessourcePack;
 import fr.sny1411.tepakap.utils.larguage.ClockEvents;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -30,10 +31,11 @@ public final class Main extends JavaPlugin {
 
         // Secure Chest
         initLockAuto();
-        Objects.requireNonNull(getCommand("lock")).setExecutor(new Lock(bdd,this));
-        Objects.requireNonNull(getCommand("lock")).setTabCompleter(new LockCompleter());
-        Objects.requireNonNull(getCommand("unlock")).setExecutor(new Unlock(bdd,this));
-        Objects.requireNonNull(getCommand("unlock")).setTabCompleter(new UnlockCompleter());
+        getCommand("lock").setExecutor(new Lock(bdd,this));
+        getCommand("lock").setTabCompleter(new LockCompleter());
+        getCommand("unlock").setExecutor(new Unlock(bdd,this));
+        getCommand("unlock").setTabCompleter(new UnlockCompleter());
+        getCommand("competences").setExecutor(new Competences(bdd,this));
 
         // Larguage
         ClockEvents.plugin = this;
@@ -43,6 +45,7 @@ public final class Main extends JavaPlugin {
         // ADMIN
         Objects.requireNonNull(getCommand("admin")).setExecutor(new Admin(this,bdd));
         Objects.requireNonNull(getCommand("admin")).setTabCompleter(new AdminCompleter());
+
     }
 
     @Override

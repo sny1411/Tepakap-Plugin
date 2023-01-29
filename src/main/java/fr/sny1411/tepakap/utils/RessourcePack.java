@@ -7,7 +7,12 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.net.JarURLConnection;
+import java.util.HashMap;
+import java.util.List;
+
 public class RessourcePack {
+    public static HashMap<Integer, List<String>> listItems = new HashMap<>();
     public static void showCustomsRessources(int nPage, Player player) {
         // 1 jusque 193
         Inventory inv = Bukkit.createInventory(null, 54, "Admin customs texture");

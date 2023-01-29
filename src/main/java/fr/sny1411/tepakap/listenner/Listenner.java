@@ -24,6 +24,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.*;
@@ -31,6 +32,7 @@ import org.bukkit.event.player.*;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.jetbrains.annotations.NotNull;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -266,9 +268,10 @@ public class Listenner implements Listener {
     @EventHandler
     private void onPlayerClickInv(InventoryClickEvent e) {
         String invName = e.getView().getTitle();
+        InventoryType typeGui = e.getInventory().getType();
         if (invName.equalsIgnoreCase("§linfo")) {
             e.setCancelled(true);
-        } else if (e.getInventory().getType() == InventoryType.ANVIL) {
+        } else if (typeGui == InventoryType.ANVIL || typeGui == InventoryType.SMITHING) {
             if (e.getCurrentItem().getType() == Material.BARRIER) {
                 e.setCancelled(true);
             }
@@ -345,19 +348,31 @@ public class Listenner implements Listener {
         }
     }
 
-
-
     @EventHandler
     private void onPrepareAnvilCraft(PrepareAnvilEvent e) {
         ItemStack itemResult = e.getInventory().getResult();
         if (itemResult != null && itemResult.getItemMeta().hasCustomModelData()) {
-            Bukkit.getConsoleSender().sendMessage(itemResult.displayName());
-            Bukkit.getConsoleSender().sendMessage(itemResult.getEnchantments().toString());
-            Bukkit.getConsoleSender().sendMessage(String.valueOf(itemResult.getEnchantments().containsKey(Enchantment.MENDING)));
-            Bukkit.getConsoleSender().sendMessage(String.valueOf(itemResult.getItemMeta().getCustomModelData() == 2));
-            if (itemResult.getEnchantments().containsKey(Enchantment.MENDING) && itemResult.getItemMeta().getCustomModelData() == 2) {
+            if (itemResult.getEnchantments().containsKey(Enchantment.MENDING) || e.getInventory().getSecondItem().getType() == Material.DIAMOND){
                 e.setResult(new ItemStack(Material.BARRIER));
             }
+        }
+    }
+
+    @EventHandler
+    private void onPrepareEnchant(PrepareItemEnchantEvent e) {
+        if (e.getItem().getItemMeta().hasCustomModelData()) {
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    private void onPrepareUpgrade(PrepareSmithingEvent e) {
+        ItemStack itemResult = e.getResult();
+        if (itemResult == null) {
+            return;
+        }
+        if (itemResult.getItemMeta().hasCustomModelData()) {
+            e.setResult(new ItemStack(Material.BARRIER));
         }
     }
  }
