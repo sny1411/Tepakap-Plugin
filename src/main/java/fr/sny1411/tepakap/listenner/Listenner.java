@@ -13,6 +13,7 @@ import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Statistic;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.enchantments.Enchantment;
@@ -87,6 +88,7 @@ public class Listenner implements Listener {
             if (!Lock.lockAuto.containsKey(player.getUniqueId())) {
                 Lock.lockAuto.put(player.getUniqueId(), false);
             }
+            CapaciteManager.chargePlayerCompetences(player.getUniqueId());
         });
     }
 
@@ -375,7 +377,7 @@ public class Listenner implements Listener {
                         return;
                     }
                     if (CapaciteManager.hashMapCapacites.get(player.getUniqueId()) == 3) {
-                        Competences.competGui(player, 2);
+                        Competences.competGui(player, 3);
                     }
             }
             e.setCancelled(true);
@@ -383,6 +385,134 @@ public class Listenner implements Listener {
             if (e.getSlot() == 45) {
                 Competences.selecteurCompetences((Player) e.getWhoClicked());
             }
+            Bukkit.getScheduler().runTaskAsynchronously(main, () -> {
+                ItemStack clickItem = e.getCurrentItem();
+                String nameClickItem = clickItem.getItemMeta().getDisplayName();
+                int nbCompet = Integer.parseInt(e.getInventory().getItem(4).getItemMeta().getDisplayName());
+                Player player = (Player) e.getWhoClicked();
+                int emplacement = Integer.parseInt(e.getInventory().getItem(4).getItemMeta().getDisplayName());
+                ResultSet resultEmpOcc = bdd.search("SELECT id_capacite FROM EQUIPE WHERE emplacement=" + emplacement + " AND UUID='" + player.getUniqueId() + "'");
+                boolean isEmpOccupe;
+                try {
+                    isEmpOccupe = resultEmpOcc.next();
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+                switch (nameClickItem) {
+                    case "Yamakasi":
+                        int nbrePoule = player.getStatistic(Statistic.KILL_ENTITY, EntityType.CHICKEN);
+                        if (nbrePoule >= 1500) {
+                            // capa niveau 3
+                            if (isEmpOccupe) {
+                                bdd.modifyItems("UPDATE EQUIPE SET id_capacite=1,capacite_level=3 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            } else {
+                                bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',1," + emplacement + ",3)");
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            }
+                            Competences.selecteurCompetences(player);
+                        } else if (nbrePoule >= 900) {
+                            // capa niveau 2
+                            if (isEmpOccupe) {
+                                bdd.modifyItems("UPDATE EQUIPE SET id_capacite=1,capacite_level=2 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            } else {
+                                bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',1," + emplacement + ",2)");
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            }
+                            Competences.selecteurCompetences(player);
+                        } else if (nbrePoule >= 450) {
+                            // capa niveau 1
+                            if (isEmpOccupe) {
+                                bdd.modifyItems("UPDATE EQUIPE SET id_capacite=1,capacite_level=1 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            } else {
+                                bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',1," + emplacement + ",1)");
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            }
+                            Competences.selecteurCompetences(player);
+                        } else {
+                            player.sendMessage("§cVous ne possédez pas cette capacité !");
+                        }
+                        break;
+                    case "Carquois Amélioré":
+                        int nbreSquelette = player.getStatistic(Statistic.KILL_ENTITY, EntityType.SKELETON);
+                        if (nbreSquelette >= 800) {
+                            if (isEmpOccupe) {
+                                bdd.modifyItems("UPDATE EQUIPE SET id_capacite=2,capacite_level=3 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            } else {
+                                bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',2," + emplacement + ",3)");
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            }
+                            Competences.selecteurCompetences(player);
+                        } else if (nbreSquelette >= 400) {
+                            if (isEmpOccupe) {
+                                bdd.modifyItems("UPDATE EQUIPE SET id_capacite=2,capacite_level=2 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            } else {
+                                bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',2," + emplacement + ",2)");
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            }
+                            Competences.selecteurCompetences(player);
+                        } else if (nbreSquelette >= 150) {
+                            if (isEmpOccupe) {
+                                bdd.modifyItems("UPDATE EQUIPE SET id_capacite=2,capacite_level=1 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            } else {
+                                bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',2," + emplacement + ",1)");
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            }
+                            Competences.selecteurCompetences(player);
+                        } else {
+                            player.sendMessage("§cVous ne possédez pas cette capacité !");
+                        }
+                        break;
+                    case "La Torche":
+                        int nbreBlaze = player.getStatistic(Statistic.KILL_ENTITY, EntityType.BLAZE);
+                        if (nbreBlaze >= 750) {
+                            if (isEmpOccupe) {
+                                bdd.modifyItems("UPDATE EQUIPE SET id_capacite=3,capacite_level=3 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            } else {
+                                bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',3," + emplacement + ",3)");
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            }
+                            Competences.selecteurCompetences(player);
+                        } else if (nbreBlaze >= 350) {
+                            if (isEmpOccupe) {
+                                bdd.modifyItems("UPDATE EQUIPE SET id_capacite=3,capacite_level=2 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            } else {
+                                bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',3," + emplacement + ",2)");
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            }
+                            Competences.selecteurCompetences(player);
+                        } else if (nbreBlaze >= 150) {
+                            if (isEmpOccupe) {
+                                bdd.modifyItems("UPDATE EQUIPE SET id_capacite=3,capacite_level=1 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            } else {
+                                bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',3," + emplacement + ",1)");
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            }
+                            Competences.selecteurCompetences(player);
+                        } else {
+                            player.sendMessage("§cVous ne possédez pas cette capacité !");
+                        }
+                        break;
+                    case "Flash":
+                        break;
+                    case "Balle rebondissante":
+                        break;
+                    case "Inédien":
+                        break;
+                    case "Poison Ivy":
+                        break;
+                    case "Superman":
+                        break;
+                }
+            });
             e.setCancelled(true);
         } else if (typeGui == InventoryType.ANVIL || typeGui == InventoryType.SMITHING) {
             if (e.getCurrentItem().getType() == Material.BARRIER) {

@@ -96,7 +96,8 @@ public class Competences implements CommandExecutor {
         inv.setItem(31,blockCompetences.get("Inédien"));
         inv.setItem(32,blockCompetences.get("Poison Ivy"));
         inv.setItem(33,blockCompetences.get("Superman"));
-        ItemStack btnRetour = new ItemStack(Material.PLAYER_HEAD);
+
+        ItemStack btnRetour = new ItemStack(SkullCustoms.getCustomSkull("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2ViZjkwNzQ5NGE5MzVlOTU1YmZjYWRhYjgxYmVhZmI5MGZiOWJlNDljNzAyNmJhOTdkNzk4ZDVmMWEyMyJ9fX0"));
         ItemMeta btnRetourMeta = btnRetour.getItemMeta();
         btnRetourMeta.setDisplayName("Retour");
         btnRetour.setItemMeta(btnRetourMeta);
