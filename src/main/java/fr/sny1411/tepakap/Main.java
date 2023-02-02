@@ -2,13 +2,14 @@ package fr.sny1411.tepakap;
 
 import fr.sny1411.tepakap.commands.Admin;
 import fr.sny1411.tepakap.commands.AdminCompleter;
+import fr.sny1411.tepakap.commands.Competences;
 import fr.sny1411.tepakap.commands.secureChest.Lock;
 import fr.sny1411.tepakap.commands.secureChest.LockCompleter;
 import fr.sny1411.tepakap.commands.secureChest.Unlock;
 import fr.sny1411.tepakap.commands.secureChest.UnlockCompleter;
 import fr.sny1411.tepakap.listenner.Listenner;
 import fr.sny1411.tepakap.sql.MysqlDb;
-import fr.sny1411.tepakap.utils.RessourcePack;
+import fr.sny1411.tepakap.utils.capacite.CapaciteManager;
 import fr.sny1411.tepakap.utils.larguage.ClockEvents;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -46,6 +47,8 @@ public final class Main extends JavaPlugin {
         Objects.requireNonNull(getCommand("admin")).setExecutor(new Admin(this,bdd));
         Objects.requireNonNull(getCommand("admin")).setTabCompleter(new AdminCompleter());
 
+        // Capacite
+        CapaciteManager.initCapacite(bdd);
     }
 
     @Override

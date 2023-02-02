@@ -1,13 +1,14 @@
 package fr.sny1411.tepakap.listenner;
 
 import fr.sny1411.tepakap.Main;
+import fr.sny1411.tepakap.commands.Competences;
 import fr.sny1411.tepakap.commands.secureChest.Lock;
 import fr.sny1411.tepakap.sql.MysqlDb;
+import fr.sny1411.tepakap.utils.capacite.CapaciteManager;
 import fr.sny1411.tepakap.utils.larguage.Event;
 import fr.sny1411.tepakap.utils.larguage.EventsManager;
 import fr.sny1411.tepakap.utils.pioches.Pioche3x3;
 import fr.sny1411.tepakap.utils.secureChest.Lockable;
-import net.kyori.adventure.text.ComponentLike;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -28,11 +29,12 @@ import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.inventory.*;
-import org.bukkit.event.player.*;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.jetbrains.annotations.NotNull;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -53,7 +55,7 @@ public class Listenner implements Listener {
 
     @EventHandler
     private void onPLayerJoin(PlayerJoinEvent e) {
-        e.setJoinMessage("§8[§a+§8] §e"+ e.getPlayer().getName());
+        e.setJoinMessage("§8[§a+§8] §e" + e.getPlayer().getName());
         Bukkit.getScheduler().runTaskAsynchronously(main, () -> {
             Player player = e.getPlayer();
             ResultSet result = bdd.search("SELECT COUNT(*) FROM JOUEUR WHERE UUID='" + player.getUniqueId() + "'");
@@ -73,9 +75,9 @@ public class Listenner implements Listener {
             String datetime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
             if (nbreBddPlayer == 0) { // nouveau joueur
                 player.sendMessage("\n§m--------------" + ChatColor.of("#E6C1F3") + "§lTepakap§r§f§m-------------\n§r \n" +
-                                      "§r \u2600 "+ ChatColor.of("#5CB2E5") +"Bienvenue sur le serveur "+ ChatColor.of("#17539C") + player.getName() + " §f\u2600\n \n" +
-                                      "§f§m-----------------------------------\n");
-                bdd.putNewItems("INSERT INTO JOUEUR VALUES ('"+ player.getUniqueId() + "','" + player.getName() + "','" + datetime+ "','" +datetime + "')");
+                        "§r \u2600 " + ChatColor.of("#5CB2E5") + "Bienvenue sur le serveur " + ChatColor.of("#17539C") + player.getName() + " §f\u2600\n \n" +
+                        "§f§m-----------------------------------\n");
+                bdd.putNewItems("INSERT INTO JOUEUR VALUES ('" + player.getUniqueId() + "','" + player.getName() + "','" + datetime + "','" + datetime + "',1)");
             } else if (nbreBddPlayer > 0) {
                 bdd.modifyItems("UPDATE JOUEUR SET derniere_co='" + datetime + "' WHERE UUID='" + player.getUniqueId() + "'");
             }
@@ -98,7 +100,8 @@ public class Listenner implements Listener {
     @EventHandler
     private void onInventoryOpen(InventoryOpenEvent e) {
         Location location = e.getInventory().getLocation();
-        if (location == null) return;{
+        if (location == null) return;
+        {
         }
         try {
             ResultSet chestBdd = bdd.search("SELECT id_coffre,UUID FROM COFFRE WHERE coordX=" + (int) location.getX() +
@@ -132,21 +135,30 @@ public class Listenner implements Listener {
     @EventHandler
     private void onBlockBreak(BlockBreakEvent e) {
         Block block = e.getBlock();
-        if (!Lockable.inList(block.getType())) {
-            ItemStack itemBreak = e.getPlayer().getInventory().getItemInMainHand();
-            switch (itemBreak.getType()) {
-                case STONE_PICKAXE:
-                    // verif pioche spawner
-                    break;
-                case DIAMOND_PICKAXE:
-                    if (itemBreak.getItemMeta().getCustomModelData()==2) {
-                        BlockFace blockFace = e.getPlayer().getTargetBlockFace(6);
-                        if (blockFace != null) {
-                            Pioche3x3.casser(block, blockFace);
-                        }
+        if (Lockable.inList(block.getType())) {
+            return;
+        }
+        ItemStack itemBreak = e.getPlayer().getInventory().getItemInMainHand();
+        if (!itemBreak.getItemMeta().hasCustomModelData()) {
+            return;
+        }
+        switch (itemBreak.getType()) {
+            case STONE_PICKAXE:
+                Bukkit.getConsoleSender().sendMessage("here");
+                if (itemBreak.getItemMeta().getCustomModelData() == 1) {
+                    if (block.getType() == Material.SPAWNER) {
+                        e.setDropItems(true);
                     }
-                    break;
-            }
+                }
+                break;
+            case DIAMOND_PICKAXE:
+                if (itemBreak.getItemMeta().getCustomModelData() == 2) {
+                    BlockFace blockFace = e.getPlayer().getTargetBlockFace(6);
+                    if (blockFace != null) {
+                        Pioche3x3.casser(block, blockFace);
+                    }
+                }
+                break;
         }
 
         Location location = block.getLocation();
@@ -207,22 +219,22 @@ public class Listenner implements Listener {
         String world = block.getWorld().getName();
 
         if (block.getType().equals(Material.CHEST) || block.getType().equals(Material.TRAPPED_CHEST)) {
-            if (ChestInBddOtherPlayer(xChest - 1,yChest,zChest,world,player)) {
+            if (ChestInBddOtherPlayer(xChest - 1, yChest, zChest, world, player)) {
                 player.sendMessage("§4[SecureChest] §cIl y a un coffre verrouillé à proximité par un autre joueur !");
                 e.setCancelled(true);
                 return;
             }
-            if (ChestInBddOtherPlayer(xChest + 1,yChest,zChest,world,player)) {
+            if (ChestInBddOtherPlayer(xChest + 1, yChest, zChest, world, player)) {
                 player.sendMessage("§4[SecureChest] §cIl y a un coffre verrouillé à proximité par un autre joueur !");
                 e.setCancelled(true);
                 return;
             }
-            if (ChestInBddOtherPlayer(xChest,yChest,zChest - 1,world,player)) {
+            if (ChestInBddOtherPlayer(xChest, yChest, zChest - 1, world, player)) {
                 player.sendMessage("§4[SecureChest] §cIl y a un coffre verrouillé à proximité par un autre joueur !");
                 e.setCancelled(true);
                 return;
             }
-            if (ChestInBddOtherPlayer(xChest,yChest,zChest + 1,world,player)) {
+            if (ChestInBddOtherPlayer(xChest, yChest, zChest + 1, world, player)) {
                 player.sendMessage("§4[SecureChest] §cIl y a un coffre verrouillé à proximité par un autre joueur !");
                 e.setCancelled(true);
                 return;
@@ -230,12 +242,12 @@ public class Listenner implements Listener {
         }
         Bukkit.getScheduler().runTaskAsynchronously(main, () -> {
             if (Lock.lockAuto.get(player.getUniqueId())) {
-                Lock.lock(block,player);
+                Lock.lock(block, player);
             }
         });
     }
 
-    private boolean ChestInBddOtherPlayer(int x,int y,int z,String world, Player player) {
+    private boolean ChestInBddOtherPlayer(int x, int y, int z, String world, Player player) {
         ResultSet result = bdd.search("SELECT UUID,id_coffre FROM COFFRE " +
                 "WHERE coordX=" + x + " AND coordY=" + y +
                 " AND coordZ=" + z + " AND monde='" + world + "'");
@@ -257,7 +269,7 @@ public class Listenner implements Listener {
                 " AND coordZ=" + (int) loc.getZ() + " AND monde='" + loc.getWorld().getName() + "'");
         try {
             if (result.next()) {
-               return true;
+                return true;
             }
         } catch (SQLException ex) {
             throw new RuntimeException(ex);
@@ -269,13 +281,129 @@ public class Listenner implements Listener {
     private void onPlayerClickInv(InventoryClickEvent e) {
         String invName = e.getView().getTitle();
         InventoryType typeGui = e.getInventory().getType();
+        if (e.getCurrentItem() == null) {
+            return;
+        }
         if (invName.equalsIgnoreCase("§linfo")) {
+            e.setCancelled(true);
+        } else if (invName.equalsIgnoreCase("§lVos compétences")) {
+            Material typeItem = e.getCurrentItem().getType();
+            Player player = (Player) e.getWhoClicked();
+            switch (e.getSlot()) {
+                case 22:
+                    if (typeItem == Material.BARRIER && e.getCurrentItem().getLore() != null) {
+                        // verif items compet 2
+                        Inventory playerInventory = player.getInventory();
+                        if (playerInventory.contains(Material.LAPIS_BLOCK, 16) && playerInventory.contains(Material.GOLD_BLOCK, 11) && player.getLevel() >= 30) {
+                            int lapis = 16;
+                            int gold = 11;
+                            int i = 0;
+                            for (ItemStack itemInv : playerInventory.getContents()) {
+                                if (itemInv != null) {
+                                    switch (itemInv.getType()) {
+                                        case LAPIS_BLOCK:
+                                            int numberOfItem = itemInv.getAmount();
+                                            lapis = removeToInv(playerInventory, lapis, i, itemInv, numberOfItem);
+                                            break;
+                                        case GOLD_BLOCK:
+                                            numberOfItem = itemInv.getAmount();
+                                            gold = removeToInv(playerInventory, gold, i, itemInv, numberOfItem);
+                                            break;
+                                    }
+                                }
+                                i++;
+                            }
+                            player.setLevel(player.getLevel()-30);
+                            Bukkit.getScheduler().runTaskAsynchronously(main, () -> {
+                                bdd.modifyItems("UPDATE JOUEUR SET nbre_capacite=2 WHERE UUID='" + player.getUniqueId() + "'");
+                                CapaciteManager.hashMapCapacites.put(player.getUniqueId(), 2);
+                                Competences.selecteurCompetences(player);
+                            });
+                        } else {
+                            player.sendMessage("§cVous n'avez pas les ressources requises");
+                        }
+                        e.setCancelled(true);
+                        return;
+                    }
+
+                    if (CapaciteManager.hashMapCapacites.get(player.getUniqueId()) >= 2) {
+                        Competences.competGui(player, 2);
+                        e.setCancelled(true);
+                    }
+                    break;
+                case 29:
+                    Competences.competGui(player, 1);
+                    break;
+                case 33:
+                    if (typeItem == Material.BARRIER && e.getCurrentItem().getLore() != null) {
+                        // verif items compet 3
+                        Inventory playerInventory = player.getInventory();
+                        if (playerInventory.contains(Material.LAPIS_BLOCK, 32) && playerInventory.contains(Material.GOLD_BLOCK, 22) && player.getLevel() >= 40 && playerInventory.contains(Material.TOTEM_OF_UNDYING,1)) {
+                            int lapis = 32;
+                            int gold = 22;
+                            int totem = 1;
+                            int i = 0;
+                            for (ItemStack itemInv : playerInventory.getContents()) {
+                                if (itemInv != null) {
+                                    switch (itemInv.getType()) {
+                                        case LAPIS_BLOCK:
+                                            int numberOfItem = itemInv.getAmount();
+                                            lapis = removeToInv(playerInventory, lapis, i, itemInv, numberOfItem);
+                                            break;
+                                        case GOLD_BLOCK:
+                                            numberOfItem = itemInv.getAmount();
+                                            gold = removeToInv(playerInventory, gold, i, itemInv, numberOfItem);
+                                            break;
+                                        case TOTEM_OF_UNDYING:
+                                            numberOfItem = itemInv.getAmount();
+                                            totem = removeToInv(playerInventory, totem, i, itemInv, numberOfItem);
+                                            break;
+                                    }
+                                }
+                                i++;
+                            }
+                            player.setLevel(player.getLevel()-40);
+                            Bukkit.getScheduler().runTaskAsynchronously(main, () -> {
+                                bdd.modifyItems("UPDATE JOUEUR SET nbre_capacite=3 WHERE UUID='" + player.getUniqueId() + "'");
+                                CapaciteManager.hashMapCapacites.put(player.getUniqueId(), 3);
+                                Competences.selecteurCompetences(player);
+                            });
+                        } else {
+                            player.sendMessage("§cVous n'avez pas les ressources requises");
+                        }
+                        e.setCancelled(true);
+                        return;
+                    }
+                    if (CapaciteManager.hashMapCapacites.get(player.getUniqueId()) == 3) {
+                        Competences.competGui(player, 2);
+                    }
+            }
+            e.setCancelled(true);
+        } else if (invName.equalsIgnoreCase("§lCompétences")) {
+            if (e.getSlot() == 45) {
+                Competences.selecteurCompetences((Player) e.getWhoClicked());
+            }
             e.setCancelled(true);
         } else if (typeGui == InventoryType.ANVIL || typeGui == InventoryType.SMITHING) {
             if (e.getCurrentItem().getType() == Material.BARRIER) {
                 e.setCancelled(true);
             }
         }
+    }
+
+    private int removeToInv(Inventory playerInventory, int numberOfDelete, int i, ItemStack itemInv, int numberOfItem) {
+        if (numberOfItem > numberOfDelete) {
+            itemInv.setAmount(numberOfItem - numberOfDelete);
+            playerInventory.setItem(i,itemInv);
+            numberOfDelete = 0;
+        } else if (numberOfItem < numberOfDelete) {
+            playerInventory.setItem(i,null);
+            numberOfDelete -= numberOfItem;
+        } else {
+            playerInventory.setItem(i,null);
+            numberOfDelete = 0;
+        }
+        return numberOfDelete;
     }
 
     @EventHandler
@@ -294,7 +422,7 @@ public class Listenner implements Listener {
                     if (idMob.equals(idDeathMob)) {
                         aSupprimer = idMob;
                         eventConcerne = event;
-                        event.slayer.sendMessage("Reste : " + (event.listMobsId.size()-1));
+                        event.slayer.sendMessage("Reste : " + (event.listMobsId.size() - 1));
                         find = true;
                     }
                 }
@@ -310,7 +438,7 @@ public class Listenner implements Listener {
                     keyMeta.setCustomModelData(2);
                     key.setItemMeta(keyMeta);
                     event.slayer.getInventory().addItem(key);
-                    EventsManager.ChestAttack.put(event.armorStand.getUniqueId(),false);
+                    EventsManager.ChestAttack.put(event.armorStand.getUniqueId(), false);
                 }
             }
         }
@@ -352,7 +480,7 @@ public class Listenner implements Listener {
     private void onPrepareAnvilCraft(PrepareAnvilEvent e) {
         ItemStack itemResult = e.getInventory().getResult();
         if (itemResult != null && itemResult.getItemMeta().hasCustomModelData()) {
-            if (itemResult.getEnchantments().containsKey(Enchantment.MENDING) || e.getInventory().getSecondItem().getType() == Material.DIAMOND){
+            if (itemResult.getEnchantments().containsKey(Enchantment.MENDING) || e.getInventory().getSecondItem().getType() == Material.DIAMOND) {
                 e.setResult(new ItemStack(Material.BARRIER));
             }
         }
@@ -375,4 +503,4 @@ public class Listenner implements Listener {
             e.setResult(new ItemStack(Material.BARRIER));
         }
     }
- }
+}
