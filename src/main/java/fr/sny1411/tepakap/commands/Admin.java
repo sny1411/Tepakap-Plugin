@@ -6,9 +6,11 @@ import fr.sny1411.tepakap.utils.RessourcePack;
 import fr.sny1411.tepakap.utils.larguage.Event;
 import fr.sny1411.tepakap.utils.larguage.EventsManager;
 import fr.sny1411.tepakap.utils.larguage.Rarete;
+import org.bukkit.Statistic;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
@@ -50,6 +52,10 @@ public class Admin implements CommandExecutor {
                     for (int i = 0; i < 10;i++) {
                         commandSender.sendMessage(Rarete.choiceRare().name());
                     }
+                    break;
+                case "competence":
+                    assert commandSender instanceof Player;
+                    ((Player)commandSender).setStatistic(Statistic.KILL_ENTITY, EntityType.valueOf(args[1]), Integer.parseInt(args[2]));
                     break;
                 default:
                     commandSender.sendMessage("§cErreur: §fArgument inconnu.");

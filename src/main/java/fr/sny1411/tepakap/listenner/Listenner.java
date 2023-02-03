@@ -502,14 +502,139 @@ public class Listenner implements Listener {
                         }
                         break;
                     case "Flash":
+                        int nbreCheval = player.getStatistic(Statistic.KILL_ENTITY, EntityType.HORSE);
+                        if (nbreCheval >= 350) {
+                            if (isEmpOccupe) {
+                                bdd.modifyItems("UPDATE EQUIPE SET id_capacite=4,capacite_level=3 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            } else {
+                                bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',4," + emplacement + ",3)");
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            }
+                            Competences.selecteurCompetences(player);
+                        } else if (nbreCheval >= 200) {
+                            if (isEmpOccupe) {
+                                bdd.modifyItems("UPDATE EQUIPE SET id_capacite=4,capacite_level=2 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            } else {
+                                bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',4," + emplacement + ",2)");
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            }
+                            Competences.selecteurCompetences(player);
+                        } else if (nbreCheval >= 100) {
+                            if (isEmpOccupe) {
+                                bdd.modifyItems("UPDATE EQUIPE SET id_capacite=4,capacite_level=1 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            } else {
+                                bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',4," + emplacement + ",1)");
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            }
+                            Competences.selecteurCompetences(player);
+                        } else  {
+                            player.sendMessage("§cVous ne possédez pas cette capacité !");
+                        }
                         break;
                     case "Balle rebondissante":
+                        int nbreLapins = player.getStatistic(Statistic.KILL_ENTITY, EntityType.RABBIT);
+                        if (nbreLapins >= 1500) {
+                            if (isEmpOccupe) {
+                                bdd.modifyItems("UPDATE EQUIPE SET id_capacite=5,capacite_level=3 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            } else {
+                                bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',5," + emplacement + ",3)");
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            }
+                            Competences.selecteurCompetences(player);
+                        } else if (nbreLapins >= 900) {
+                            if (isEmpOccupe) {
+                                bdd.modifyItems("UPDATE EQUIPE SET id_capacite=5,capacite_level=2 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            } else {
+                                bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',5," + emplacement + ",2)");
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            }
+                            Competences.selecteurCompetences(player);
+                        } else if (nbreLapins >= 400) {
+                            if (isEmpOccupe) {
+                                bdd.modifyItems("UPDATE EQUIPE SET id_capacite=5,capacite_level=1 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            } else {
+                                bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',5," + emplacement + ",1)");
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            }
+                            Competences.selecteurCompetences(player);
+                        } else {
+                            player.sendMessage("§cVous ne possédez pas cette capacité !");
+                        }
                         break;
                     case "Inédien":
+                        int nbreChampimeuh = player.getStatistic(Statistic.KILL_ENTITY, EntityType.MUSHROOM_COW);
+                        if (nbreChampimeuh >= 200) {
+                            if (isEmpOccupe) {
+                                bdd.modifyItems("UPDATE EQUIPE SET id_capacite=6,capacite_level=3 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            } else {
+                                bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',6," + emplacement + ",3)");
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            }
+                            Competences.selecteurCompetences(player);
+                        } else if (nbreChampimeuh >= 150) {
+                            if (isEmpOccupe) {
+                                bdd.modifyItems("UPDATE EQUIPE SET id_capacite=6,capacite_level=2 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            } else {
+                                bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',6," + emplacement + ",2)");
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            }
+                            Competences.selecteurCompetences(player);
+                        } else if (nbreChampimeuh >= 100) {
+                            if (isEmpOccupe) {
+                                bdd.modifyItems("UPDATE EQUIPE SET id_capacite=6,capacite_level=1 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            } else {
+                                bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',6," + emplacement + ",1)");
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            }
+                            Competences.selecteurCompetences(player);
+                        } else {
+                            player.sendMessage("§cVous ne possédez pas cette capacité !");
+                        }
                         break;
                     case "Poison Ivy":
+                        int nbreWitherSkull = player.getStatistic(Statistic.KILL_ENTITY, EntityType.WITHER_SKELETON);
+                        if (nbreWitherSkull >= 500) {
+                            if (isEmpOccupe) {
+                                bdd.modifyItems("UPDATE EQUIPE SET id_capacite=7,capacite_level=3 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            } else {
+                                bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',7," + emplacement + ",3)");
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            }
+                            Competences.selecteurCompetences(player);
+                        } else if (nbreWitherSkull >= 250) {
+                            if (isEmpOccupe) {
+                                bdd.modifyItems("UPDATE EQUIPE SET id_capacite=7,capacite_level=2 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            } else {
+                                bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',7," + emplacement + ",2)");
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            }
+                            Competences.selecteurCompetences(player);
+                        } else if (nbreWitherSkull >= 100) {
+                            if (isEmpOccupe) {
+                                bdd.modifyItems("UPDATE EQUIPE SET id_capacite=7,capacite_level=1 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            } else {
+                                bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',7," + emplacement + ",1)");
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            }
+                            Competences.selecteurCompetences(player);
+                        } else {
+                            player.sendMessage("§cVous ne possédez pas cette capacité !");
+                        }
                         break;
                     case "Superman":
+                        // pas pareil
                         break;
                 }
             });

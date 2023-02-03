@@ -3,6 +3,7 @@ package fr.sny1411.tepakap.commands;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -20,7 +21,15 @@ public class AdminCompleter implements TabCompleter {
             assert args != null;
             switch (args.length) {
                 case 1 :
-                    return new ArrayList<>(Arrays.asList("chestLarguage","chestDespawn","CustomsModels","testRarete"));
+                    return new ArrayList<>(Arrays.asList("chestLarguage","chestDespawn","CustomsModels","testRarete","competence"));
+                case 2:
+                    if (args[0].equals("competence")) {
+                        List<String> tabMobs = new ArrayList<>();
+                        for (EntityType mob : EntityType.values()) {
+                            tabMobs.add(mob.toString());
+                        }
+                        return tabMobs;
+                    }
                 default :
                     return Collections.singletonList("");
             }

@@ -55,19 +55,24 @@ public class CapaciteManager {
         }
         try {
             while (result.next()) {
+                Bukkit.getConsoleSender().sendMessage(String.valueOf(result.isClosed()));
                 int emplacement = result.getInt("emplacement");
                 int id_capacite = result.getInt("id_capacite");
                 int capacite_level = result.getInt("capacite_level");
 
                 ResultSet nameCapa = bdd.search("SELECT nom FROM CAPACITE WHERE id_capacite=" + id_capacite);
                 nameCapa.next();
+                Bukkit.getConsoleSender().sendMessage(String.valueOf(nameCapa.isClosed()));
                 String nom = nameCapa.getString("nom");
                 List<String> listCapa = new ArrayList<>(Arrays.asList(Integer.toString(capacite_level),nom));
+                Bukkit.getConsoleSender().sendMessage(listCapa.toString());
                 playerHashMap.put(emplacement,listCapa);
+                Bukkit.getConsoleSender().sendMessage(playerHashMap.toString());
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
         playerCompetences.put(playerId, playerHashMap);
+        Bukkit.getConsoleSender().sendMessage(playerCompetences.toString());
     }
 }
