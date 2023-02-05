@@ -128,13 +128,13 @@ public class CapaciteManager {
         }
 
         if (isInCapacite("Balle rebondissante",playerId)) {
-            int levelComp = CapaciteManager.getLevelCapacite("Flash", playerId);
+            int levelComp = CapaciteManager.getLevelCapacite("Balle rebondissante", playerId);
             switch (levelComp) {
                 case 1:
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP,999999,1,false,false,false));
+                    Bukkit.getScheduler().runTask(plugin,() -> player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP,999999,1,true,false,false)));
                     break;
                 case 2:
-                    player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP,999999,2,false,false,false));
+                    Bukkit.getScheduler().runTask(plugin,() -> player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP,999999,2,true,false,false)));
                     break;
             }
         } else {

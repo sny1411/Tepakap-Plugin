@@ -168,7 +168,7 @@ public class Competences implements CommandExecutor {
                 result.close();
             } catch (SQLException e) {
                 e.printStackTrace();
-                Bukkit.getConsoleSender().sendMessage("ici 3^^");
+                Bukkit.getConsoleSender().sendMessage("ici 3^^^");
             }
 
             ItemStack caseVide = new ItemStack(Material.BEACON);

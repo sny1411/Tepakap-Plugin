@@ -99,13 +99,11 @@ public class Listenner implements Listener {
     private void onInventoryOpen(InventoryOpenEvent e) {
         Location location = e.getInventory().getLocation();
         if (location == null) return;
-        {
-        }
         try {
             ResultSet chestBdd = bdd.search("SELECT id_coffre,UUID FROM COFFRE WHERE coordX=" + (int) location.getX() +
                     " AND coordY=" + location.getY() +
                     " AND coordZ=" + (int) location.getZ() +
-                    " AND monde='" + location.getWorld().getName() + "'");
+                    " AND monde='" + location.getWorld().getName() + "';");
 
             if (chestBdd.next()) { // Si le coffre est dans la bdd
                 Player openerPlayer = (Player) e.getPlayer();
@@ -975,14 +973,14 @@ public class Listenner implements Listener {
             if (CapaciteManager.getLevelCapacite("Balle rebondissante", playerID) != 3) {
                 return;
             }
-            e.setCancelled(true);
             p.setAllowFlight(false);
             p.setFlying(false);
             p.setVelocity(p.getLocation().getDirection().multiply(1).setY(0.9));
             p.playEffect(p.getLocation(), Effect.BLAZE_SHOOT, 15);
+            e.setCancelled(true);
             Bukkit.getScheduler().runTaskAsynchronously(ClockEvents.plugin, () -> {
                 try {
-                    TimeUnit.SECONDS.sleep(3);
+                    TimeUnit.MILLISECONDS.sleep(2500);
                 } catch (InterruptedException ex) {
                     throw new RuntimeException(ex);
                 }
