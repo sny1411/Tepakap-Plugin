@@ -7,15 +7,13 @@ import fr.sny1411.tepakap.commands.secureChest.Lock;
 import fr.sny1411.tepakap.sql.MysqlDb;
 import fr.sny1411.tepakap.utils.Random;
 import fr.sny1411.tepakap.utils.capacite.CapaciteManager;
+import fr.sny1411.tepakap.utils.larguage.ClockEvents;
 import fr.sny1411.tepakap.utils.larguage.Event;
 import fr.sny1411.tepakap.utils.larguage.EventsManager;
 import fr.sny1411.tepakap.utils.pioches.Pioche3x3;
 import fr.sny1411.tepakap.utils.secureChest.Lockable;
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Statistic;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.enchantments.Enchantment;
@@ -31,6 +29,7 @@ import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -39,6 +38,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class Listenner implements Listener {
     private final MysqlDb bdd;
@@ -82,6 +82,8 @@ public class Listenner implements Listener {
                 Lock.lockAuto.put(player.getUniqueId(), false);
             }
             CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+            player.setAllowFlight(true);
+            player.setFlying(false);
         });
     }
 
@@ -90,7 +92,7 @@ public class Listenner implements Listener {
         Player player = e.getPlayer();
         e.setQuitMessage("§8[§c-§8] §e" + player.getName());
         Lock.lockAuto.remove(player.getUniqueId());
-        Fly.actif.put(player.getUniqueId(),false);
+        Fly.actif.put(player.getUniqueId(), false);
     }
 
     @EventHandler
@@ -766,8 +768,8 @@ public class Listenner implements Listener {
     private void onPrepareAnvilCraft(PrepareAnvilEvent e) {
         ItemStack itemResult = e.getInventory().getResult();
         if (itemResult != null && itemResult.getItemMeta().hasCustomModelData()) {
-            Map<Enchantment,Integer> enchats = itemResult.getEnchantments();
-            if (enchats.containsKey(Enchantment.MENDING) || enchats.containsKey(Enchantment.SILK_TOUCH) ||  enchats.containsKey(Enchantment.LOOT_BONUS_BLOCKS) || Objects.requireNonNull(e.getInventory().getSecondItem()).getType() == Material.DIAMOND) {
+            Map<Enchantment, Integer> enchats = itemResult.getEnchantments();
+            if (enchats.containsKey(Enchantment.MENDING) || enchats.containsKey(Enchantment.SILK_TOUCH) || enchats.containsKey(Enchantment.LOOT_BONUS_BLOCKS) || Objects.requireNonNull(e.getInventory().getSecondItem()).getType() == Material.DIAMOND) {
                 e.setResult(new ItemStack(Material.BARRIER));
             }
         }
@@ -956,5 +958,37 @@ public class Listenner implements Listener {
                 }
             }
         }
+    }
+
+    @EventHandler (priority = EventPriority.HIGH)
+    private void setVelocity(PlayerToggleFlightEvent e) {
+        Player p = e.getPlayer();
+        UUID playerID = p.getUniqueId();
+        if (Fly.actif.containsKey(playerID) && Fly.actif.get(playerID)) {
+            return;
+        }
+
+        if (p.getGameMode() == GameMode.CREATIVE || p.getGameMode() == GameMode.SPECTATOR || p.isFlying()) {
+            return;
+        }
+        if (CapaciteManager.isInCapacite("Balle rebondissante", playerID)) {
+            if (CapaciteManager.getLevelCapacite("Balle rebondissante", playerID) != 3) {
+                return;
+            }
+            e.setCancelled(true);
+            p.setAllowFlight(false);
+            p.setFlying(false);
+            p.setVelocity(p.getLocation().getDirection().multiply(1).setY(0.9));
+            p.playEffect(p.getLocation(), Effect.BLAZE_SHOOT, 15);
+            Bukkit.getScheduler().runTaskAsynchronously(ClockEvents.plugin, () -> {
+                try {
+                    TimeUnit.SECONDS.sleep(3);
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException(ex);
+                }
+                p.setAllowFlight(true);
+            });
+        }
+        e.setCancelled(true);
     }
 }

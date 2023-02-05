@@ -3,6 +3,8 @@ package fr.sny1411.tepakap.utils.capacite;
 import fr.sny1411.tepakap.sql.MysqlDb;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -105,5 +107,38 @@ public class CapaciteManager {
         }
         playerCompetences.put(playerId, playerHashMap);
         Bukkit.getConsoleSender().sendMessage(playerCompetences.toString());
+
+        Player player = Bukkit.getServer().getPlayer(playerId);
+        assert player != null;
+        if (isInCapacite("Flash",playerId)) {
+            int levelComp = CapaciteManager.getLevelCapacite("Flash", playerId);
+            switch (levelComp) {
+                case 1:
+                    player.setWalkSpeed(0.22F);
+                    break;
+                case 2:
+                    player.setWalkSpeed(0.24F);
+                    break;
+                case 3:
+                    player.setWalkSpeed(0.26F);
+                    break;
+            }
+        } else {
+            player.setWalkSpeed(0.2F);
+        }
+
+        if (isInCapacite("Balle rebondissante",playerId)) {
+            int levelComp = CapaciteManager.getLevelCapacite("Flash", playerId);
+            switch (levelComp) {
+                case 1:
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP,999999,1,false,false,false));
+                    break;
+                case 2:
+                    player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP,999999,2,false,false,false));
+                    break;
+            }
+        } else {
+            player.removePotionEffect(PotionEffectType.JUMP);
+        }
     }
 }
