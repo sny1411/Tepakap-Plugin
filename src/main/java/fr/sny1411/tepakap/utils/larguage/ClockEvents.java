@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 public class ClockEvents {
     private static int timeSecond = 0;
     private static final int MAX_TIME_SECOND = 14400; // 4h
-    private static final int MIN_TIME_SECOND = 9000; // 2h30
+    private static final int MIN_TIME_SECOND = 7200; // 2h
     public static Main plugin;
     public static MysqlDb bdd;
 

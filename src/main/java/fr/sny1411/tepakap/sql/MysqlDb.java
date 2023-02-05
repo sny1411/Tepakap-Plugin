@@ -86,44 +86,39 @@ public class MysqlDb {
                 return statement.executeQuery(requete);
             }
         } catch (SQLException e) {
-            e.printStackTrace(); // test à retirer
+            e.printStackTrace();
             Bukkit.getServer().getConsoleSender().sendMessage("§4[ERREUR BDD] §cLA BDD N'EST PAS CONNECTE !");
             connected = false;
             connect();
-            search(requete);
+            return search(requete);
         }
         return null;
     }
 
     /***
      * @param requete sql
-     * @return ResultSet ou null si la requête échoue
      */
-    public boolean putNewItems(String requete) {
+    public void putNewItems(String requete) {
         try {
             if (connected) {
                 statement.executeUpdate(requete);
-                return true;
             }
         } catch (SQLException e) {
-            e.printStackTrace(); // test à retirer
+            e.printStackTrace();
             Bukkit.getServer().getConsoleSender().sendMessage("§4[ERREUR BDD] §cLA BDD N'EST PAS CONNECTE !");
             connected = false;
             connect();
             putNewItems(requete);
         }
-        return false;
     }
 
     /***
      * @param requete sql
-     * @return ResultSet ou null si la requête échoue
      */
-    public boolean modifyItems(String requete) {
+    public void modifyItems(String requete) {
         try {
             if (connected) {
                 statement.executeUpdate(requete);
-                return true;
             }
         } catch (SQLException e) {
             Bukkit.getServer().getConsoleSender().sendMessage("§4[ERREUR BDD] §cLA BDD N'EST PAS CONNECTE !");
@@ -131,6 +126,5 @@ public class MysqlDb {
             connect();
             modifyItems(requete);
         }
-        return false;
     }
 }

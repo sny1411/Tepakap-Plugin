@@ -20,7 +20,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 
 public class Competences implements CommandExecutor {
     private static MysqlDb bdd;
@@ -30,55 +29,55 @@ public class Competences implements CommandExecutor {
 
     public Competences(MysqlDb bdd, Main plugin) {
         Competences.bdd = bdd;
-        this.plugin = plugin;
+        Competences.plugin = plugin;
         initBlockCompetences();
         initGuiCapa();
     }
 
     private void initBlockCompetences() {
-        ItemStack chicken = SkullCustoms.getCustomSkull("ca3582ce4889333dad329e4e24372a03a5daa2c34280c56256af5283edb043f8");
+        ItemStack chicken = SkullCustoms.getCustomSkull("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMTYzODQ2OWE1OTljZWVmNzIwNzUzNzYwMzI0OGE5YWIxMWZmNTkxZmQzNzhiZWE0NzM1YjM0NmE3ZmFlODkzIn19fQ");
         ItemMeta chickenMeta = chicken.getItemMeta();
         chickenMeta.setDisplayName("Yamakasi");
         chicken.setItemMeta(chickenMeta);
         blockCompetences.put("Yamakasi", chicken);
 
-        ItemStack skeleton = SkullCustoms.getCustomSkull("d5a5839f179798cd3e7b09c371057665fa26f9369e267ffd471f0e78d4a65624");
+        ItemStack skeleton = SkullCustoms.getCustomSkull("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWNkNzEzYzVmNWU0NmRhNDM2YThmNTRiNTIzZDQzYWYyOWY3YWU4ZmIxODQ3OTJjY2E3M2IxNzE3ZmVhYTYxIn19fQ");
         ItemMeta skeletonMeta = skeleton.getItemMeta();
         skeletonMeta.setDisplayName("Carquois Amélioré");
         skeleton.setItemMeta(skeletonMeta);
         blockCompetences.put("Carquois Amélioré", skeleton);
 
-        ItemStack blaze = SkullCustoms.getCustomSkull("b78ef2e4cf2c41a2d14bfde9caff10219f5b1bf5b35a49eb51c6467882cb5f0");
+        ItemStack blaze = SkullCustoms.getCustomSkull("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjc4ZWYyZTRjZjJjNDFhMmQxNGJmZGU5Y2FmZjEwMjE5ZjViMWJmNWIzNWE0OWViNTFjNjQ2Nzg4MmNiNWYwIn19fQ");
         ItemMeta blazeMeta = blaze.getItemMeta();
         blazeMeta.setDisplayName("La Torche");
         blaze.setItemMeta(blazeMeta);
         blockCompetences.put("La Torche", blaze);
 
-        ItemStack rabbit = SkullCustoms.getCustomSkull("234cd6bbec5b4976f93e3f2415567248626877f17baf89a37220506f5957b97c");
+        ItemStack rabbit = SkullCustoms.getCustomSkull("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYmU1MGFmNTA0MzhhZmZjNjVjZTNiN2E4NWI4ZTgyY2ZiYzNjYWIxOTdjMjVkNGE2MTQyMzBhMmQxZTA2MDVkIn19fQ");
         ItemMeta rabbitMeta = rabbit.getItemMeta();
         rabbitMeta.setDisplayName("Balle rebondissante");
         rabbit.setItemMeta(rabbitMeta);
         blockCompetences.put("Balle rebondissante", rabbit);
 
-        ItemStack witherSkeleton = SkullCustoms.getCustomSkull("7953b6c68448e7e6b6bf8fb273d7203acd8e1be19e81481ead51f45de59a8");
+        ItemStack witherSkeleton = new ItemStack(Material.WITHER_SKELETON_SKULL);
         ItemMeta witherSkeletonMeta = witherSkeleton.getItemMeta();
         witherSkeletonMeta.setDisplayName("Poison Ivy");
         witherSkeleton.setItemMeta(witherSkeletonMeta);
         blockCompetences.put("Poison Ivy", witherSkeleton);
 
-        ItemStack horse = SkullCustoms.getCustomSkull("5300fc691073e5cd9f41eaf36388dee7fa7233e7dea4e38c3b9fb52401a4aabb");
+        ItemStack horse = SkullCustoms.getCustomSkull("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzVkYWVhMWZlM2YxMTBlZTcyMmYyYTU5YzFhZmU3YWVjMjMzYzk4YmE0ZGZlM2JhYTI2ZDYwM2ZiOGJiNWI4ZCJ9fX0");
         ItemMeta horseMeta = horse.getItemMeta();
         horseMeta.setDisplayName("Flash");
         horse.setItemMeta(horseMeta);
         blockCompetences.put("Flash", horse);
 
-        ItemStack mushroom = SkullCustoms.getCustomSkull("d3ebf38b4a708eb00745d1fb87a53cb81a7af6cc178d9a2c1116c2cbcff94fea");
+        ItemStack mushroom = SkullCustoms.getCustomSkull("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDBiYzYxYjk3NTdhN2I4M2UwM2NkMjUwN2EyMTU3OTEzYzJjZjAxNmU3YzA5NmE0ZDZjZjFmZTFiOGRiIn19fQ");
         ItemMeta mushroomMeta = mushroom.getItemMeta();
         mushroomMeta.setDisplayName("Inédien");
         mushroom.setItemMeta(mushroomMeta);
         blockCompetences.put("Inédien", mushroom);
 
-        ItemStack enderDragon = SkullCustoms.getCustomSkull("f68c1c079a7ffb36f48dd7150355e3e0b7f68dd605e6f8847313c360cf61e0c");
+        ItemStack enderDragon = new ItemStack(Material.DRAGON_HEAD);
         ItemMeta enderDragonMeta = enderDragon.getItemMeta();
         enderDragonMeta.setDisplayName("Superman");
         enderDragon.setItemMeta(enderDragonMeta);
@@ -87,7 +86,7 @@ public class Competences implements CommandExecutor {
 
     private void initGuiCapa() {
         Inventory inv = Bukkit.createInventory(null, 54, "§lCompétences");
-        inv = baseGui(inv);
+        baseGui(inv);
         inv.setItem(21,blockCompetences.get("Yamakasi"));
         inv.setItem(22,blockCompetences.get("Carquois Amélioré"));
         inv.setItem(23,blockCompetences.get("La Torche"));
@@ -102,10 +101,17 @@ public class Competences implements CommandExecutor {
         btnRetourMeta.setDisplayName("Retour");
         btnRetour.setItemMeta(btnRetourMeta);
         inv.setItem(45,btnRetour);
+
+        ItemStack btnResetCapa = new ItemStack(Material.STRUCTURE_VOID);
+        ItemMeta btnResetMeta = btnResetCapa.getItemMeta();
+        btnResetMeta.setDisplayName("Ne rien attribuer");
+        btnResetCapa.setItemMeta(btnResetMeta);
+        inv.setItem(53,btnResetCapa);
+
         invCapa = inv;
     }
 
-    private static Inventory baseGui(Inventory inv) {
+    private static void baseGui(Inventory inv) {
         ItemStack glassPane = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta metaGlassPane = glassPane.getItemMeta();
         metaGlassPane.setDisplayName(" ");
@@ -119,23 +125,22 @@ public class Competences implements CommandExecutor {
             }
         }
 
-        return inv;
     }
 
     public static void competGui(Player player, int nbCompetence) {
         ItemStack nbCapa;
         if (nbCompetence == 1) {
-            nbCapa = new ItemStack(Material.PLAYER_HEAD);
+            nbCapa = SkullCustoms.getCustomSkull("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzFiYzJiY2ZiMmJkMzc1OWU2YjFlODZmYzdhNzk1ODVlMTEyN2RkMzU3ZmMyMDI4OTNmOWRlMjQxYmM5ZTUzMCJ9fX0");
             ItemMeta nbCapaMeta = nbCapa.getItemMeta();
             nbCapaMeta.setDisplayName(String.valueOf(nbCompetence));
             nbCapa.setItemMeta(nbCapaMeta);
         } else if (nbCompetence == 2) {
-            nbCapa = new ItemStack(Material.PLAYER_HEAD);
+            nbCapa = SkullCustoms.getCustomSkull("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNGNkOWVlZWU4ODM0Njg4ODFkODM4NDhhNDZiZjMwMTI0ODVjMjNmNzU3NTNiOGZiZTg0ODczNDE0MTk4NDcifX19");
             ItemMeta nbCapaMeta = nbCapa.getItemMeta();
             nbCapaMeta.setDisplayName(String.valueOf(nbCompetence));
             nbCapa.setItemMeta(nbCapaMeta);
         } else {
-            nbCapa = new ItemStack(Material.PLAYER_HEAD);
+            nbCapa = SkullCustoms.getCustomSkull("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWQ0ZWFlMTM5MzM4NjBhNmRmNWU4ZTk1NTY5M2I5NWE4YzNiMTVjMzZiOGI1ODc1MzJhYzA5OTZiYzM3ZTUifX19");
             ItemMeta nbCapaMeta = nbCapa.getItemMeta();
             nbCapaMeta.setDisplayName(String.valueOf(nbCompetence));
             nbCapa.setItemMeta(nbCapaMeta);
@@ -148,45 +153,47 @@ public class Competences implements CommandExecutor {
 
     public static void selecteurCompetences(Player player) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+            Bukkit.getConsoleSender().sendMessage("ici ^^");
             Inventory inv = Bukkit.createInventory(null, 54, "§lVos compétences");
-            inv = baseGui(inv);
-            ResultSet result = bdd.search("SELECT id_capacite,emplacement FROM EQUIPE WHERE UUID='" + player.getUniqueId() + "'");
+            baseGui(inv);
             ItemStack[] blockCapacite = new ItemStack[3];
             try {
-                while (result.next()) {
+                ResultSet result = bdd.search("SELECT id_capacite,emplacement FROM EQUIPE WHERE UUID='" + player.getUniqueId() + "'");
+                Bukkit.getConsoleSender().sendMessage("ici 3^^");
+                while (!result.isClosed() && result.next()) {
                     int id_capa = result.getInt("id_capacite");
                     int emplacement = result.getInt("emplacement");
-                    ResultSet nameCapacite = bdd.search("SELECT nom FROM CAPACITE WHERE id_capacite=" + id_capa);
-                    nameCapacite.next();
-                    blockCapacite[emplacement - 1] = blockCompetences.get(nameCapacite.getString("nom"));
+                    blockCapacite[emplacement - 1] = blockCompetences.get(CapaciteManager.dicCapa.get(id_capa));
                 }
+                result.close();
             } catch (SQLException e) {
-                throw new RuntimeException(e);
+                e.printStackTrace();
+                Bukkit.getConsoleSender().sendMessage("ici 3^^");
             }
 
-            ItemStack structureVoid = new ItemStack(Material.STRUCTURE_VOID);
-            ItemMeta structureVoidMeta = structureVoid.getItemMeta();
-            structureVoidMeta.setDisplayName("Capacité vide !");
+            ItemStack caseVide = new ItemStack(Material.BEACON);
+            ItemMeta structureVoidMeta = caseVide.getItemMeta();
+            structureVoidMeta.setDisplayName("Capacité vide");
             structureVoidMeta.setLore(new ArrayList<>(Arrays.asList("Cliquez pour ajouter", "une compétence")));
-            structureVoid.setItemMeta(structureVoidMeta);
+            caseVide.setItemMeta(structureVoidMeta);
 
             if (blockCapacite[0] != null) {
-                inv.setItem(29,blockCapacite[0]);
+                inv.setItem(29, blockCapacite[0]);
             } else {
-                inv.setItem(29, structureVoid);
+                inv.setItem(29, caseVide);
             }
             int nbreCapa = CapaciteManager.hashMapCapacites.get(player.getUniqueId());
             if (nbreCapa > 1) {
-                if (blockCapacite[1] != null)  {
-                    inv.setItem(22,blockCapacite[0]);
+                if (blockCapacite[1] != null) {
+                    inv.setItem(22, blockCapacite[1]);
                 } else {
-                    inv.setItem(22, structureVoid);
+                    inv.setItem(22, caseVide);
                 }
             } else {
                 ItemStack barrier = new ItemStack(Material.BARRIER);
                 ItemMeta barrierMeta = barrier.getItemMeta();
-                barrierMeta.setDisplayName("Capacité bloquée !");
-                barrierMeta.setLore(new ArrayList<>(Arrays.asList("Cliquez pour la déverrouiller.", "Liste des requis :", "- 16 blocs de lapis",
+                barrierMeta.setDisplayName("Capacité bloquée");
+                barrierMeta.setLore(new ArrayList<>(Arrays.asList("Cliquez pour la déverrouiller", "Liste des requis :", "- 16 blocs de lapis",
                         "- 11 blocs d'or",
                         "- 30 niveaux d'xp")));
                 barrier.setItemMeta(barrierMeta);
@@ -196,14 +203,14 @@ public class Competences implements CommandExecutor {
                 if (blockCapacite[2] != null) {
                     inv.setItem(33, blockCapacite[2]);
                 } else {
-                    inv.setItem(33, structureVoid);
+                    inv.setItem(33, caseVide);
                 }
             } else {
                 ItemStack barrier = new ItemStack(Material.BARRIER);
                 ItemMeta barrierMeta = barrier.getItemMeta();
-                barrierMeta.setDisplayName("Capacité bloquée !");
+                barrierMeta.setDisplayName("Capacité bloquée");
                 if (nbreCapa != 1) {
-                    barrierMeta.setLore(new ArrayList<>(Arrays.asList("Cliquez pour la déverrouiller.",
+                    barrierMeta.setLore(new ArrayList<>(Arrays.asList("Cliquez pour la déverrouiller",
                             "Liste des requis :",
                             "- 32 blocs de lapis",
                             "- 22 blocs d'or",
@@ -213,10 +220,7 @@ public class Competences implements CommandExecutor {
                 barrier.setItemMeta(barrierMeta);
                 inv.setItem(33, barrier);
             }
-            Inventory finalInv = inv;
-            Bukkit.getScheduler().runTask(plugin, () -> {
-                player.openInventory(finalInv);
-            });
+            Bukkit.getScheduler().runTask(plugin, () -> player.openInventory(inv));
         });
     }
 

@@ -3,6 +3,7 @@ package fr.sny1411.tepakap;
 import fr.sny1411.tepakap.commands.Admin;
 import fr.sny1411.tepakap.commands.AdminCompleter;
 import fr.sny1411.tepakap.commands.Competences;
+import fr.sny1411.tepakap.commands.Fly;
 import fr.sny1411.tepakap.commands.secureChest.Lock;
 import fr.sny1411.tepakap.commands.secureChest.LockCompleter;
 import fr.sny1411.tepakap.commands.secureChest.Unlock;
@@ -36,7 +37,6 @@ public final class Main extends JavaPlugin {
         getCommand("lock").setTabCompleter(new LockCompleter());
         getCommand("unlock").setExecutor(new Unlock(bdd,this));
         getCommand("unlock").setTabCompleter(new UnlockCompleter());
-        getCommand("competences").setExecutor(new Competences(bdd,this));
 
         // Larguage
         ClockEvents.plugin = this;
@@ -49,6 +49,8 @@ public final class Main extends JavaPlugin {
 
         // Capacite
         CapaciteManager.initCapacite(bdd);
+        getCommand("competences").setExecutor(new Competences(bdd,this));
+        getCommand("fly").setExecutor(new Fly());
     }
 
     @Override

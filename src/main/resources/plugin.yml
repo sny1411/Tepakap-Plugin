@@ -12,3 +12,5 @@ commands:
     description: permet d'executer des commandes admin
   competences:
     description: permet d'executer des commandes competences
+  fly:
+    description: permet de voler

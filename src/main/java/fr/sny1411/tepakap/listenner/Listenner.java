@@ -2,8 +2,10 @@ package fr.sny1411.tepakap.listenner;
 
 import fr.sny1411.tepakap.Main;
 import fr.sny1411.tepakap.commands.Competences;
+import fr.sny1411.tepakap.commands.Fly;
 import fr.sny1411.tepakap.commands.secureChest.Lock;
 import fr.sny1411.tepakap.sql.MysqlDb;
+import fr.sny1411.tepakap.utils.Random;
 import fr.sny1411.tepakap.utils.capacite.CapaciteManager;
 import fr.sny1411.tepakap.utils.larguage.Event;
 import fr.sny1411.tepakap.utils.larguage.EventsManager;
@@ -17,18 +19,14 @@ import org.bukkit.Statistic;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
-import org.bukkit.event.entity.EntityDeathEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -40,10 +38,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class Listenner implements Listener {
     private final MysqlDb bdd;
@@ -61,9 +56,7 @@ public class Listenner implements Listener {
             Player player = e.getPlayer();
             ResultSet result = bdd.search("SELECT COUNT(*) FROM JOUEUR WHERE UUID='" + player.getUniqueId() + "'");
             if (result == null) {
-                Bukkit.getScheduler().runTask(main, () -> {
-                    player.kickPlayer("Base de donnée en cours de connexion, veuillez réessayer dans quelques secondes");
-                });
+                Bukkit.getScheduler().runTask(main, () -> player.kickPlayer("Base de donnée en cours de connexion, veuillez réessayer dans quelques secondes"));
                 return;
             }
             int nbreBddPlayer = 1;
@@ -76,7 +69,7 @@ public class Listenner implements Listener {
             String datetime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
             if (nbreBddPlayer == 0) { // nouveau joueur
                 player.sendMessage("\n§m--------------" + ChatColor.of("#E6C1F3") + "§lTepakap§r§f§m-------------\n§r \n" +
-                        "§r \u2600 " + ChatColor.of("#5CB2E5") + "Bienvenue sur le serveur " + ChatColor.of("#17539C") + player.getName() + " §f\u2600\n \n" +
+                        "§r ☀ " + ChatColor.of("#5CB2E5") + "Bienvenue sur le serveur " + ChatColor.of("#17539C") + player.getName() + " §f☀\n \n" +
                         "§f§m-----------------------------------\n");
                 bdd.putNewItems("INSERT INTO JOUEUR VALUES ('" + player.getUniqueId() + "','" + player.getName() + "','" + datetime + "','" + datetime + "',1)");
             } else if (nbreBddPlayer > 0) {
@@ -97,6 +90,7 @@ public class Listenner implements Listener {
         Player player = e.getPlayer();
         e.setQuitMessage("§8[§c-§8] §e" + player.getName());
         Lock.lockAuto.remove(player.getUniqueId());
+        Fly.actif.put(player.getUniqueId(),false);
     }
 
     @EventHandler
@@ -141,11 +135,11 @@ public class Listenner implements Listener {
             return;
         }
         ItemStack itemBreak = e.getPlayer().getInventory().getItemInMainHand();
-        if (!itemBreak.getItemMeta().hasCustomModelData()) {
+        if (itemBreak.getType() == Material.AIR || !itemBreak.getItemMeta().hasCustomModelData()) {
             return;
         }
         switch (itemBreak.getType()) {
-            case STONE_PICKAXE:
+            case WOODEN_PICKAXE:
                 Bukkit.getConsoleSender().sendMessage("here");
                 if (itemBreak.getItemMeta().getCustomModelData() == 1) {
                     if (block.getType() == Material.SPAWNER) {
@@ -190,7 +184,7 @@ public class Listenner implements Listener {
         if (inv.getType().equals(InventoryType.COMPOSTER)) {
             return;
         }
-        if (ChestInBdd(inv.getLocation())) {
+        if (ChestInBdd(Objects.requireNonNull(inv.getLocation()))) {
             e.setCancelled(true);
         }
     }
@@ -315,7 +309,7 @@ public class Listenner implements Listener {
                                 }
                                 i++;
                             }
-                            player.setLevel(player.getLevel()-30);
+                            player.setLevel(player.getLevel() - 30);
                             Bukkit.getScheduler().runTaskAsynchronously(main, () -> {
                                 bdd.modifyItems("UPDATE JOUEUR SET nbre_capacite=2 WHERE UUID='" + player.getUniqueId() + "'");
                                 CapaciteManager.hashMapCapacites.put(player.getUniqueId(), 2);
@@ -340,7 +334,7 @@ public class Listenner implements Listener {
                     if (typeItem == Material.BARRIER && e.getCurrentItem().getLore() != null) {
                         // verif items compet 3
                         Inventory playerInventory = player.getInventory();
-                        if (playerInventory.contains(Material.LAPIS_BLOCK, 32) && playerInventory.contains(Material.GOLD_BLOCK, 22) && player.getLevel() >= 40 && playerInventory.contains(Material.TOTEM_OF_UNDYING,1)) {
+                        if (playerInventory.contains(Material.LAPIS_BLOCK, 32) && playerInventory.contains(Material.GOLD_BLOCK, 22) && player.getLevel() >= 40 && playerInventory.contains(Material.TOTEM_OF_UNDYING, 1)) {
                             int lapis = 32;
                             int gold = 22;
                             int totem = 1;
@@ -364,7 +358,7 @@ public class Listenner implements Listener {
                                 }
                                 i++;
                             }
-                            player.setLevel(player.getLevel()-40);
+                            player.setLevel(player.getLevel() - 40);
                             Bukkit.getScheduler().runTaskAsynchronously(main, () -> {
                                 bdd.modifyItems("UPDATE JOUEUR SET nbre_capacite=3 WHERE UUID='" + player.getUniqueId() + "'");
                                 CapaciteManager.hashMapCapacites.put(player.getUniqueId(), 3);
@@ -384,13 +378,20 @@ public class Listenner implements Listener {
         } else if (invName.equalsIgnoreCase("§lCompétences")) {
             if (e.getSlot() == 45) {
                 Competences.selecteurCompetences((Player) e.getWhoClicked());
+                e.setCancelled(true);
+                return;
+            } else if (e.getSlot() == 53) {
+                Player player = (Player) e.getWhoClicked();
+                int emplacement = Integer.parseInt(Objects.requireNonNull(e.getInventory().getItem(4)).getItemMeta().getDisplayName());
+                bdd.modifyItems("DELETE FROM EQUIPE WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
+                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                Competences.selecteurCompetences(player);
             }
             Bukkit.getScheduler().runTaskAsynchronously(main, () -> {
                 ItemStack clickItem = e.getCurrentItem();
                 String nameClickItem = clickItem.getItemMeta().getDisplayName();
-                int nbCompet = Integer.parseInt(e.getInventory().getItem(4).getItemMeta().getDisplayName());
                 Player player = (Player) e.getWhoClicked();
-                int emplacement = Integer.parseInt(e.getInventory().getItem(4).getItemMeta().getDisplayName());
+                int emplacement = Integer.parseInt(Objects.requireNonNull(e.getInventory().getItem(4)).getItemMeta().getDisplayName());
                 ResultSet resultEmpOcc = bdd.search("SELECT id_capacite FROM EQUIPE WHERE emplacement=" + emplacement + " AND UUID='" + player.getUniqueId() + "'");
                 boolean isEmpOccupe;
                 try {
@@ -530,7 +531,7 @@ public class Listenner implements Listener {
                                 CapaciteManager.chargePlayerCompetences(player.getUniqueId());
                             }
                             Competences.selecteurCompetences(player);
-                        } else  {
+                        } else {
                             player.sendMessage("§cVous ne possédez pas cette capacité !");
                         }
                         break;
@@ -634,7 +635,37 @@ public class Listenner implements Listener {
                         }
                         break;
                     case "Superman":
-                        // pas pareil
+                        int nbreDragon = player.getStatistic(Statistic.KILL_ENTITY, EntityType.ENDER_DRAGON);
+                        if (nbreDragon >= 50) {
+                            if (isEmpOccupe) {
+                                bdd.modifyItems("UPDATE EQUIPE SET id_capacite=8,capacite_level=3 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            } else {
+                                bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',8," + emplacement + ",3)");
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            }
+                            Competences.selecteurCompetences(player);
+                        } else if (nbreDragon >= 20) {
+                            if (isEmpOccupe) {
+                                bdd.modifyItems("UPDATE EQUIPE SET id_capacite=8,capacite_level=2 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            } else {
+                                bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',8," + emplacement + ",2)");
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            }
+                            Competences.selecteurCompetences(player);
+                        } else if (nbreDragon >= 5) {
+                            if (isEmpOccupe) {
+                                bdd.modifyItems("UPDATE EQUIPE SET id_capacite=8,capacite_level=1 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            } else {
+                                bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',8," + emplacement + ",1)");
+                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                            }
+                            Competences.selecteurCompetences(player);
+                        } else {
+                            player.sendMessage("§cVous ne possédez pas cette capacité !");
+                        }
                         break;
                 }
             });
@@ -649,13 +680,13 @@ public class Listenner implements Listener {
     private int removeToInv(Inventory playerInventory, int numberOfDelete, int i, ItemStack itemInv, int numberOfItem) {
         if (numberOfItem > numberOfDelete) {
             itemInv.setAmount(numberOfItem - numberOfDelete);
-            playerInventory.setItem(i,itemInv);
+            playerInventory.setItem(i, itemInv);
             numberOfDelete = 0;
         } else if (numberOfItem < numberOfDelete) {
-            playerInventory.setItem(i,null);
+            playerInventory.setItem(i, null);
             numberOfDelete -= numberOfItem;
         } else {
-            playerInventory.setItem(i,null);
+            playerInventory.setItem(i, null);
             numberOfDelete = 0;
         }
         return numberOfDelete;
@@ -665,7 +696,7 @@ public class Listenner implements Listener {
     private void onEntityDeath(EntityDeathEvent e) {
         UUID idDeathMob = e.getEntity().getUniqueId();
         Iterator<Event> itrEvent = EventsManager.listEvent.iterator();
-        Boolean find = false;
+        boolean find = false;
         UUID aSupprimer = null;
         Event eventConcerne = null;
         while (itrEvent.hasNext() && !find) {
@@ -735,7 +766,8 @@ public class Listenner implements Listener {
     private void onPrepareAnvilCraft(PrepareAnvilEvent e) {
         ItemStack itemResult = e.getInventory().getResult();
         if (itemResult != null && itemResult.getItemMeta().hasCustomModelData()) {
-            if (itemResult.getEnchantments().containsKey(Enchantment.MENDING) || e.getInventory().getSecondItem().getType() == Material.DIAMOND) {
+            Map<Enchantment,Integer> enchats = itemResult.getEnchantments();
+            if (enchats.containsKey(Enchantment.MENDING) || enchats.containsKey(Enchantment.SILK_TOUCH) ||  enchats.containsKey(Enchantment.LOOT_BONUS_BLOCKS) || Objects.requireNonNull(e.getInventory().getSecondItem()).getType() == Material.DIAMOND) {
                 e.setResult(new ItemStack(Material.BARRIER));
             }
         }
@@ -756,6 +788,173 @@ public class Listenner implements Listener {
         }
         if (itemResult.getItemMeta().hasCustomModelData()) {
             e.setResult(new ItemStack(Material.BARRIER));
+        }
+    }
+
+    @EventHandler
+    private void onEntityKill(EntityDeathEvent e) {
+        Entity entity = e.getEntity();
+        if (entity.getType() == EntityType.ENDER_DRAGON) {
+            Player killer = e.getEntity().getKiller();
+            Collection<Player> playerList = entity.getLocation().getNearbyPlayers(150);
+            for (Player player : playerList) {
+                if (player != killer) {
+                    player.setStatistic(Statistic.KILL_ENTITY, EntityType.ENDER_DRAGON, player.getStatistic(Statistic.KILL_ENTITY, EntityType.ENDER_DRAGON) + 1);
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    private void onPlayerDamage(EntityDamageEvent e) {
+        if (e.getEntity() instanceof Player) {
+            Player player = (Player) e.getEntity();
+            UUID uuid = player.getUniqueId();
+            if (e.getCause() == EntityDamageEvent.DamageCause.FALL) {
+                if (CapaciteManager.isInCapacite("Yamakasi", uuid)) {
+                    int levelComp = CapaciteManager.getLevelCapacite("Yamakasi", uuid);
+                    int rand = Random.random(1, 100);
+                    switch (levelComp) {
+                        case 1:
+                            if (rand <= 15) {
+                                e.setCancelled(true);
+                            }
+                            break;
+                        case 2:
+                            if (rand <= 40) {
+                                e.setCancelled(true);
+                            }
+                            break;
+                        case 3:
+                            e.setCancelled(true);
+                            break;
+                    }
+                }
+            } else if (e.getCause() == EntityDamageEvent.DamageCause.LAVA || e.getCause() == EntityDamageEvent.DamageCause.FIRE || e.getCause() == EntityDamageEvent.DamageCause.FIRE_TICK) {
+                if (CapaciteManager.isInCapacite("La Torche", uuid)) {
+                    int levelComp = CapaciteManager.getLevelCapacite("La Torche", uuid);
+                    int rand = Random.random(1, 100);
+                    if (e.getCause() == EntityDamageEvent.DamageCause.LAVA) {
+                        switch (levelComp) {
+                            case 1:
+                                if (rand <= 75) {
+                                    e.setCancelled(true);
+                                }
+                                break;
+                            case 2:
+                                if (rand <= 90) {
+                                    e.setCancelled(true);
+                                }
+                                break;
+                            case 3:
+                                e.setCancelled(true);
+                                break;
+                        }
+                    } else if (e.getCause() == EntityDamageEvent.DamageCause.FIRE || e.getCause() == EntityDamageEvent.DamageCause.FIRE_TICK) {
+                        switch (levelComp) {
+                            case 1:
+                                if (rand <= 30) {
+                                    e.setCancelled(true);
+                                }
+                                break;
+                            case 2:
+                                if (rand <= 60) {
+                                    e.setCancelled(true);
+                                }
+                                break;
+                            case 3:
+                                e.setCancelled(true);
+                                break;
+                        }
+                    }
+                }
+            } else if (e.getCause() == EntityDamageEvent.DamageCause.WITHER) {
+                if (CapaciteManager.isInCapacite("Poison Ivy", uuid)) {
+                    int levelComp = CapaciteManager.getLevelCapacite("Poison Ivy", uuid);
+                    int rand = Random.random(1, 100);
+                    switch (levelComp) {
+                        case 1:
+                            if (rand <= 30) {
+                                e.setCancelled(true);
+                            }
+                            break;
+                        case 2:
+                            if (rand <= 60) {
+                                e.setCancelled(true);
+                            }
+                            break;
+                        case 3:
+                            e.setCancelled(true);
+                            break;
+                    }
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    private void entityAttack(ProjectileHitEvent e) {
+        if (e.getHitEntity() == null) {
+            return;
+        }
+        if (e.getEntity().getShooter() instanceof Player) {
+            Player player = (Player) e.getEntity().getShooter();
+            UUID playerID = player.getUniqueId();
+            if (player.getInventory().getItemInMainHand().getEnchantments().containsKey(Enchantment.ARROW_INFINITE)) {
+                Bukkit.getConsoleSender().sendMessage("arrow ARROW_INFINITE");
+                return;
+            }
+            if (player.getInventory().getItemInOffHand().getEnchantments().containsKey(Enchantment.ARROW_INFINITE)) {
+                Bukkit.getConsoleSender().sendMessage("arrow ARROW_INFINITE");
+                return;
+            }
+
+            if (CapaciteManager.isInCapacite("Carquois Amélioré", playerID)) {
+                int levelComp = CapaciteManager.getLevelCapacite("Carquois Amélioré", playerID);
+                int rand = Random.random(1, 100);
+                switch (levelComp) {
+                    case 1:
+                        if (rand <= 25) {
+                            player.getInventory().addItem(new ItemStack(Material.ARROW));
+                        }
+                        break;
+                    case 2:
+                        if (rand <= 50) {
+                            player.getInventory().addItem(new ItemStack(Material.ARROW));
+                        }
+                        break;
+                    case 3:
+                        player.getInventory().addItem(new ItemStack(Material.ARROW));
+                        break;
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    private void onEat(FoodLevelChangeEvent e) {
+        Player player = (Player) e.getEntity();
+        if (player.getFoodLevel() > e.getFoodLevel()) {
+            UUID uuid = player.getUniqueId();
+            if (CapaciteManager.isInCapacite("Inédien", uuid)) {
+                int levelComp = CapaciteManager.getLevelCapacite("Inédien", uuid);
+                int rand = Random.random(1, 100);
+                switch (levelComp) {
+                    case 1:
+                        if (rand <= 15) {
+                            e.setCancelled(true);
+                        }
+                        break;
+                    case 2:
+                        if (rand <= 40) {
+                            e.setCancelled(true);
+                        }
+                        break;
+                    case 3:
+                        e.setCancelled(true);
+                        break;
+                }
+            }
         }
     }
 }
