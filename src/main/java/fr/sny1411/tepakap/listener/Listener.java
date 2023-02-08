@@ -1,10 +1,11 @@
-package fr.sny1411.tepakap.listenner;
+package fr.sny1411.tepakap.listener;
 
 import fr.sny1411.tepakap.Main;
 import fr.sny1411.tepakap.commands.Competences;
 import fr.sny1411.tepakap.commands.Fly;
 import fr.sny1411.tepakap.commands.secureChest.Lock;
 import fr.sny1411.tepakap.sql.MysqlDb;
+import fr.sny1411.tepakap.utils.CurlExecute;
 import fr.sny1411.tepakap.utils.Random;
 import fr.sny1411.tepakap.utils.capacite.CapaciteManager;
 import fr.sny1411.tepakap.utils.larguage.ClockEvents;
@@ -20,7 +21,6 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
@@ -33,18 +33,17 @@ import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-public class Listenner implements Listener {
+public class Listener implements org.bukkit.event.Listener {
     private final MysqlDb bdd;
     private final Main main;
 
-    public Listenner(MysqlDb bdd, Main main) {
+    public Listener(MysqlDb bdd, Main main) {
         this.bdd = bdd;
         this.main = main;
     }
@@ -84,6 +83,8 @@ public class Listenner implements Listener {
             CapaciteManager.chargePlayerCompetences(player.getUniqueId());
             player.setAllowFlight(true);
             player.setFlying(false);
+
+            CurlExecute.sendDecoRecoInfi(player.getName() + " - Connexion");
         });
     }
 
@@ -93,6 +94,7 @@ public class Listenner implements Listener {
         e.setQuitMessage("§8[§c-§8] §e" + player.getName());
         Lock.lockAuto.remove(player.getUniqueId());
         Fly.actif.put(player.getUniqueId(), false);
+        CurlExecute.sendDecoRecoInfi(player.getName() + " - déconnexion");
     }
 
     @EventHandler
