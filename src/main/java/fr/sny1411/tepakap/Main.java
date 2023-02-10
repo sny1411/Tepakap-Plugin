@@ -12,6 +12,7 @@ import fr.sny1411.tepakap.utils.capacite.CapaciteManager;
 import fr.sny1411.tepakap.utils.larguage.ClockEvents;
 import fr.sny1411.tepakap.utils.maire.GuiMaire;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -65,10 +66,17 @@ public final class Main extends JavaPlugin {
         // Election
         Objects.requireNonNull(getCommand("maire")).setExecutor(new Maire());
         Objects.requireNonNull(getCommand("maire")).setTabCompleter(new MaireCompleter());
-        GuiMaire.initGuiMaire(bdd,0);
+        GuiMaire.initGuiMaire(bdd,customConfigData.getInt("maire.nbElection"));
         GuiMaire.initItemStackBonus();
         GuiMaire.initIdBonus();
         GuiMaire.initGuiChoix();
+
+        if (!Objects.equals(ClockEvents.plugin.getConfig().get("maire.xPres"), "None")) {
+            GuiMaire.presentoir = new Location(Bukkit.getWorld("world"),
+                    customConfigData.getInt("maire.xPres"),
+                    customConfigData.getInt("maire.yPres"),
+                    customConfigData.getInt("maire.zPres"));
+        }
     }
 
     @Override

@@ -1,2 +1,5 @@
 maire:
   nbElection:0
+  xPres:None
+  yPres:None
+  ZPres:None

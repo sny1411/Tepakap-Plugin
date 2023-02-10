@@ -3,10 +3,13 @@ package fr.sny1411.tepakap.commands;
 import fr.sny1411.tepakap.Main;
 import fr.sny1411.tepakap.sql.MysqlDb;
 import fr.sny1411.tepakap.utils.RessourcePack;
+import fr.sny1411.tepakap.utils.larguage.ClockEvents;
 import fr.sny1411.tepakap.utils.larguage.Event;
 import fr.sny1411.tepakap.utils.larguage.EventsManager;
 import fr.sny1411.tepakap.utils.larguage.Rarete;
 import fr.sny1411.tepakap.utils.maire.GuiMaire;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -14,6 +17,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.Set;
 
 public class Admin implements CommandExecutor {
     private Event larguage;
@@ -46,6 +51,7 @@ public class Admin implements CommandExecutor {
                     break;
                 case "CustomsModels":
                     if (args.length > 1) {
+                        assert commandSender instanceof Player;
                         RessourcePack.showCustomsRessources(Integer.parseInt(args[1]), (Player) commandSender);
                     }
                     break;
@@ -63,6 +69,15 @@ public class Admin implements CommandExecutor {
                     break;
                 case "changeVoteEnCours":
                     GuiMaire.voteEnCour = !GuiMaire.voteEnCour;
+                    break;
+                case "setPresentoir":
+                    assert commandSender instanceof Player;
+                    Player player = (Player) commandSender;
+                    Location target = player.getTargetBlock(null,5).getLocation();
+                    GuiMaire.presentoir = target;
+                    ClockEvents.plugin.getConfig().set("maire.xPres", target.getX());
+                    ClockEvents.plugin.getConfig().set("maire.yPres", target.getY());
+                    ClockEvents.plugin.getConfig().set("maire.zPres", target.getZ());
                     break;
                 default:
                     commandSender.sendMessage("§cErreur: §fArgument inconnu.");

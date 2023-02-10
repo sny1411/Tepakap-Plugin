@@ -27,10 +27,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.*;
-import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerToggleFlightEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -286,13 +283,93 @@ public class Listener implements org.bukkit.event.Listener {
         if (invName.equalsIgnoreCase("§linfo")) {
             e.setCancelled(true);
         } else if (invName.equalsIgnoreCase("§8§lChoix Bonus")) {
-            // ici
             ItemStack itemClick = e.getCurrentItem();
             String nameItemClick = itemClick.getItemMeta().getDisplayName();
-            String nbCase = e.getInventory().getItem(4).getItemMeta().getDisplayName();
+            String nbCase = Objects.requireNonNull(e.getInventory().getItem(4)).getItemMeta().getDisplayName();
             Player player = (Player) e.getWhoClicked();
             if (GuiMaire.itemBonus.containsKey(nameItemClick)) {
-                // + verif si il peuvent avoir le bonus
+                switch (nameItemClick) {
+                    case "Pilleur de trésors":
+                        ResultSet result = bdd.search("SELECT COUNT(*) FROM LARGUAGE WHERE UUID='" + player.getUniqueId() + "'");
+                        try {
+                            if (result.next()) {
+                                int n = result.getInt("COUNT(*)");
+                                if (n < 8) {
+                                    player.sendMessage("§cVous ne remplissez pas les pré-requis pour ce bonus");
+                                    e.setCancelled(true);
+                                    return;
+                                }
+                            } else {
+                                player.sendMessage("§cVous ne remplissez pas les pré-requis pour ce bonus");
+                                e.setCancelled(true);
+                                return;
+                            }
+                        } catch (SQLException ex) {
+                            e.setCancelled(true);
+                            ex.printStackTrace();
+                            return;
+                        }
+                        break;
+                    case "Chasseur de démons":
+                        int nbreWither = player.getStatistic(Statistic.KILL_ENTITY,EntityType.WITHER_SKELETON);
+                        if (nbreWither < 150) {
+                            player.sendMessage("§cVous ne remplissez pas les pré-requis pour ce bonus");
+                            e.setCancelled(true);
+                            return;
+                        }
+                        break;
+                    case "Bûcheron":
+                        int nbreAxeBreak = player.getStatistic(Statistic.BREAK_ITEM,Material.DIAMOND_AXE);
+                        if (nbreAxeBreak == 0) {
+                            player.sendMessage("§cVous ne remplissez pas les pré-requis pour ce bonus");
+                            e.setCancelled(true);
+                            return;
+                        }
+                        break;
+                    case "Mineur":
+                        int nbrePiocheBreak = player.getStatistic(Statistic.BREAK_ITEM,Material.DIAMOND_PICKAXE);
+                        if (nbrePiocheBreak == 0) {
+                            player.sendMessage("§cVous ne remplissez pas les pré-requis pour ce bonus");
+                            e.setCancelled(true);
+                            return;
+                        }
+                        break;
+                    case "Négociateur":
+                        ResultSet result2 = bdd.search("SELECT id FROM PRESENTATION_MAIRE WHERE (id_bonus_1=8 OR id_bonus_2=8 OR id_bonus_3=8) AND UUID='" + player.getUniqueId() + "'");
+                        try {
+                            if (!result2.next()) {
+                                player.sendMessage("§cVous ne remplissez pas les pré-requis pour ce bonus");
+                                e.setCancelled(true);
+                                return;
+                            }
+                        } catch (SQLException ex) {
+                            ex.printStackTrace();
+                            player.sendMessage("§cVous ne remplissez pas les pré-requis pour ce bonus");
+                            e.setCancelled(true);
+                            return;
+                        }
+                        break;
+                    case "Généreux":
+                        ResultSet result3 = bdd.search("SELECT id FROM DECORATION WHERE UUID='" + player.getUniqueId() + "'");
+                        try {
+                            if (!result3.next()) {
+                                player.sendMessage("§cVous ne remplissez pas les pré-requis pour ce bonus");
+                                e.setCancelled(true);
+                                return;
+                            }
+                        } catch (SQLException ex) {
+                            throw new RuntimeException(ex);
+                        }
+                    case "Arrache-Coeur":
+                        int nbreWarden = player.getStatistic(Statistic.KILL_ENTITY,EntityType.WARDEN);
+                        if (nbreWarden == 0) {
+                            player.sendMessage("§cVous ne remplissez pas les pré-requis pour ce bonus");
+                            e.setCancelled(true);
+                            return;
+                        }
+                        break;
+
+                }
                 GuiMaire.tempPresentation.get(player.getUniqueId()).put(Integer.valueOf(nbCase),nameItemClick);
                 GuiMaire.openGuiSePresenter(player);
             }
@@ -318,7 +395,12 @@ public class Listener implements org.bukkit.event.Listener {
                     if (hashTemp.keySet().size() == 3) {
                         Bukkit.getScheduler().runTaskAsynchronously(ClockEvents.plugin, () -> {
                             String datetime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
-                            bdd.putNewItems("INSERT INTO PRESENTATION_MAIRE(date_presentation,nbElection,UUID,id_bonus,id_bonus_1,id_bonus_2) VALUES ('" + datetime + "'," + GuiMaire.nbElection + ",'" + player.getUniqueId() + "'," + GuiMaire.hashIdBonus.get(hashTemp.get(1)) + "," + GuiMaire.hashIdBonus.get(hashTemp.get(2)) + "," + GuiMaire.hashIdBonus.get(hashTemp.get(3)) + ")");
+                            bdd.putNewItems("INSERT INTO PRESENTATION_MAIRE(date_presentation,nbElection,UUID,id_bonus_1,id_bonus_2,id_bonus_3) VALUES ('" + datetime + "'," + GuiMaire.nbElection + ",'" + player.getUniqueId() + "'," + GuiMaire.hashIdBonus.get(hashTemp.get(1)) + "," + GuiMaire.hashIdBonus.get(hashTemp.get(2)) + "," + GuiMaire.hashIdBonus.get(hashTemp.get(3)) + ")");
+                            Bukkit.getScheduler().runTask(ClockEvents.plugin, () -> {
+                                player.closeInventory();
+                            });
+                            player.sendMessage("§aVotre candidature est enregistré");
+                            player.sendMessage("§aBonne chance !");
                         });
                     } else {
                         player.sendMessage("§cLe choix de vos bonus n'est pas complet");
@@ -1032,5 +1114,18 @@ public class Listener implements org.bukkit.event.Listener {
             });
         }
         e.setCancelled(true);
+    }
+
+    @EventHandler
+    private void onPlayerInteract(PlayerInteractEvent e) {
+        if (e.getClickedBlock().getType() == Material.LECTERN) {
+            if (GuiMaire.presentoir != null && e.getClickedBlock().getLocation().equals(GuiMaire.presentoir)) {
+                if (GuiMaire.presentationEnCour) {
+                    GuiMaire.openGuiSePresenter(e.getPlayer());
+                } else if (GuiMaire.voteEnCour) {
+                    // open vote
+                }
+            }
+        }
     }
 }

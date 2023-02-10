@@ -4,6 +4,7 @@ import fr.sny1411.tepakap.sql.MysqlDb;
 import fr.sny1411.tepakap.utils.SkullCustoms;
 import fr.sny1411.tepakap.utils.larguage.ClockEvents;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
@@ -19,12 +20,13 @@ public class GuiMaire {
     public static Inventory invBaseSePresenter;
     public static Inventory invChoix;
     private static MysqlDb bdd;
-    public static int nbElection; // à init
-    public static boolean presentationEnCour; // à init
-    public static boolean voteEnCour; // à init
+    public static int nbElection;
+    public static boolean presentationEnCour;
+    public static boolean voteEnCour;
     public static HashMap<UUID, HashMap<Integer,String>> tempPresentation = new HashMap<>();
     public static HashMap<String,ItemStack> itemBonus = new HashMap<>();
     public static HashMap<String,Integer> hashIdBonus = new HashMap<>();
+    public static Location presentoir; // à init
 
     public static void initIdBonus() {
         hashIdBonus.put("Pilleur de trésors",1);
@@ -189,7 +191,7 @@ public class GuiMaire {
                 player.sendMessage("Vous ne pouvez pas vous présenter pour le moment");
                 return;
             }
-            ResultSet result = bdd.search("SELECT id FROM PRESENTATION_MAIRE WHERE UUID='" + player.getUniqueId() + "' AND nbElection=" + nbElection);
+            ResultSet result = bdd.search("SELECT id_bonus_1,id_bonus_2,id_bonus_3 FROM PRESENTATION_MAIRE WHERE UUID='" + player.getUniqueId() + "' AND nbElection=" + nbElection);
             try {
                 if (!result.next()) {
                     ItemStack balise = new ItemStack(Material.BEACON);
@@ -234,6 +236,19 @@ public class GuiMaire {
                     Bukkit.getScheduler().runTask(ClockEvents.plugin, () -> {
                         player.openInventory(invBaseSePresenter);
                     });
+                } else {
+                    List<Integer> listIntBonus = new ArrayList<>(Arrays.asList(result.getInt("id_bonus_1"),result.getInt("id_bonus_2"),result.getInt("id_bonus_3")));
+                    List<String> listBonus = new ArrayList<>();
+                    for (String bonus : hashIdBonus.keySet()) {
+                        if (listIntBonus.contains(hashIdBonus.get(bonus))) {
+                            listBonus.add(bonus);
+                        }
+                    }
+                    player.sendMessage("§aVotre présentation est enregistré avec les bonus suivant:");
+                    for (String bonus : listBonus) {
+                        player.sendMessage("§a- " + bonus);
+                    }
+
                 }
             } catch (SQLException e) {
                 throw new RuntimeException(e);
