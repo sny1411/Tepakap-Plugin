@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
 import java.sql.*;
+import java.util.concurrent.TimeUnit;
 
 /***
  * @author sny1411
@@ -90,6 +91,11 @@ public class MysqlDb {
             Bukkit.getServer().getConsoleSender().sendMessage("§4[ERREUR BDD] §cLA BDD N'EST PAS CONNECTE !");
             connected = false;
             connect();
+            try {
+                TimeUnit.SECONDS.sleep(2);
+            } catch (InterruptedException ex) {
+                throw new RuntimeException(ex);
+            }
             return search(requete);
         }
         return null;

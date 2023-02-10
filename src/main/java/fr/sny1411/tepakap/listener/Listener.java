@@ -11,6 +11,7 @@ import fr.sny1411.tepakap.utils.capacite.CapaciteManager;
 import fr.sny1411.tepakap.utils.larguage.ClockEvents;
 import fr.sny1411.tepakap.utils.larguage.Event;
 import fr.sny1411.tepakap.utils.larguage.EventsManager;
+import fr.sny1411.tepakap.utils.maire.GuiMaire;
 import fr.sny1411.tepakap.utils.pioches.Pioche3x3;
 import fr.sny1411.tepakap.utils.secureChest.Lockable;
 import net.md_5.bungee.api.ChatColor;
@@ -283,6 +284,47 @@ public class Listener implements org.bukkit.event.Listener {
             return;
         }
         if (invName.equalsIgnoreCase("§linfo")) {
+            e.setCancelled(true);
+        } else if (invName.equalsIgnoreCase("§8§lChoix Bonus")) {
+            // ici
+            ItemStack itemClick = e.getCurrentItem();
+            String nameItemClick = itemClick.getItemMeta().getDisplayName();
+            String nbCase = e.getInventory().getItem(4).getItemMeta().getDisplayName();
+            Player player = (Player) e.getWhoClicked();
+            if (GuiMaire.itemBonus.containsKey(nameItemClick)) {
+                // + verif si il peuvent avoir le bonus
+                GuiMaire.tempPresentation.get(player.getUniqueId()).put(Integer.valueOf(nbCase),nameItemClick);
+                GuiMaire.openGuiSePresenter(player);
+            }
+            e.setCancelled(true);
+        } else if (invName.equalsIgnoreCase("§8§lSe présenter maire")) {
+            int slot = e.getSlot();
+            Player player = (Player) e.getWhoClicked();
+            switch (slot) {
+                case 11:
+                    // open gui choix
+                    GuiMaire.openGuiChoisir(player,1);
+                    break;
+                case 13:
+                    GuiMaire.openGuiChoisir(player,2);
+                    // open gui choix
+                    break;
+                case 15:
+                    GuiMaire.openGuiChoisir(player,3);
+                    // open gui choix
+                    break;
+                case 22:
+                    HashMap<Integer,String> hashTemp = GuiMaire.tempPresentation.get(player.getUniqueId());
+                    if (hashTemp.keySet().size() == 3) {
+                        Bukkit.getScheduler().runTaskAsynchronously(ClockEvents.plugin, () -> {
+                            String datetime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+                            bdd.putNewItems("INSERT INTO PRESENTATION_MAIRE(date_presentation,nbElection,UUID,id_bonus,id_bonus_1,id_bonus_2) VALUES ('" + datetime + "'," + GuiMaire.nbElection + ",'" + player.getUniqueId() + "'," + GuiMaire.hashIdBonus.get(hashTemp.get(1)) + "," + GuiMaire.hashIdBonus.get(hashTemp.get(2)) + "," + GuiMaire.hashIdBonus.get(hashTemp.get(3)) + ")");
+                        });
+                    } else {
+                        player.sendMessage("§cLe choix de vos bonus n'est pas complet");
+                    }
+                    break;
+            }
             e.setCancelled(true);
         } else if (invName.equalsIgnoreCase("§lVos compétences")) {
             Material typeItem = e.getCurrentItem().getType();

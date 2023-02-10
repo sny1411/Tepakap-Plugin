@@ -16,13 +16,29 @@ import java.sql.SQLException;
 import java.util.*;
 
 public class GuiMaire {
-    static Inventory invBaseSePresenter;
+    public static Inventory invBaseSePresenter;
+    public static Inventory invChoix;
     private static MysqlDb bdd;
     public static int nbElection; // à init
     public static boolean presentationEnCour; // à init
     public static boolean voteEnCour; // à init
     public static HashMap<UUID, HashMap<Integer,String>> tempPresentation = new HashMap<>();
     public static HashMap<String,ItemStack> itemBonus = new HashMap<>();
+    public static HashMap<String,Integer> hashIdBonus = new HashMap<>();
+
+    public static void initIdBonus() {
+        hashIdBonus.put("Pilleur de trésors",1);
+        hashIdBonus.put("Energique",2);
+        hashIdBonus.put("Guerrier",3);
+        hashIdBonus.put("Chasseur de démons",4);
+        hashIdBonus.put("Agriculteur",5);
+        hashIdBonus.put("Bûcheron",6);
+        hashIdBonus.put("Mineur",7);
+        hashIdBonus.put("Négociateur",8);
+        hashIdBonus.put("Horloger",9);
+        hashIdBonus.put("Généreux",10);
+        hashIdBonus.put("Arrache-Coeur",11);
+    }
 
     public static void initItemStackBonus() {
         ItemStack pillerTresor = new ItemStack(Material.PAPER);
@@ -96,10 +112,12 @@ public class GuiMaire {
         genereux.setItemMeta(metaGenereux);
         itemBonus.put("Généreux", genereux);
 
-        ItemStack arracheCoeur = new ItemStack(Material.PAPER);
+        ItemStack arracheCoeur = new ItemStack(Material.BOOK); // FAUT FINIR
         ItemMeta metaArracheCoeur = arracheCoeur.getItemMeta();
+        metaArracheCoeur.setCustomModelData(2); // ICI -- rep metsuu
         metaArracheCoeur.setDisplayName("Arrache-Coeur");
         metaArracheCoeur.setLore(new ArrayList<>(Arrays.asList("Le drop du Coeur de Warden","passe de 50% à 100%","Requis: Tuer 1 Warden")));
+        arracheCoeur.setItemMeta(metaArracheCoeur);
         itemBonus.put("Arrache-Coeur", arracheCoeur);
     }
 
@@ -109,14 +127,60 @@ public class GuiMaire {
         //electionInit
         GuiMaire.nbElection = nbElection;
         // init gui se presenter
-        invBaseSePresenter = Bukkit.createInventory(null, InventoryType.CHEST, "§6§lSe présenter maire");
-        ItemStack item = new ItemStack(Material.BLACK_STAINED_GLASS);
+        invBaseSePresenter = Bukkit.createInventory(null, InventoryType.CHEST, "§8§lSe présenter maire");
+        ItemStack item = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta itemMeta = item.getItemMeta();
         itemMeta.setDisplayName(" ");
         item.setItemMeta(itemMeta);
         for (int i = 0; i < invBaseSePresenter.getSize(); i++) {
             invBaseSePresenter.setItem(i, item);
         }
+    }
+    public static void initGuiChoix() {
+        invChoix = Bukkit.createInventory(null, 54, "§8§lChoix Bonus");
+        ItemStack item = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
+        ItemMeta itemMeta = item.getItemMeta();
+        itemMeta.setDisplayName(" ");
+        item.setItemMeta(itemMeta);
+        int iItem = 0;
+        for (int i = 0; i < 54; i++) {
+            List<String> itemsKey = new ArrayList<>(itemBonus.keySet());
+            if ((i >= 20 && i <= 24) || (i >= 29 && i <= 33) || i == 40) {
+                invChoix.setItem(i,itemBonus.get(itemsKey.get(iItem)));
+                iItem++;
+            } else {
+                invChoix.setItem(i,item);
+            }
+        }
+
+    }
+
+    public static void openGuiChoisir(Player player, int nbBonus) {
+        switch (nbBonus) {
+            case 1:
+                ItemStack item = SkullCustoms.getCustomSkull("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzFiYzJiY2ZiMmJkMzc1OWU2YjFlODZmYzdhNzk1ODVlMTEyN2RkMzU3ZmMyMDI4OTNmOWRlMjQxYmM5ZTUzMCJ9fX0=");
+                ItemMeta itemMeta = item.getItemMeta();
+                itemMeta.setDisplayName("1");
+                item.setItemMeta(itemMeta);
+                invChoix.setItem(4,item);
+                break;
+            case 2:
+                item = SkullCustoms.getCustomSkull("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNGNkOWVlZWU4ODM0Njg4ODFkODM4NDhhNDZiZjMwMTI0ODVjMjNmNzU3NTNiOGZiZTg0ODczNDE0MTk4NDcifX19");
+                itemMeta = item.getItemMeta();
+                itemMeta.setDisplayName("2");
+                item.setItemMeta(itemMeta);
+                invChoix.setItem(4,item);
+                break;
+            case 3:
+                item = SkullCustoms.getCustomSkull("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWQ0ZWFlMTM5MzM4NjBhNmRmNWU4ZTk1NTY5M2I5NWE4YzNiMTVjMzZiOGI1ODc1MzJhYzA5OTZiYzM3ZTUifX19");
+                itemMeta = item.getItemMeta();
+                itemMeta.setDisplayName("3");
+                item.setItemMeta(itemMeta);
+                invChoix.setItem(4,item);
+                break;
+        }
+
+        player.openInventory(invChoix);
     }
 
     public static void openGuiSePresenter(Player player) {
@@ -127,12 +191,14 @@ public class GuiMaire {
             }
             ResultSet result = bdd.search("SELECT id FROM PRESENTATION_MAIRE WHERE UUID='" + player.getUniqueId() + "' AND nbElection=" + nbElection);
             try {
-                if (result.next()) {
+                if (!result.next()) {
                     ItemStack balise = new ItemStack(Material.BEACON);
                     ItemMeta baliseMeta = balise.getItemMeta();
+
                     baliseMeta.setDisplayName("Choisir");
                     balise.setItemMeta(baliseMeta);
                     if (!tempPresentation.containsKey(player.getUniqueId())) {
+                        tempPresentation.put(player.getUniqueId(), new HashMap<>());
                         invBaseSePresenter.setItem(11,balise);
                         invBaseSePresenter.setItem(13,balise);
                         invBaseSePresenter.setItem(15,balise);
@@ -140,16 +206,19 @@ public class GuiMaire {
                         HashMap<Integer,String> itemSelect = tempPresentation.get(player.getUniqueId());
                         if (itemSelect.containsKey(1)) {
                             // mettre item bonus
+                            invBaseSePresenter.setItem(11,itemBonus.get(itemSelect.get(1)));
                         } else {
                             invBaseSePresenter.setItem(11,balise);
                         }
                         if (itemSelect.containsKey(2)) {
                             // mettre item bonus
+                            invBaseSePresenter.setItem(13,itemBonus.get(itemSelect.get(2)));
                         } else {
                             invBaseSePresenter.setItem(13,balise);
                         }
                         if (itemSelect.containsKey(3)) {
                             // mettre item bonus
+                            invBaseSePresenter.setItem(15,itemBonus.get(itemSelect.get(3)));
                         } else {
                             invBaseSePresenter.setItem(15,balise);
                         }
@@ -162,7 +231,9 @@ public class GuiMaire {
 
                     invBaseSePresenter.setItem(22, valid);
 
-                    player.openInventory(invBaseSePresenter);
+                    Bukkit.getScheduler().runTask(ClockEvents.plugin, () -> {
+                        player.openInventory(invBaseSePresenter);
+                    });
                 }
             } catch (SQLException e) {
                 throw new RuntimeException(e);

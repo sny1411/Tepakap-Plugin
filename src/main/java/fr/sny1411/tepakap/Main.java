@@ -40,11 +40,10 @@ public final class Main extends JavaPlugin {
 
         // Secure Chest
         initLockAuto();
-        getCommand("lock").setExecutor(new Lock(bdd,this));
-        getCommand("lock").setTabCompleter(new LockCompleter());
-        getCommand("unlock").setExecutor(new Unlock(bdd,this));
-        getCommand("unlock").setTabCompleter(new UnlockCompleter());
-        getCommand("maire").setExecutor(new Maire());
+        Objects.requireNonNull(getCommand("lock")).setExecutor(new Lock(bdd,this));
+        Objects.requireNonNull(getCommand("lock")).setTabCompleter(new LockCompleter());
+        Objects.requireNonNull(getCommand("unlock")).setExecutor(new Unlock(bdd,this));
+        Objects.requireNonNull(getCommand("unlock")).setTabCompleter(new UnlockCompleter());
 
         // Largages
         ClockEvents.plugin = this;
@@ -57,16 +56,19 @@ public final class Main extends JavaPlugin {
 
         // Capacite
         CapaciteManager.initCapacite(bdd);
-        getCommand("competences").setExecutor(new Competences(bdd,this));
-        getCommand("fly").setExecutor(new Fly());
+        Objects.requireNonNull(getCommand("competences")).setExecutor(new Competences(bdd,this));
+        Objects.requireNonNull(getCommand("fly")).setExecutor(new Fly());
 
         // Notif
         CurlExecute.sendAdminInfo("Server start");
 
         // Election
-        
+        Objects.requireNonNull(getCommand("maire")).setExecutor(new Maire());
+        Objects.requireNonNull(getCommand("maire")).setTabCompleter(new MaireCompleter());
         GuiMaire.initGuiMaire(bdd,0);
         GuiMaire.initItemStackBonus();
+        GuiMaire.initIdBonus();
+        GuiMaire.initGuiChoix();
     }
 
     @Override

@@ -6,6 +6,7 @@ import fr.sny1411.tepakap.utils.RessourcePack;
 import fr.sny1411.tepakap.utils.larguage.Event;
 import fr.sny1411.tepakap.utils.larguage.EventsManager;
 import fr.sny1411.tepakap.utils.larguage.Rarete;
+import fr.sny1411.tepakap.utils.maire.GuiMaire;
 import org.bukkit.Statistic;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -56,6 +57,12 @@ public class Admin implements CommandExecutor {
                 case "competence":
                     assert commandSender instanceof Player;
                     ((Player)commandSender).setStatistic(Statistic.KILL_ENTITY, EntityType.valueOf(args[1]), Integer.parseInt(args[2]));
+                    break;
+                case "changePresentation":
+                    GuiMaire.presentationEnCour = !GuiMaire.presentationEnCour;
+                    break;
+                case "changeVoteEnCours":
+                    GuiMaire.voteEnCour = !GuiMaire.voteEnCour;
                     break;
                 default:
                     commandSender.sendMessage("§cErreur: §fArgument inconnu.");
