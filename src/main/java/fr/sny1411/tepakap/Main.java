@@ -64,8 +64,6 @@ public final class Main extends JavaPlugin {
         CurlExecute.sendAdminInfo("Server start");
 
         // Election
-        Objects.requireNonNull(getCommand("maire")).setExecutor(new Maire());
-        Objects.requireNonNull(getCommand("maire")).setTabCompleter(new MaireCompleter());
         GuiMaire.initGuiMaire(bdd,customConfigData.getInt("maire.nbElection"));
         GuiMaire.initItemStackBonus();
         GuiMaire.initIdBonus();

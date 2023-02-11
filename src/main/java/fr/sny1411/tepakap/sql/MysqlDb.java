@@ -47,7 +47,7 @@ public class MysqlDb {
                 try {
                     long startTime = System.currentTimeMillis();
                     Class.forName("com.mysql.cj.jdbc.Driver");
-                    Connection connection = DriverManager.getConnection("jdbc:mysql://" + URL +":"+PORT+"/"+NAMEDB, USER, PASS);
+                    Connection connection = DriverManager.getConnection("jdbc:mysql://" + URL +":"+PORT+"/"+NAMEDB + "?autoReconnect=true", USER, PASS);
                     statement = connection.createStatement();
                     Bukkit.getServer().getConsoleSender().sendMessage("§a[INFO BDD] §2BDD CONNECTE EN " +
                             (System.currentTimeMillis() - startTime) + " MS");

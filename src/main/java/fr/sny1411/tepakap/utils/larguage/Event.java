@@ -204,6 +204,7 @@ private Location approximateSpawn() {
 }
 
     private void spawnMobs() {
+        PotionEffect glowing = new PotionEffect(PotionEffectType.GLOWING,6000,1);
         switch (rarete) {
             case COMMUN:
                 for (int i = 0; i < 10; i++) {
@@ -212,6 +213,7 @@ private Location approximateSpawn() {
                     zombie.getEquipment().setChestplate(new ItemStack(Material.IRON_CHESTPLATE));
                     zombie.setShouldBurnInDay(false);
                     zombie.setLootTable(LootTables.EMPTY.getLootTable());
+                    zombie.addPotionEffect(glowing);
                     listMobsId.add(zombie.getUniqueId());
                 }
                 for (int i = 0; i < 5; i++) {
@@ -219,6 +221,7 @@ private Location approximateSpawn() {
                     Skeleton skeleton = (Skeleton) loc.getWorld().spawnEntity(loc, EntityType.SKELETON);
                     skeleton.setShouldBurnInDay(false);
                     skeleton.setLootTable(LootTables.EMPTY.getLootTable());
+                    skeleton.addPotionEffect(glowing);
                     listMobsId.add(skeleton.getUniqueId());
                 }
                 for (int i = 0; i < 3; i++) {
@@ -227,6 +230,7 @@ private Location approximateSpawn() {
                     zombie.setShouldBurnInDay(false);
                     zombie.setBaby();
                     zombie.setLootTable(LootTables.EMPTY.getLootTable());
+                    zombie.addPotionEffect(glowing);
                     listMobsId.add(zombie.getUniqueId());
                 }
                 break;
@@ -236,18 +240,22 @@ private Location approximateSpawn() {
                     Spider spider = (Spider) loc.getWorld().spawnEntity(loc, EntityType.SPIDER);
                     spider.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 600, 1));
                     spider.setLootTable(LootTables.EMPTY.getLootTable());
+                    spider.addPotionEffect(glowing);
                     listMobsId.add(spider.getUniqueId());
                 }
                 for (int i = 0; i < 10; i++) {
                     Location loc = approximateSpawn();
                     Silverfish silverfish = (Silverfish) loc.getWorld().spawnEntity(loc, EntityType.SILVERFISH);
                     silverfish.setLootTable(LootTables.EMPTY.getLootTable());
+                    silverfish.addPotionEffect(glowing);
                     listMobsId.add(silverfish.getUniqueId());
                 }
                 for (int i = 0; i < 5; i++) {
                     Location loc = approximateSpawn();
                     Stray stray = (Stray) loc.getWorld().spawnEntity(loc, EntityType.STRAY);
                     stray.setLootTable(LootTables.EMPTY.getLootTable());
+                    stray.setShouldBurnInDay(false);
+                    stray.addPotionEffect(glowing);
                     listMobsId.add(stray.getUniqueId());
                 }
                 break;
@@ -257,6 +265,7 @@ private Location approximateSpawn() {
                     CaveSpider caveSpider = (CaveSpider) loc.getWorld().spawnEntity(loc, EntityType.CAVE_SPIDER);
                     caveSpider.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 600, 1));
                     caveSpider.setLootTable(LootTables.EMPTY.getLootTable());
+                    caveSpider.addPotionEffect(glowing);
                     listMobsId.add(caveSpider.getUniqueId());
                 }
 
@@ -265,6 +274,7 @@ private Location approximateSpawn() {
                     Spider spider = (Spider) loc.getWorld().spawnEntity(loc, EntityType.SPIDER);
                     spider.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 600, 2));
                     spider.setLootTable(LootTables.EMPTY.getLootTable());
+                    spider.addPotionEffect(glowing);
                     listMobsId.add(spider.getUniqueId());
                 }
 
@@ -272,6 +282,7 @@ private Location approximateSpawn() {
                     Location loc = approximateSpawn();
                     Illusioner illusioner = (Illusioner) loc.getWorld().spawnEntity(loc, EntityType.ILLUSIONER);
                     illusioner.setLootTable(LootTables.EMPTY.getLootTable());
+                    illusioner.addPotionEffect(glowing);
                     listMobsId.add(illusioner.getUniqueId());
                 }
                 break;
@@ -280,12 +291,14 @@ private Location approximateSpawn() {
                 Ravager ravager = (Ravager) loc1.getWorld().spawnEntity(loc1,EntityType.RAVAGER);
                 ravager.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 600, 1));
                 ravager.setLootTable(LootTables.EMPTY.getLootTable());
+                ravager.addPotionEffect(glowing);
                 listMobsId.add(ravager.getUniqueId());
 
                 for (int i = 0; i < 3; i++) {
                     Location loc = approximateSpawn();
                     Evoker evoker = (Evoker) loc.getWorld().spawnEntity(loc,EntityType.EVOKER);
                     evoker.setLootTable(LootTables.EMPTY.getLootTable());
+                    evoker.addPotionEffect(glowing);
                     listMobsId.add(evoker.getUniqueId());
                 }
 
@@ -293,6 +306,7 @@ private Location approximateSpawn() {
                     Location loc = approximateSpawn();
                     Vindicator vindicator = (Vindicator) loc.getWorld().spawnEntity(loc,EntityType.VINDICATOR);
                     vindicator.setLootTable(LootTables.EMPTY.getLootTable());
+                    vindicator.addPotionEffect(glowing);
                     listMobsId.add(vindicator.getUniqueId());
                 }
                 break;

@@ -22,6 +22,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
@@ -874,10 +875,32 @@ public class Listener implements org.bukkit.event.Listener {
                     }
                 } else {
                     ItemStack itemHand = e.getPlayer().getItemOnCursor();
+                    if (!itemHand.hasItemMeta() && !itemHand.getItemMeta().hasCustomModelData()) {
+                        return;
+                    }
                     if (itemHand.getItemMeta().getCustomModelData() == 2 && itemHand.getType() == Material.PAPER) {
                         for (Event event : EventsManager.listEvent) {
                             if (event.armorStand.getUniqueId().equals(idArmorStand)) {
                                 event.chestDespawn();
+                                switch (event.rarete) {
+                                    case COMMUN:
+                                        int rand = Random.random(0,100);
+                                        if (rand > 70) {
+                                            // batterie
+                                        } else if (rand > 40) {
+                                            int rand2 = Random.random(0,60);
+                                            if (rand2 > 40) {
+                                                event.slayer.getInventory().addItem(new ItemStack(Material.OCHRE_FROGLIGHT,8));
+                                            }
+                                        }
+                                        break;
+                                    case RARE:
+                                        break;
+                                    case EPIQUE:
+                                        break;
+                                    case LEGENDAIRE:
+                                        break;
+                                }
                                 // Recompenses
                             }
                         }
@@ -1118,7 +1141,13 @@ public class Listener implements org.bukkit.event.Listener {
 
     @EventHandler
     private void onPlayerInteract(PlayerInteractEvent e) {
+        if (e.getClickedBlock() == null) {
+            return;
+        }
         if (e.getClickedBlock().getType() == Material.LECTERN) {
+            if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
+                return;
+            }
             if (GuiMaire.presentoir != null && e.getClickedBlock().getLocation().equals(GuiMaire.presentoir)) {
                 if (GuiMaire.presentationEnCour) {
                     GuiMaire.openGuiSePresenter(e.getPlayer());

@@ -14,5 +14,3 @@ commands:
     description: permet d'executer des commandes competences
   fly:
     description: permet de voler
-  maire:
-    description: permet d'executer des commandes maire

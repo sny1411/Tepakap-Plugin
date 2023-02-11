@@ -187,12 +187,8 @@ public class GuiMaire {
 
     public static void openGuiSePresenter(Player player) {
         Bukkit.getScheduler().runTaskAsynchronously(ClockEvents.plugin,() -> {
-            if (!presentationEnCour) {
-                player.sendMessage("Vous ne pouvez pas vous présenter pour le moment");
-                return;
-            }
-            ResultSet result = bdd.search("SELECT id_bonus_1,id_bonus_2,id_bonus_3 FROM PRESENTATION_MAIRE WHERE UUID='" + player.getUniqueId() + "' AND nbElection=" + nbElection);
             try {
+                ResultSet result = bdd.search("SELECT id_bonus_1,id_bonus_2,id_bonus_3 FROM PRESENTATION_MAIRE WHERE UUID='" + player.getUniqueId() + "' AND nbElection=" + nbElection);
                 if (!result.next()) {
                     ItemStack balise = new ItemStack(Material.BEACON);
                     ItemMeta baliseMeta = balise.getItemMeta();
@@ -237,7 +233,9 @@ public class GuiMaire {
                         player.openInventory(invBaseSePresenter);
                     });
                 } else {
+                    Bukkit.getConsoleSender().sendMessage("test1");
                     List<Integer> listIntBonus = new ArrayList<>(Arrays.asList(result.getInt("id_bonus_1"),result.getInt("id_bonus_2"),result.getInt("id_bonus_3")));
+                    Bukkit.getConsoleSender().sendMessage("test2");
                     List<String> listBonus = new ArrayList<>();
                     for (String bonus : hashIdBonus.keySet()) {
                         if (listIntBonus.contains(hashIdBonus.get(bonus))) {
