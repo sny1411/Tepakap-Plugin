@@ -31,11 +31,11 @@ public final class Main extends JavaPlugin {
         // Global
         createConfigDate();
         MysqlDb bdd = new MysqlDb(this,
-                "minecraft_390685",
-                "123456",
-                "minecraft1051.omgserv.com",
+                "minecraft_395992",
+                "Clem<3",
+                "minecraft3145.omgserv.com",
                 3306,
-                "minecraft_390685");
+                "minecraft_395992");
 
         Bukkit.getServer().getPluginManager().registerEvents(new Listener(bdd,this),this);
 

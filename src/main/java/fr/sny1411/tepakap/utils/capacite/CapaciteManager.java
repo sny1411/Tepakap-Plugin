@@ -147,6 +147,8 @@ public class CapaciteManager {
                 case 2:
                     Bukkit.getScheduler().runTask(plugin, () -> player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 999999, 2, true, false, false)));
                     break;
+                case 3:
+                    Bukkit.getScheduler().runTask(plugin, () -> player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 999999, 4, true, false, false)));
             }
         } else {
             player.removePotionEffect(PotionEffectType.JUMP);

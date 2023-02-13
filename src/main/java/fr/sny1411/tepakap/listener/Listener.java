@@ -141,16 +141,59 @@ public class Listener implements org.bukkit.event.Listener {
     @EventHandler
     private void onBlockBreak(BlockBreakEvent e) {
         Block block = e.getBlock();
-        if (Lockable.inList(block.getType())) {
-            return;
-        }
         Player player = e.getPlayer();
+
+        if (block.getType() == Material.LODESTONE) {
+            int x = block.getX();
+            int y = block.getY();
+            int z = block.getZ();
+            try {
+                ResultSet result = bdd.search("SELECT UUID FROM TELEPORTEUR WHERE (X1=" + x + " AND Y1=" + y + " AND Z1=" + z + ") OR (X2=" + x + " AND Y2=" + y + " AND Z2=" + z + ")");
+                if (result.next()) {
+                    if (result.getString("UUID").equals(player.getUniqueId().toString())) {
+                        bdd.modifyItems("DELETE FROM TELEPORTEUR WHERE (X1=" + x + " AND Y1=" + y + " AND Z1=" + z + ") OR (X2=" + x + " AND Y2=" + y + " AND Z2=" + z + ")");
+                        player.getInventory().addItem(new ItemStack(Material.DIAMOND_BLOCK,2));
+                    } else {
+                        player.sendMessage("§cVous ne pouvez pas casser ce téléporteur");
+                        e.setCancelled(true);
+                    }
+                }
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+
         ItemStack itemBreak = player.getInventory().getItemInMainHand();
-        if (itemBreak.getType() == Material.AIR || !itemBreak.getItemMeta().hasCustomModelData()) {
+        if (itemBreak.getType() == Material.AIR) {
             return;
         }
+
+        Location location = block.getLocation();
+        try {
+            ResultSet chestBdd = bdd.search("SELECT id_coffre,UUID FROM COFFRE WHERE coordX=" + (int) location.getX() +
+                    " AND coordY=" + location.getY() +
+                    " AND coordZ=" + (int) location.getZ() +
+                    " AND monde='" + location.getWorld().getName() + "'");
+
+            if (chestBdd.next()) { // Si le coffre est dans la bdd
+                Player breakerPlayer = e.getPlayer();
+                Bukkit.getConsoleSender().sendMessage( "TEST - " + breakerPlayer.getUniqueId().toString().equalsIgnoreCase(chestBdd.getString("UUID")));
+                if (breakerPlayer.getUniqueId().toString().equalsIgnoreCase(chestBdd.getString("UUID"))) { // Si le joueur n'est pas le propriétaire du coffre
+                    bdd.modifyItems("DELETE FROM COFFRE WHERE id_coffre=" + chestBdd.getInt("id_coffre"));
+                } else {
+                    breakerPlayer.sendMessage("§4[SecureChest] §c Ce coffre est verrouillé !");
+                    e.setCancelled(true); // On annule la destruction du coffre
+                }
+            }
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
+        }
+
         switch (itemBreak.getType()) {
             case WOODEN_PICKAXE:
+                if (!itemBreak.getItemMeta().hasCustomModelData()) {
+                    return;
+                }
                 if (itemBreak.getItemMeta().getCustomModelData() == 1) {
                     if (block.getType() == Material.SPAWNER) {
                         e.setDropItems(true);
@@ -158,6 +201,9 @@ public class Listener implements org.bukkit.event.Listener {
                 }
                 break;
             case DIAMOND_PICKAXE:
+                if (!itemBreak.getItemMeta().hasCustomModelData()) {
+                    return;
+                }
                 ItemMeta metaItem = itemBreak.getItemMeta();
                 if (metaItem.getCustomModelData() == 2) {
                     BlockFace blockFace = player.getTargetBlockFace(6);
@@ -170,7 +216,7 @@ public class Listener implements org.bukkit.event.Listener {
                     boolean slotInHand = player.getInventory().getItemInMainHand() == itemBreak;
 
                     if (dura == 1) {
-                       itemBreak.setAmount(0);
+                        itemBreak.setAmount(0);
                     } else {
                         metaItem.setLore(new ArrayList<>(Arrays.asList("Utilisation restante: " + (dura-1))));
                         itemBreak.setItemMeta(metaItem);
@@ -183,26 +229,6 @@ public class Listener implements org.bukkit.event.Listener {
                     player.updateInventory();
                 }
                 break;
-        }
-
-        Location location = block.getLocation();
-        try {
-            ResultSet chestBdd = bdd.search("SELECT id_coffre,UUID FROM COFFRE WHERE coordX=" + (int) location.getX() +
-                    " AND coordY=" + location.getY() +
-                    " AND coordZ=" + (int) location.getZ() +
-                    " AND monde='" + location.getWorld().getName() + "'");
-
-            if (chestBdd.next()) { // Si le coffre est dans la bdd
-                Player breakerPlayer = e.getPlayer();
-                if (breakerPlayer.getUniqueId().toString().equalsIgnoreCase(chestBdd.getString("UUID"))) { // Si le joueur n'est pas le propriétaire du coffre
-                    bdd.modifyItems("DELETE FROM COFFRE WHERE id_coffre=" + chestBdd.getInt("id_coffre"));
-                } else {
-                    breakerPlayer.sendMessage("§4[SecureChest] §c Ce coffre est verrouillé !");
-                    e.setCancelled(true); // On annule la destruction du coffre
-                }
-            }
-        } catch (SQLException ex) {
-            throw new RuntimeException(ex);
         }
     }
 
@@ -224,9 +250,24 @@ public class Listener implements org.bukkit.event.Listener {
         }
         List<Block> blocksExplode = e.blockList();
         for (Block temp : blocksExplode) {
+            if (temp.getType() == Material.LODESTONE) {
+                int x = temp.getX();
+                int y = temp.getY();
+                int z = temp.getZ();
+                try {
+                    ResultSet result = bdd.search("SELECT UUID FROM TELEPORTEUR WHERE (X1=" + x + " AND Y1=" + y + " AND Z1=" + z + ") OR (X2=" + x + " AND Y2=" + y + " AND Z2=" + z + ")");
+                    if (result.next()) {
+                        e.setCancelled(true);
+                        return;
+                    }
+                } catch (SQLException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
             if (Lockable.inList(temp.getType())) {
                 if (ChestInBdd(temp.getLocation())) {
                     e.setCancelled(true);
+                    return;
                 }
             }
         }
@@ -1344,7 +1385,7 @@ public class Listener implements org.bukkit.event.Listener {
         }
     }
 
-    @EventHandler (priority = EventPriority.HIGH)
+    /*@EventHandler (priority = EventPriority.HIGH) // BUG FLY INFINI
     private void setVelocity(PlayerToggleFlightEvent e) {
         Player p = e.getPlayer();
         UUID playerID = p.getUniqueId();
@@ -1375,7 +1416,7 @@ public class Listener implements org.bukkit.event.Listener {
             });
         }
         e.setCancelled(true);
-    }
+    }*/
 
     @EventHandler
     private void onPlayerInteract(PlayerInteractEvent e) {
@@ -1403,7 +1444,8 @@ public class Listener implements org.bukkit.event.Listener {
                     return;
                 }
                 if (Teleporteur.tempLoc.containsKey(player.getUniqueId())) {
-                    player.getInventory().setItemInMainHand(null);
+                    itemPlayer.setAmount(itemPlayer.getAmount()-1);
+                    player.getInventory().setItemInMainHand(itemPlayer);
                     Location loc1 = Teleporteur.tempLoc.get(player.getUniqueId());
                     Location loc2 = block.getLocation();
                     Teleporteur.tempLoc.remove(player.getUniqueId());

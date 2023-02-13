@@ -149,8 +149,6 @@ public class Competences implements CommandExecutor {
         player.openInventory(invCapa);
     }
 
-
-
     public static void selecteurCompetences(Player player) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
             Bukkit.getConsoleSender().sendMessage("ici ^^");
