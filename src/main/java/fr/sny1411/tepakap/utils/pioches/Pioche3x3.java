@@ -20,6 +20,7 @@ public class Pioche3x3 {
         ItemStack pioche = new ItemStack(Material.DIAMOND_PICKAXE);
         ItemMeta piocheMeta = pioche.getItemMeta();
         piocheMeta.setCustomModelData(2);
+        piocheMeta.setDisplayName("§bPioche Surchargée");
         pioche.setItemMeta(piocheMeta);
         return pioche;
     }
@@ -28,7 +29,6 @@ public class Pioche3x3 {
         switch (blockFace) {
             case NORTH:
             case SOUTH:
-                Bukkit.getConsoleSender().sendMessage("NORTH OR SOUTH BREAK");
                 Block block1 = block.getRelative(BlockFace.UP);
                 Block block2 = block.getRelative(BlockFace.DOWN);
                 Block block3 = block.getRelative(BlockFace.EAST);
@@ -50,7 +50,6 @@ public class Pioche3x3 {
 
             case EAST:
             case WEST:
-                Bukkit.getConsoleSender().sendMessage("EAST OR WEST BREAK");
                 block1 = block.getRelative(BlockFace.UP);
                 block2 = block.getRelative(BlockFace.DOWN);
                 block3 = block.getRelative(BlockFace.NORTH);
@@ -71,7 +70,6 @@ public class Pioche3x3 {
                 break;
             case UP:
             case DOWN:
-                Bukkit.getConsoleSender().sendMessage("UP OR DOWN BREAK");
                 block1 = block.getRelative(BlockFace.EAST);
                 block2 = block.getRelative(BlockFace.WEST);
                 block3 = block.getRelative(BlockFace.NORTH);

@@ -49,7 +49,7 @@ public final class Main extends JavaPlugin {
         // Largages
         ClockEvents.plugin = this;
         ClockEvents.bdd = bdd;
-        ClockEvents.startEvent();
+        //ClockEvents.startEvent();
 
         // ADMIN
         Objects.requireNonNull(getCommand("admin")).setExecutor(new Admin(this,bdd));

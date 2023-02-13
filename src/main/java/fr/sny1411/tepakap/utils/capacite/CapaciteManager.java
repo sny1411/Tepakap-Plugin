@@ -57,7 +57,11 @@ public class CapaciteManager {
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             playerCompetences.put(player.getUniqueId(), new HashMap<>());
-            chargePlayerCompetences(player.getUniqueId());
+            try {
+                chargePlayerCompetences(player.getUniqueId());
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 
@@ -82,8 +86,15 @@ public class CapaciteManager {
         return false;
     }
 
-    public static void chargePlayerCompetences(UUID playerId) {
-        ResultSet result = bdd.search("SELECT emplacement,id_capacite,capacite_level FROM EQUIPE WHERE UUID='" + playerId + "'");
+    public static void chargePlayerCompetences(UUID playerId) throws InterruptedException {
+        ResultSet result = null;
+        try {
+            result = bdd.search("SELECT emplacement,id_capacite,capacite_level FROM EQUIPE WHERE UUID='" + playerId + "'");
+        } catch (Exception e) {
+            e.printStackTrace();
+            TimeUnit.SECONDS.sleep(2);
+            chargePlayerCompetences(playerId);
+        }
         HashMap<Integer, List<String>> playerHashMap = new HashMap<>();
         if (result == null) {
             playerCompetences.put(playerId, playerHashMap);
@@ -96,9 +107,9 @@ public class CapaciteManager {
                 int id_capacite = result.getInt("id_capacite");
                 int capacite_level = result.getInt("capacite_level");
 
-                List<String> listCapa = new ArrayList<>(Arrays.asList(Integer.toString(capacite_level),dicCapa.get(id_capacite)));
+                List<String> listCapa = new ArrayList<>(Arrays.asList(Integer.toString(capacite_level), dicCapa.get(id_capacite)));
                 Bukkit.getConsoleSender().sendMessage(listCapa.toString());
-                playerHashMap.put(emplacement,listCapa);
+                playerHashMap.put(emplacement, listCapa);
                 Bukkit.getConsoleSender().sendMessage("ici => " + playerHashMap);
             }
         } catch (SQLException e) {
@@ -110,7 +121,7 @@ public class CapaciteManager {
 
         Player player = Bukkit.getServer().getPlayer(playerId);
         assert player != null;
-        if (isInCapacite("Flash",playerId)) {
+        if (isInCapacite("Flash", playerId)) {
             int levelComp = CapaciteManager.getLevelCapacite("Flash", playerId);
             switch (levelComp) {
                 case 1:
@@ -127,14 +138,14 @@ public class CapaciteManager {
             player.setWalkSpeed(0.2F);
         }
 
-        if (isInCapacite("Balle rebondissante",playerId)) {
+        if (isInCapacite("Balle rebondissante", playerId)) {
             int levelComp = CapaciteManager.getLevelCapacite("Balle rebondissante", playerId);
             switch (levelComp) {
                 case 1:
-                    Bukkit.getScheduler().runTask(plugin,() -> player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP,999999,1,true,false,false)));
+                    Bukkit.getScheduler().runTask(plugin, () -> player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 999999, 1, true, false, false)));
                     break;
                 case 2:
-                    Bukkit.getScheduler().runTask(plugin,() -> player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP,999999,2,true,false,false)));
+                    Bukkit.getScheduler().runTask(plugin, () -> player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP, 999999, 2, true, false, false)));
                     break;
             }
         } else {

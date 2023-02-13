@@ -8,7 +8,7 @@ import java.util.Arrays;
 public class Lockable {
     public static ArrayList<Material> listBlocks = new ArrayList<>(Arrays.asList(Material.CHEST,
             Material.TRAPPED_CHEST,
-            Material.SHULKER_BOX));
+            Material.SHULKER_BOX,Material.BARREL));
     public static ArrayList<Material> getList() {
         return listBlocks;
     }

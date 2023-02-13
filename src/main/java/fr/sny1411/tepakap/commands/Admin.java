@@ -8,6 +8,7 @@ import fr.sny1411.tepakap.utils.larguage.Event;
 import fr.sny1411.tepakap.utils.larguage.EventsManager;
 import fr.sny1411.tepakap.utils.larguage.Rarete;
 import fr.sny1411.tepakap.utils.maire.GuiMaire;
+import fr.sny1411.tepakap.utils.pioches.*;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Statistic;
@@ -78,6 +79,21 @@ public class Admin implements CommandExecutor {
                     ClockEvents.plugin.getConfig().set("maire.xPres", target.getX());
                     ClockEvents.plugin.getConfig().set("maire.yPres", target.getY());
                     ClockEvents.plugin.getConfig().set("maire.zPres", target.getZ());
+                    break;
+                case "testPioche":
+                    assert commandSender instanceof Player;
+                    player = (Player) commandSender;
+                    player.getInventory().addItem(Pioche3x3.get());
+                    player.getInventory().addItem(PiocheBedrock.get());
+                    player.getInventory().addItem(PiocheIncinerator.get());
+                    player.getInventory().addItem(PiocheSpawner.get());
+                    player.getInventory().addItem(PiocheMultiTool.get());
+                    break;
+                case "info":
+                    assert commandSender instanceof Player;
+                    player = (Player) commandSender;
+                    player.sendMessage("maire presentation:" + GuiMaire.presentationEnCour);
+                    player.sendMessage("maire vote:" + GuiMaire.voteEnCour);
                     break;
                 default:
                     commandSender.sendMessage("§cErreur: §fArgument inconnu.");

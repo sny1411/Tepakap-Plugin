@@ -21,7 +21,7 @@ public class AdminCompleter implements TabCompleter {
             assert args != null;
             switch (args.length) {
                 case 1 :
-                    return new ArrayList<>(Arrays.asList("chestLarguage","chestDespawn","CustomsModels","testRarete","competence","changePresentation","changeVoteEnCours","setPresentoir"));
+                    return new ArrayList<>(Arrays.asList("chestLarguage","chestDespawn","CustomsModels","testRarete","competence","changePresentation","changeVoteEnCours","setPresentoir","testPioche","info"));
                 case 2:
                     if (args[0].equals("competence")) {
                         List<String> tabMobs = new ArrayList<>();

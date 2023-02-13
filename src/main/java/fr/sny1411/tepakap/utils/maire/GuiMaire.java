@@ -114,9 +114,9 @@ public class GuiMaire {
         genereux.setItemMeta(metaGenereux);
         itemBonus.put("Généreux", genereux);
 
-        ItemStack arracheCoeur = new ItemStack(Material.BOOK); // FAUT FINIR
+        ItemStack arracheCoeur = new ItemStack(Material.PRISMARINE_CRYSTALS);
         ItemMeta metaArracheCoeur = arracheCoeur.getItemMeta();
-        metaArracheCoeur.setCustomModelData(2); // ICI -- rep metsuu
+        metaArracheCoeur.setCustomModelData(1);
         metaArracheCoeur.setDisplayName("Arrache-Coeur");
         metaArracheCoeur.setLore(new ArrayList<>(Arrays.asList("Le drop du Coeur de Warden","passe de 50% à 100%","Requis: Tuer 1 Warden")));
         arracheCoeur.setItemMeta(metaArracheCoeur);
@@ -242,7 +242,7 @@ public class GuiMaire {
                             listBonus.add(bonus);
                         }
                     }
-                    player.sendMessage("§aVotre présentation est enregistré avec les bonus suivant:");
+                    player.sendMessage("§aVotre présentation est enregistrée avec les bonus suivant:");
                     for (String bonus : listBonus) {
                         player.sendMessage("§a- " + bonus);
                     }

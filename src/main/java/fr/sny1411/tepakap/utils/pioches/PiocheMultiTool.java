@@ -7,13 +7,14 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class PiocheSpawner {
+public class PiocheMultiTool {
     public static ItemStack get() {
-        ItemStack pioche = new ItemStack(Material.WOODEN_PICKAXE);
+        ItemStack pioche = new ItemStack(Material.DIAMOND_PICKAXE);
         ItemMeta piocheMeta = pioche.getItemMeta();
-        piocheMeta.setCustomModelData(1);
-        piocheMeta.setDisplayName("§bSoul Breaker");
-        piocheMeta.setLore(new ArrayList<>(Arrays.asList("Utilisation restante: 4")));
+        piocheMeta.setCustomModelData(3);
+        piocheMeta.setDisplayName("§bMultiTool");
+        piocheMeta.setLore(new ArrayList<>(Arrays.asList("Utilisation restante: 4000")));
+        piocheMeta.setUnbreakable(true);
         pioche.setItemMeta(piocheMeta);
         return pioche;
     }

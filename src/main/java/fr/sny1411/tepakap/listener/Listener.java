@@ -7,6 +7,7 @@ import fr.sny1411.tepakap.commands.secureChest.Lock;
 import fr.sny1411.tepakap.sql.MysqlDb;
 import fr.sny1411.tepakap.utils.CurlExecute;
 import fr.sny1411.tepakap.utils.Random;
+import fr.sny1411.tepakap.utils.Teleporteur;
 import fr.sny1411.tepakap.utils.capacite.CapaciteManager;
 import fr.sny1411.tepakap.utils.larguage.ClockEvents;
 import fr.sny1411.tepakap.utils.larguage.Event;
@@ -14,6 +15,7 @@ import fr.sny1411.tepakap.utils.larguage.EventsManager;
 import fr.sny1411.tepakap.utils.maire.GuiMaire;
 import fr.sny1411.tepakap.utils.pioches.Pioche3x3;
 import fr.sny1411.tepakap.utils.secureChest.Lockable;
+import io.papermc.lib.PaperLib;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -29,6 +31,7 @@ import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
+import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -79,9 +82,15 @@ public class Listener implements org.bukkit.event.Listener {
             if (!Lock.lockAuto.containsKey(player.getUniqueId())) {
                 Lock.lockAuto.put(player.getUniqueId(), false);
             }
-            CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+            try {
+                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+            } catch (InterruptedException ex) {
+                throw new RuntimeException(ex);
+            }
             player.setAllowFlight(true);
             player.setFlying(false);
+
+            Teleporteur.coolDown.put(player.getUniqueId(),false);
 
             CurlExecute.sendDecoRecoInfi(player.getName() + " - Connexion");
         });
@@ -135,13 +144,13 @@ public class Listener implements org.bukkit.event.Listener {
         if (Lockable.inList(block.getType())) {
             return;
         }
-        ItemStack itemBreak = e.getPlayer().getInventory().getItemInMainHand();
+        Player player = e.getPlayer();
+        ItemStack itemBreak = player.getInventory().getItemInMainHand();
         if (itemBreak.getType() == Material.AIR || !itemBreak.getItemMeta().hasCustomModelData()) {
             return;
         }
         switch (itemBreak.getType()) {
             case WOODEN_PICKAXE:
-                Bukkit.getConsoleSender().sendMessage("here");
                 if (itemBreak.getItemMeta().getCustomModelData() == 1) {
                     if (block.getType() == Material.SPAWNER) {
                         e.setDropItems(true);
@@ -149,11 +158,29 @@ public class Listener implements org.bukkit.event.Listener {
                 }
                 break;
             case DIAMOND_PICKAXE:
-                if (itemBreak.getItemMeta().getCustomModelData() == 2) {
-                    BlockFace blockFace = e.getPlayer().getTargetBlockFace(6);
+                ItemMeta metaItem = itemBreak.getItemMeta();
+                if (metaItem.getCustomModelData() == 2) {
+                    BlockFace blockFace = player.getTargetBlockFace(6);
                     if (blockFace != null) {
                         Pioche3x3.casser(block, blockFace);
                     }
+                } else if (metaItem.getCustomModelData() == 1) {
+                    // pioche multiTool
+                    int dura = Integer.parseInt(metaItem.getLore().get(0).split(":")[1].replace(" ",""));
+                    boolean slotInHand = player.getInventory().getItemInMainHand() == itemBreak;
+
+                    if (dura == 1) {
+                       itemBreak.setAmount(0);
+                    } else {
+                        metaItem.setLore(new ArrayList<>(Arrays.asList("Utilisation restante: " + (dura-1))));
+                        itemBreak.setItemMeta(metaItem);
+                    }
+                    if (slotInHand) {
+                        player.getInventory().setItemInMainHand(itemBreak);
+                    } else {
+                        player.getInventory().setItemInOffHand(itemBreak);
+                    }
+                    player.updateInventory();
                 }
                 break;
         }
@@ -192,6 +219,9 @@ public class Listener implements org.bukkit.event.Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onExplode1(EntityExplodeEvent e) {
+        if (e.getEntity().getType() == EntityType.CREEPER) {
+            e.setCancelled(true);
+        }
         List<Block> blocksExplode = e.blockList();
         for (Block temp : blocksExplode) {
             if (Lockable.inList(temp.getType())) {
@@ -400,7 +430,7 @@ public class Listener implements org.bukkit.event.Listener {
                             Bukkit.getScheduler().runTask(ClockEvents.plugin, () -> {
                                 player.closeInventory();
                             });
-                            player.sendMessage("§aVotre candidature est enregistré");
+                            player.sendMessage("§aVotre candidature est enregistrée");
                             player.sendMessage("§aBonne chance !");
                         });
                     } else {
@@ -511,7 +541,11 @@ public class Listener implements org.bukkit.event.Listener {
                 Player player = (Player) e.getWhoClicked();
                 int emplacement = Integer.parseInt(Objects.requireNonNull(e.getInventory().getItem(4)).getItemMeta().getDisplayName());
                 bdd.modifyItems("DELETE FROM EQUIPE WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
-                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                try {
+                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                } catch (InterruptedException ex) {
+                    throw new RuntimeException(ex);
+                }
                 Competences.selecteurCompetences(player);
             }
             Bukkit.getScheduler().runTaskAsynchronously(main, () -> {
@@ -533,30 +567,54 @@ public class Listener implements org.bukkit.event.Listener {
                             // capa niveau 3
                             if (isEmpOccupe) {
                                 bdd.modifyItems("UPDATE EQUIPE SET id_capacite=1,capacite_level=3 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             } else {
                                 bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',1," + emplacement + ",3)");
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             }
                             Competences.selecteurCompetences(player);
                         } else if (nbrePoule >= 900) {
                             // capa niveau 2
                             if (isEmpOccupe) {
                                 bdd.modifyItems("UPDATE EQUIPE SET id_capacite=1,capacite_level=2 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             } else {
                                 bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',1," + emplacement + ",2)");
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             }
                             Competences.selecteurCompetences(player);
                         } else if (nbrePoule >= 450) {
                             // capa niveau 1
                             if (isEmpOccupe) {
                                 bdd.modifyItems("UPDATE EQUIPE SET id_capacite=1,capacite_level=1 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             } else {
                                 bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',1," + emplacement + ",1)");
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             }
                             Competences.selecteurCompetences(player);
                         } else {
@@ -568,28 +626,52 @@ public class Listener implements org.bukkit.event.Listener {
                         if (nbreSquelette >= 800) {
                             if (isEmpOccupe) {
                                 bdd.modifyItems("UPDATE EQUIPE SET id_capacite=2,capacite_level=3 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             } else {
                                 bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',2," + emplacement + ",3)");
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             }
                             Competences.selecteurCompetences(player);
                         } else if (nbreSquelette >= 400) {
                             if (isEmpOccupe) {
                                 bdd.modifyItems("UPDATE EQUIPE SET id_capacite=2,capacite_level=2 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             } else {
                                 bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',2," + emplacement + ",2)");
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             }
                             Competences.selecteurCompetences(player);
                         } else if (nbreSquelette >= 150) {
                             if (isEmpOccupe) {
                                 bdd.modifyItems("UPDATE EQUIPE SET id_capacite=2,capacite_level=1 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             } else {
                                 bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',2," + emplacement + ",1)");
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             }
                             Competences.selecteurCompetences(player);
                         } else {
@@ -601,28 +683,52 @@ public class Listener implements org.bukkit.event.Listener {
                         if (nbreBlaze >= 750) {
                             if (isEmpOccupe) {
                                 bdd.modifyItems("UPDATE EQUIPE SET id_capacite=3,capacite_level=3 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             } else {
                                 bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',3," + emplacement + ",3)");
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             }
                             Competences.selecteurCompetences(player);
                         } else if (nbreBlaze >= 350) {
                             if (isEmpOccupe) {
                                 bdd.modifyItems("UPDATE EQUIPE SET id_capacite=3,capacite_level=2 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             } else {
                                 bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',3," + emplacement + ",2)");
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             }
                             Competences.selecteurCompetences(player);
                         } else if (nbreBlaze >= 150) {
                             if (isEmpOccupe) {
                                 bdd.modifyItems("UPDATE EQUIPE SET id_capacite=3,capacite_level=1 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             } else {
                                 bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',3," + emplacement + ",1)");
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             }
                             Competences.selecteurCompetences(player);
                         } else {
@@ -634,28 +740,52 @@ public class Listener implements org.bukkit.event.Listener {
                         if (nbreCheval >= 350) {
                             if (isEmpOccupe) {
                                 bdd.modifyItems("UPDATE EQUIPE SET id_capacite=4,capacite_level=3 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             } else {
                                 bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',4," + emplacement + ",3)");
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             }
                             Competences.selecteurCompetences(player);
                         } else if (nbreCheval >= 200) {
                             if (isEmpOccupe) {
                                 bdd.modifyItems("UPDATE EQUIPE SET id_capacite=4,capacite_level=2 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             } else {
                                 bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',4," + emplacement + ",2)");
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             }
                             Competences.selecteurCompetences(player);
                         } else if (nbreCheval >= 100) {
                             if (isEmpOccupe) {
                                 bdd.modifyItems("UPDATE EQUIPE SET id_capacite=4,capacite_level=1 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             } else {
                                 bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',4," + emplacement + ",1)");
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             }
                             Competences.selecteurCompetences(player);
                         } else {
@@ -667,28 +797,52 @@ public class Listener implements org.bukkit.event.Listener {
                         if (nbreLapins >= 1500) {
                             if (isEmpOccupe) {
                                 bdd.modifyItems("UPDATE EQUIPE SET id_capacite=5,capacite_level=3 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             } else {
                                 bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',5," + emplacement + ",3)");
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             }
                             Competences.selecteurCompetences(player);
                         } else if (nbreLapins >= 900) {
                             if (isEmpOccupe) {
                                 bdd.modifyItems("UPDATE EQUIPE SET id_capacite=5,capacite_level=2 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             } else {
                                 bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',5," + emplacement + ",2)");
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             }
                             Competences.selecteurCompetences(player);
                         } else if (nbreLapins >= 400) {
                             if (isEmpOccupe) {
                                 bdd.modifyItems("UPDATE EQUIPE SET id_capacite=5,capacite_level=1 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             } else {
                                 bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',5," + emplacement + ",1)");
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             }
                             Competences.selecteurCompetences(player);
                         } else {
@@ -700,28 +854,52 @@ public class Listener implements org.bukkit.event.Listener {
                         if (nbreChampimeuh >= 200) {
                             if (isEmpOccupe) {
                                 bdd.modifyItems("UPDATE EQUIPE SET id_capacite=6,capacite_level=3 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             } else {
                                 bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',6," + emplacement + ",3)");
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             }
                             Competences.selecteurCompetences(player);
                         } else if (nbreChampimeuh >= 150) {
                             if (isEmpOccupe) {
                                 bdd.modifyItems("UPDATE EQUIPE SET id_capacite=6,capacite_level=2 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             } else {
                                 bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',6," + emplacement + ",2)");
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             }
                             Competences.selecteurCompetences(player);
                         } else if (nbreChampimeuh >= 100) {
                             if (isEmpOccupe) {
                                 bdd.modifyItems("UPDATE EQUIPE SET id_capacite=6,capacite_level=1 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             } else {
                                 bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',6," + emplacement + ",1)");
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             }
                             Competences.selecteurCompetences(player);
                         } else {
@@ -733,28 +911,52 @@ public class Listener implements org.bukkit.event.Listener {
                         if (nbreWitherSkull >= 500) {
                             if (isEmpOccupe) {
                                 bdd.modifyItems("UPDATE EQUIPE SET id_capacite=7,capacite_level=3 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             } else {
                                 bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',7," + emplacement + ",3)");
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             }
                             Competences.selecteurCompetences(player);
                         } else if (nbreWitherSkull >= 250) {
                             if (isEmpOccupe) {
                                 bdd.modifyItems("UPDATE EQUIPE SET id_capacite=7,capacite_level=2 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             } else {
                                 bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',7," + emplacement + ",2)");
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             }
                             Competences.selecteurCompetences(player);
                         } else if (nbreWitherSkull >= 100) {
                             if (isEmpOccupe) {
                                 bdd.modifyItems("UPDATE EQUIPE SET id_capacite=7,capacite_level=1 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             } else {
                                 bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',7," + emplacement + ",1)");
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             }
                             Competences.selecteurCompetences(player);
                         } else {
@@ -766,28 +968,52 @@ public class Listener implements org.bukkit.event.Listener {
                         if (nbreDragon >= 50) {
                             if (isEmpOccupe) {
                                 bdd.modifyItems("UPDATE EQUIPE SET id_capacite=8,capacite_level=3 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             } else {
                                 bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',8," + emplacement + ",3)");
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             }
                             Competences.selecteurCompetences(player);
                         } else if (nbreDragon >= 20) {
                             if (isEmpOccupe) {
                                 bdd.modifyItems("UPDATE EQUIPE SET id_capacite=8,capacite_level=2 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             } else {
                                 bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',8," + emplacement + ",2)");
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             }
                             Competences.selecteurCompetences(player);
                         } else if (nbreDragon >= 5) {
                             if (isEmpOccupe) {
                                 bdd.modifyItems("UPDATE EQUIPE SET id_capacite=8,capacite_level=1 WHERE UUID='" + player.getUniqueId() + "' AND emplacement=" + emplacement);
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             } else {
                                 bdd.putNewItems("INSERT INTO EQUIPE VALUES ('" + player.getUniqueId() + "',8," + emplacement + ",1)");
-                                CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                try {
+                                    CapaciteManager.chargePlayerCompetences(player.getUniqueId());
+                                } catch (InterruptedException ex) {
+                                    throw new RuntimeException(ex);
+                                }
                             }
                             Competences.selecteurCompetences(player);
                         } else {
@@ -821,6 +1047,17 @@ public class Listener implements org.bukkit.event.Listener {
 
     @EventHandler
     private void onEntityDeath(EntityDeathEvent e) {
+        if (e.getEntity().getType() == EntityType.WARDEN) {
+            int rand = Random.random(0,100);
+            if (rand >= 50) {
+                ItemStack coeur = new ItemStack(Material.PRISMARINE_CRYSTALS);
+                ItemMeta coeurMeta = coeur.getItemMeta();
+                coeurMeta.setCustomModelData(1);
+                coeurMeta.setDisplayName("§aCoeur de Warden");
+                coeur.setItemMeta(coeurMeta);
+                e.getEntity().getWorld().dropItemNaturally(e.getEntity().getLocation(),coeur);
+            }
+        }
         UUID idDeathMob = e.getEntity().getUniqueId();
         Iterator<Event> itrEvent = EventsManager.listEvent.iterator();
         boolean find = false;
@@ -1118,6 +1355,7 @@ public class Listener implements org.bukkit.event.Listener {
         if (p.getGameMode() == GameMode.CREATIVE || p.getGameMode() == GameMode.SPECTATOR || p.isFlying()) {
             return;
         }
+
         if (CapaciteManager.isInCapacite("Balle rebondissante", playerID)) {
             if (CapaciteManager.getLevelCapacite("Balle rebondissante", playerID) != 3) {
                 return;
@@ -1141,19 +1379,107 @@ public class Listener implements org.bukkit.event.Listener {
 
     @EventHandler
     private void onPlayerInteract(PlayerInteractEvent e) {
-        if (e.getClickedBlock() == null) {
+        Block block = e.getClickedBlock();
+        if (block == null) {
             return;
         }
-        if (e.getClickedBlock().getType() == Material.LECTERN) {
+        if (block.getType() == Material.LECTERN) {
             if (e.getAction() == Action.LEFT_CLICK_BLOCK) {
                 return;
             }
-            if (GuiMaire.presentoir != null && e.getClickedBlock().getLocation().equals(GuiMaire.presentoir)) {
+            if (GuiMaire.presentoir != null && block.getLocation().equals(GuiMaire.presentoir)) {
                 if (GuiMaire.presentationEnCour) {
                     GuiMaire.openGuiSePresenter(e.getPlayer());
                 } else if (GuiMaire.voteEnCour) {
                     // open vote
                 }
+            }
+        } else if (block.getType() == Material.LODESTONE) {
+            Player player = e.getPlayer();
+            ItemStack itemPlayer = player.getInventory().getItemInMainHand();
+            if (itemPlayer.getType() == Material.DIAMOND_BLOCK) {
+                if (!player.getWorld().getName().equalsIgnoreCase("world")) {
+                    player.sendMessage("§cLes téléporteur ne sont utilisable que dans l'overworld");
+                    return;
+                }
+                if (Teleporteur.tempLoc.containsKey(player.getUniqueId())) {
+                    player.getInventory().setItemInMainHand(null);
+                    Location loc1 = Teleporteur.tempLoc.get(player.getUniqueId());
+                    Location loc2 = block.getLocation();
+                    Teleporteur.tempLoc.remove(player.getUniqueId());
+                    bdd.putNewItems("INSERT INTO TELEPORTEUR(X1,X2,Y1,Y2,Z1,Z2,UUID) VALUES (" + loc1.getX() + "," + loc2.getX() + "," + loc1.getY() + "," + loc2.getY() + "," + loc1.getZ() + "," + loc2.getZ() + ",'" + player.getUniqueId() + "')");
+                    player.sendMessage("§aTéléporteur link");
+                    Bukkit.getConsoleSender().sendMessage("§a[Teleporteur] " + player.getName() + " tp link");
+                    e.setCancelled(true);
+                } else {
+                    player.getInventory().setItemInMainHand(null);
+                    Bukkit.getConsoleSender().sendMessage(block.getLocation().toString());
+                    Teleporteur.tempLoc.put(player.getUniqueId(),block.getLocation());
+                    player.sendMessage("§aTéléporteur enregistré");
+                    player.sendMessage("§aCliquez avec un bloc de diamant sur l'autre pour l'associer");
+                    Bukkit.getConsoleSender().sendMessage("§a[Teleporteur] " + player.getName() + " tp register");
+                    e.setCancelled(true);
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    private void onPortalCreateEvent(PortalCreateEvent e) {
+        if (e.getWorld() == Bukkit.getWorld("world_nether")) {
+            Location loc = e.getBlocks().get(0).getLocation();
+            int x = (int) loc.getX();
+            int z = (int) loc.getZ();
+            if ((x > 1870 || x < -1870) || (z > 1870 || z < -1870)) {
+                if (e.getEntity() instanceof Player) {
+                    Player player = (Player) e.getEntity();
+                    player.sendMessage("§cVotre portail se trouve trop loin");
+                }
+                e.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
+    private void onPlayerSneak(PlayerToggleSneakEvent e) {
+        Player player = e.getPlayer();
+        if (player.isSneaking()) {
+            Block block = player.getLocation().subtract(0, 1, 0).getBlock();
+            if (block != null && block.getType() == Material.LODESTONE) {
+                Bukkit.getScheduler().runTaskAsynchronously(ClockEvents.plugin,() -> {
+                    Location loc = block.getLocation();
+                    if (Teleporteur.coolDown.get(player.getUniqueId())) {
+                        player.sendMessage("§cTéléporteur en surchauffe");
+                        return;
+                    }
+                    try {
+                        ResultSet result = bdd.search("SELECT X1,Y1,Z1 FROM TELEPORTEUR WHERE X2=" + loc.getX() + " AND Y2=" + loc.getY() + " AND Z2=" + loc.getZ());
+                        if (result.next()) {
+                            int x = result.getInt("X1");
+                            int y = result.getInt("Y1");
+                            int z = result.getInt("Z1");
+                            PaperLib.teleportAsync(player,new Location(Bukkit.getWorld("world"),x+0.5,y+1,z+0.5));
+                            Teleporteur.coolDown.put(player.getUniqueId(),true);
+                            TimeUnit.SECONDS.sleep(3);
+                            Teleporteur.coolDown.put(player.getUniqueId(),false);
+                        } else {
+                            ResultSet result2 = bdd.search("SELECT X2,Y2,Z2 FROM TELEPORTEUR WHERE X1=" + loc.getX() + " AND Y1=" + loc.getY() + " AND Z1=" + loc.getZ());
+                            if (result2.next()) {
+                                int x = result2.getInt("X2");
+                                int y = result2.getInt("Y2");
+                                int z = result2.getInt("Z2");
+                                PaperLib.teleportAsync(player,new Location(Bukkit.getWorld("world"),x+0.5,y+1,z+0.5));
+                                Teleporteur.coolDown.put(player.getUniqueId(),true);
+                                TimeUnit.SECONDS.sleep(3);
+                                Teleporteur.coolDown.put(player.getUniqueId(),false);
+                            }
+                        }
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                    } catch (InterruptedException ex) {
+                        ex.printStackTrace();
+                    }
+                });
             }
         }
     }
