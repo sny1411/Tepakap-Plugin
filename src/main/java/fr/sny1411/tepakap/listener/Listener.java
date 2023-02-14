@@ -1,11 +1,11 @@
 package fr.sny1411.tepakap.listener;
 
 import fr.sny1411.tepakap.Main;
+import fr.sny1411.tepakap.commands.Admin;
 import fr.sny1411.tepakap.commands.Competences;
 import fr.sny1411.tepakap.commands.Fly;
 import fr.sny1411.tepakap.commands.secureChest.Lock;
 import fr.sny1411.tepakap.sql.MysqlDb;
-import fr.sny1411.tepakap.utils.CurlExecute;
 import fr.sny1411.tepakap.utils.Random;
 import fr.sny1411.tepakap.utils.Teleporteur;
 import fr.sny1411.tepakap.utils.capacite.CapaciteManager;
@@ -16,6 +16,7 @@ import fr.sny1411.tepakap.utils.maire.GuiMaire;
 import fr.sny1411.tepakap.utils.pioches.Pioche3x3;
 import fr.sny1411.tepakap.utils.secureChest.Lockable;
 import io.papermc.lib.PaperLib;
+import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -52,6 +53,10 @@ public class Listener implements org.bukkit.event.Listener {
 
     @EventHandler
     private void onPLayerJoin(PlayerJoinEvent e) {
+        if (!Admin.canJoin && !e.getPlayer().getName().equalsIgnoreCase("sny1411")) {
+            e.getPlayer().kick(Component.text("RDV 20H LES MECS"), PlayerKickEvent.Cause.WHITELIST);
+            return;
+        }
         e.setJoinMessage("§8[§a+§8] §e" + e.getPlayer().getName());
         Bukkit.getScheduler().runTaskAsynchronously(main, () -> {
             Player player = e.getPlayer();
@@ -87,12 +92,11 @@ public class Listener implements org.bukkit.event.Listener {
             } catch (InterruptedException ex) {
                 throw new RuntimeException(ex);
             }
-            player.setAllowFlight(true);
+            player.setAllowFlight(false);
             player.setFlying(false);
 
             Teleporteur.coolDown.put(player.getUniqueId(),false);
 
-            CurlExecute.sendDecoRecoInfi(player.getName() + " - Connexion");
         });
     }
 
@@ -102,7 +106,6 @@ public class Listener implements org.bukkit.event.Listener {
         e.setQuitMessage("§8[§c-§8] §e" + player.getName());
         Lock.lockAuto.remove(player.getUniqueId());
         Fly.actif.put(player.getUniqueId(), false);
-        CurlExecute.sendDecoRecoInfi(player.getName() + " - déconnexion");
     }
 
     @EventHandler
@@ -348,7 +351,6 @@ public class Listener implements org.bukkit.event.Listener {
     @EventHandler
     private void onPlayerClickInv(InventoryClickEvent e) {
         String invName = e.getView().getTitle();
-        InventoryType typeGui = e.getInventory().getType();
         if (e.getCurrentItem() == null) {
             return;
         }
@@ -1064,10 +1066,8 @@ public class Listener implements org.bukkit.event.Listener {
                 }
             });
             e.setCancelled(true);
-        } else if (typeGui == InventoryType.ANVIL || typeGui == InventoryType.SMITHING) {
-            if (e.getCurrentItem().getType() == Material.BARRIER) {
-                e.setCancelled(true);
-            }
+        } else if (e.getCurrentItem().getType() == Material.BARRIER) {
+           e.setCancelled(true);
         }
     }
 
@@ -1129,6 +1129,7 @@ public class Listener implements org.bukkit.event.Listener {
                     keyMeta.setCustomModelData(2);
                     key.setItemMeta(keyMeta);
                     event.slayer.getInventory().addItem(key);
+                    EventsManager.ChestAttack.put(event.armorStand.getUniqueId(),true);
                     EventsManager.ChestAttack.put(event.armorStand.getUniqueId(), false);
                 }
             }
@@ -1142,45 +1143,65 @@ public class Listener implements org.bukkit.event.Listener {
             e.getPlayer().sendMessage(String.valueOf(EventsManager.ChestAttack));
             ArmorStand armorStand = (ArmorStand) entity;
             UUID idArmorStand = armorStand.getUniqueId();
+            
+            if (EventsManager.EventFinish.containsKey(idArmorStand)) {
+                ItemStack itemHand = e.getPlayer().getItemOnCursor();
+                if (!itemHand.hasItemMeta() && !itemHand.getItemMeta().hasCustomModelData()) {
+                    return;
+                }
+                if (itemHand.getItemMeta().getCustomModelData() == 2 && itemHand.getType() == Material.PAPER) {
+                    for (Event event : EventsManager.listEvent) {
+                        if (event.armorStand.getUniqueId().equals(idArmorStand)) {
+                            event.chestDespawn();
+                            switch (event.rarete) {
+                                case COMMUN:
+                                    int rand = Random.random(0,100);
+                                    if (rand > 70) {
+                                        ItemStack batterie = new ItemStack(Material.PAPER);
+                                        ItemMeta batterieMeta = batterie.getItemMeta();
+                                        batterieMeta.setCustomModelData(3);
+                                        batterieMeta.setDisplayName("Batterie");
+                                        batterieMeta.setLore(new ArrayList<>(Arrays.asList("Rend 90 de dura à la pioche surchargée")));
+                                        batterie.setItemMeta(batterieMeta);
+                                        event.slayer.getInventory().addItem(batterie);
+                                    } else if (rand > 40) {
+                                        int rand2 = Random.random(0,60);
+                                        if (rand2 > 40) {
+                                            event.slayer.getInventory().addItem(new ItemStack(Material.OCHRE_FROGLIGHT,8));
+                                        } else if (rand2 > 20) {
+                                            event.slayer.getInventory().addItem(new ItemStack(Material.VERDANT_FROGLIGHT, 8));
+                                        } else {
+                                            event.slayer.getInventory().addItem(new ItemStack(Material.PEARLESCENT_FROGLIGHT,8));
+                                        }
+                                    } else {
+                                        ItemStack braise = new ItemStack(Material.BLAZE_POWDER);
+                                        ItemMeta metaBraise = braise.getItemMeta();
+                                        metaBraise.setDisplayName("§6Braise miraculeuse");
+                                        metaBraise.setLore(new ArrayList<>(Arrays.asList("Rend 100 de dura à l'incinerator")));
+                                        metaBraise.setCustomModelData(1);
+                                        braise.setItemMeta(metaBraise);
+                                        event.slayer.getInventory().addItem(braise);
+                                    }
+                                    break;
+                                case RARE:
+                                    break;
+                                case EPIQUE:
+                                    break;
+                                case LEGENDAIRE:
+                                    break;
+                            }
+                            // Recompenses
+                        }
+                    }
+                }
+            }
+
             if (EventsManager.ChestAttack.containsKey(idArmorStand)) {
-                e.getPlayer().sendMessage(String.valueOf(!EventsManager.ChestAttack.get(idArmorStand)));
                 if (!EventsManager.ChestAttack.get(idArmorStand)) {
                     for (Event event : EventsManager.listEvent) {
                         if (event.armorStand.getUniqueId().equals(idArmorStand)) {
                             event.attack();
                             event.slayer = e.getPlayer();
-                        }
-                    }
-                } else {
-                    ItemStack itemHand = e.getPlayer().getItemOnCursor();
-                    if (!itemHand.hasItemMeta() && !itemHand.getItemMeta().hasCustomModelData()) {
-                        return;
-                    }
-                    if (itemHand.getItemMeta().getCustomModelData() == 2 && itemHand.getType() == Material.PAPER) {
-                        for (Event event : EventsManager.listEvent) {
-                            if (event.armorStand.getUniqueId().equals(idArmorStand)) {
-                                event.chestDespawn();
-                                switch (event.rarete) {
-                                    case COMMUN:
-                                        int rand = Random.random(0,100);
-                                        if (rand > 70) {
-                                            // batterie
-                                        } else if (rand > 40) {
-                                            int rand2 = Random.random(0,60);
-                                            if (rand2 > 40) {
-                                                event.slayer.getInventory().addItem(new ItemStack(Material.OCHRE_FROGLIGHT,8));
-                                            }
-                                        }
-                                        break;
-                                    case RARE:
-                                        break;
-                                    case EPIQUE:
-                                        break;
-                                    case LEGENDAIRE:
-                                        break;
-                                }
-                                // Recompenses
-                            }
                         }
                     }
                 }

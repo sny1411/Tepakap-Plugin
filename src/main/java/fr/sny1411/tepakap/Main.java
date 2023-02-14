@@ -7,7 +7,6 @@ import fr.sny1411.tepakap.commands.secureChest.Unlock;
 import fr.sny1411.tepakap.commands.secureChest.UnlockCompleter;
 import fr.sny1411.tepakap.listener.Listener;
 import fr.sny1411.tepakap.sql.MysqlDb;
-import fr.sny1411.tepakap.utils.CurlExecute;
 import fr.sny1411.tepakap.utils.capacite.CapaciteManager;
 import fr.sny1411.tepakap.utils.larguage.ClockEvents;
 import fr.sny1411.tepakap.utils.maire.GuiMaire;
@@ -31,11 +30,11 @@ public final class Main extends JavaPlugin {
         // Global
         createConfigDate();
         MysqlDb bdd = new MysqlDb(this,
-                "minecraft_395992",
-                "Clem<3",
-                "minecraft3145.omgserv.com",
+                "minecraft_390685", // minecraft_395992
+                "123456",
+                "minecraft1051.omgserv.com", // minecraft3145.omgserv.com
                 3306,
-                "minecraft_395992");
+                "minecraft_390685"); // minecraft_395992
 
         Bukkit.getServer().getPluginManager().registerEvents(new Listener(bdd,this),this);
 
@@ -61,7 +60,6 @@ public final class Main extends JavaPlugin {
         Objects.requireNonNull(getCommand("fly")).setExecutor(new Fly());
 
         // Notif
-        CurlExecute.sendAdminInfo("Server start");
 
         // Election
         GuiMaire.initGuiMaire(bdd,customConfigData.getInt("maire.nbElection"));
@@ -80,7 +78,6 @@ public final class Main extends JavaPlugin {
     @Override
     public void onDisable() {
         // Plugin shutdown logic
-        CurlExecute.sendAdminInfo("Server stop");
     }
 
     private void initLockAuto() {

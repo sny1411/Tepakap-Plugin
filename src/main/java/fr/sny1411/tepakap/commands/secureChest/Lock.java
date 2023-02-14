@@ -217,7 +217,7 @@ public class Lock implements CommandExecutor {
                     ResultSet searchPlayerAdd = bdd.search("SELECT UUID FROM JOUEUR WHERE pseudo='" + addPlayer + "'");
                     if (searchPlayerAdd.next()) {
                         String UUIDFriend = searchPlayerAdd.getString("UUID");
-                        ResultSet resultInBdd = bdd.search("SELECT * FROM ACCEDE WHERE UUID='" + UUIDFriend + "'");
+                        ResultSet resultInBdd = bdd.search("SELECT * FROM ACCEDE WHERE UUID='" + UUIDFriend + "' AND id_coffre=" + idCoffre);
                         if (!resultInBdd.next()) {
                             ResultSet resultNbreFriends = bdd.search("SELECT COUNT(*) AS 'nbre_friends' FROM ACCEDE WHERE id_coffre=" + idCoffre);
                             resultNbreFriends.next();
@@ -236,8 +236,10 @@ public class Lock implements CommandExecutor {
                         player.sendMessage("§4[SecureChest] §cVotre ami(e) n'a pas était trouvé :'(");
                     }
                 } else {
-                    player.sendMessage("§4[SecureChest] §cCe block ne vous appartient pas");
+                    player.sendMessage("§4[SecureChest] §cCe bloc ne vous appartient pas");
                 }
+            } else {
+                player.sendMessage("§4[SecureChest] §cCe bloc n'est pas protégé");
             }
         } catch (SQLException e) {
             e.printStackTrace();

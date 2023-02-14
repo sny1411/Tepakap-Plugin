@@ -8,4 +8,5 @@ import java.util.UUID;
 public class EventsManager {
     public static List<Event> listEvent = new ArrayList<>();
     public static HashMap<UUID, Boolean> ChestAttack = new HashMap<>();
+    public static HashMap<UUID, Boolean> EventFinish = new HashMap<>();
 }

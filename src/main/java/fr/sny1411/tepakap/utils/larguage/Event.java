@@ -69,8 +69,8 @@ public class Event {
                 }
             } while (!canSpawn.get());
 
-
-            rarete = Rarete.choiceRare();
+            rarete = Rarete.COMMUN;
+            //rarete = Rarete.choiceRare(); - A CHANGER
             coordApproximate(coordX,coordZ);
             armorStandSpawn(locChest);
             // clock 30 min
@@ -137,7 +137,7 @@ public class Event {
             z += Random.random(10,50);
         }
 
-        Bukkit.broadcastMessage("§a[Larguage] Un larguage viens d'apparaitre aux  alentours de " + x + " " + z);
+        Bukkit.broadcastMessage("§a[Largage] Un largage viens d'apparaitre aux  alentours de " + x + " " + z);
     }
 
     public void attack() {

@@ -10,7 +10,6 @@ import fr.sny1411.tepakap.utils.larguage.Rarete;
 import fr.sny1411.tepakap.utils.maire.GuiMaire;
 import fr.sny1411.tepakap.utils.pioches.*;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -19,12 +18,11 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Set;
-
 public class Admin implements CommandExecutor {
-    private Event larguage;
+    private Event largage;
     private Main plugin;
     private MysqlDb bdd;
+    public static boolean canJoin = true;
 
     public Admin(Main plugin,MysqlDb bdd) {
         this.plugin = plugin;
@@ -42,13 +40,13 @@ public class Admin implements CommandExecutor {
         } else {
             switch (args[0]) {
                 case "chestLarguage":
-                    larguage = new Event(plugin,bdd);
-                    larguage.chestSpawn();
-                    EventsManager.listEvent.add(larguage);
+                    largage = new Event(plugin,bdd);
+                    largage.chestSpawn();
+                    EventsManager.listEvent.add(largage);
                     break;
                 case "chestDespawn":
-                    larguage.chestDespawn();
-                    larguage.mobsDespawn();
+                    largage.chestDespawn();
+                    largage.mobsDespawn();
                     break;
                 case "CustomsModels":
                     if (args.length > 1) {
@@ -94,6 +92,9 @@ public class Admin implements CommandExecutor {
                     player = (Player) commandSender;
                     player.sendMessage("maire presentation:" + GuiMaire.presentationEnCour);
                     player.sendMessage("maire vote:" + GuiMaire.voteEnCour);
+                    break;
+                case "setConnect":
+                    canJoin = !canJoin;
                     break;
                 default:
                     commandSender.sendMessage("§cErreur: §fArgument inconnu.");
