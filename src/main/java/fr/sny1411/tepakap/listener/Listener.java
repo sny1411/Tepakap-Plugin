@@ -24,6 +24,7 @@ import org.bukkit.Material;
 import org.bukkit.Statistic;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.CreatureSpawner;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
@@ -201,8 +202,14 @@ public class Listener implements org.bukkit.event.Listener {
                 }
                 if (itemBreak.getItemMeta().getCustomModelData() == 1) {
                     if (block.getType() == Material.SPAWNER) {
-                        player.sendMessage("pioche spawner");
-                        e.setDropItems(true);
+                        CreatureSpawner spawner = (CreatureSpawner) block.getState();
+                        EntityType entitySpawner = spawner.getSpawnedType();
+                        ItemStack spawnerItem = new ItemStack(Material.SPAWNER);
+                        ItemMeta metaSpawner = spawnerItem.getItemMeta();
+                        metaSpawner.setLore(new ArrayList<>(Arrays.asList(entitySpawner.name())));
+                        spawnerItem.setItemMeta(metaSpawner);
+
+                        block.getWorld().dropItemNaturally(block.getLocation(), spawnerItem);
                     }
                 }
                 break;
@@ -1240,7 +1247,7 @@ public class Listener implements org.bukkit.event.Listener {
             return;
         }
         if (itemResult.getItemMeta().hasCustomModelData()) {
-            e.setResult(new ItemStack(Material.BARRIER));
+            e.setResult(BlocksUtils.itemBarrier);
         }
     }
 
@@ -1249,7 +1256,7 @@ public class Listener implements org.bukkit.event.Listener {
         Entity entity = e.getEntity();
         if (entity.getType() == EntityType.ENDER_DRAGON) {
             Player killer = e.getEntity().getKiller();
-            Collection<Player> playerList = entity.getLocation().getNearbyPlayers(150);
+            Collection<Player> playerList = new Location(entity.getWorld(), 0.0,62.0,0.0).getNearbyPlayers(250);
             for (Player player : playerList) {
                 if (player != killer) {
                     player.setStatistic(Statistic.KILL_ENTITY, EntityType.ENDER_DRAGON, player.getStatistic(Statistic.KILL_ENTITY, EntityType.ENDER_DRAGON) + 1);

@@ -2,6 +2,7 @@ package fr.sny1411.tepakap.utils.pioches;
 
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
@@ -13,8 +14,10 @@ public class PiocheSpawner {
         ItemMeta piocheMeta = pioche.getItemMeta();
         piocheMeta.setCustomModelData(1);
         piocheMeta.setDisplayName("§bSoul Breaker");
-        piocheMeta.setLore(new ArrayList<>(Arrays.asList("Utilisation restante: 4")));
         pioche.setItemMeta(piocheMeta);
+        Damageable damage = (Damageable) pioche.getItemMeta();
+        damage.setDamage(55);
+        pioche.setItemMeta(damage);
         return pioche;
     }
 }
