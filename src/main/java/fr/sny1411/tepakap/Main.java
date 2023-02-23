@@ -7,6 +7,7 @@ import fr.sny1411.tepakap.commands.secureChest.Unlock;
 import fr.sny1411.tepakap.commands.secureChest.UnlockCompleter;
 import fr.sny1411.tepakap.listener.Listener;
 import fr.sny1411.tepakap.sql.MysqlDb;
+import fr.sny1411.tepakap.utils.BlocksUtils;
 import fr.sny1411.tepakap.utils.capacite.CapaciteManager;
 import fr.sny1411.tepakap.utils.larguage.ClockEvents;
 import fr.sny1411.tepakap.utils.maire.GuiMaire;
@@ -37,6 +38,7 @@ public final class Main extends JavaPlugin {
                 "minecraft_390685"); // minecraft_395992
 
         Bukkit.getServer().getPluginManager().registerEvents(new Listener(bdd,this),this);
+        BlocksUtils.init();
 
         // Secure Chest
         initLockAuto();

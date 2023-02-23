@@ -5,6 +5,7 @@ import fr.sny1411.tepakap.commands.Competences;
 import fr.sny1411.tepakap.commands.Fly;
 import fr.sny1411.tepakap.commands.secureChest.Lock;
 import fr.sny1411.tepakap.sql.MysqlDb;
+import fr.sny1411.tepakap.utils.BlocksUtils;
 import fr.sny1411.tepakap.utils.Random;
 import fr.sny1411.tepakap.utils.Teleporteur;
 import fr.sny1411.tepakap.utils.capacite.CapaciteManager;
@@ -13,6 +14,7 @@ import fr.sny1411.tepakap.utils.larguage.Event;
 import fr.sny1411.tepakap.utils.larguage.EventsManager;
 import fr.sny1411.tepakap.utils.maire.GuiMaire;
 import fr.sny1411.tepakap.utils.pioches.Pioche3x3;
+import fr.sny1411.tepakap.utils.pioches.PiocheIncinerator;
 import fr.sny1411.tepakap.utils.secureChest.Lockable;
 import io.papermc.lib.PaperLib;
 import net.md_5.bungee.api.ChatColor;
@@ -199,6 +201,7 @@ public class Listener implements org.bukkit.event.Listener {
                 }
                 if (itemBreak.getItemMeta().getCustomModelData() == 1) {
                     if (block.getType() == Material.SPAWNER) {
+                        player.sendMessage("pioche spawner");
                         e.setDropItems(true);
                     }
                 }
@@ -214,22 +217,12 @@ public class Listener implements org.bukkit.event.Listener {
                         Pioche3x3.casser(block, blockFace);
                     }
                 } else if (metaItem.getCustomModelData() == 1) {
-                    // pioche multiTool
-                    int dura = Integer.parseInt(metaItem.getLore().get(0).split(":")[1].replace(" ",""));
-                    boolean slotInHand = player.getInventory().getItemInMainHand() == itemBreak;
-
-                    if (dura == 1) {
-                        itemBreak.setAmount(0);
-                    } else {
-                        metaItem.setLore(new ArrayList<>(Arrays.asList("Utilisation restante: " + (dura-1))));
-                        itemBreak.setItemMeta(metaItem);
+                    // pioche incinerator
+                    if (PiocheIncinerator.listBlock.contains(block.getType())) {
+                        e.setDropItems(false);
+                        Map<Enchantment,Integer> enchantments = itemBreak.getEnchantments();
+                        PiocheIncinerator.blockBreak(block, enchantments.get(Enchantment.LOOT_BONUS_BLOCKS));
                     }
-                    if (slotInHand) {
-                        player.getInventory().setItemInMainHand(itemBreak);
-                    } else {
-                        player.getInventory().setItemInOffHand(itemBreak);
-                    }
-                    player.updateInventory();
                 }
                 break;
         }
@@ -1213,9 +1206,22 @@ public class Listener implements org.bukkit.event.Listener {
     private void onPrepareAnvilCraft(PrepareAnvilEvent e) {
         ItemStack itemResult = e.getInventory().getResult();
         if (itemResult != null && itemResult.getItemMeta().hasCustomModelData()) {
-            Map<Enchantment, Integer> enchats = itemResult.getEnchantments();
-            if (enchats.containsKey(Enchantment.MENDING) || enchats.containsKey(Enchantment.SILK_TOUCH) || enchats.containsKey(Enchantment.LOOT_BONUS_BLOCKS) || Objects.requireNonNull(e.getInventory().getSecondItem()).getType() == Material.DIAMOND) {
-                e.setResult(new ItemStack(Material.BARRIER));
+            Map<Enchantment, Integer> enchants = itemResult.getEnchantments();
+            int nData = itemResult.getItemMeta().getCustomModelData();
+
+            if (itemResult.getType() == Material.WOODEN_PICKAXE) {
+                e.setResult(BlocksUtils.itemBarrier);
+                return;
+            }
+            if (Objects.requireNonNull(e.getInventory().getSecondItem()).getType() == Material.DIAMOND || enchants.containsKey(Enchantment.MENDING) || enchants.containsKey(Enchantment.SILK_TOUCH) ) {
+                e.setResult(BlocksUtils.itemBarrier);
+                return;
+            }
+
+            if (!(itemResult.getType() == Material.DIAMOND_PICKAXE && nData == 1)) {
+                if (enchants.containsKey(Enchantment.LOOT_BONUS_BLOCKS)) {
+                    e.setResult(BlocksUtils.itemBarrier);
+                }
             }
         }
     }
