@@ -17,7 +17,6 @@ import static fr.sny1411.tepakap.utils.larguage.ClockEvents.plugin;
 public class CapaciteManager {
     public static HashMap<UUID, Integer> hashMapCapacites = new HashMap<>();
     public static HashMap<UUID, HashMap<Integer, List<String>>> playerCompetences = new HashMap<>(); // list[0] => level; list[1] => name
-
     public static HashMap<Integer,String> dicCapa = new HashMap<>();
 
     private static void initDicCapa() {
@@ -102,22 +101,18 @@ public class CapaciteManager {
         }
         try {
             while (result.next()) {
-                Bukkit.getConsoleSender().sendMessage(String.valueOf(result.isClosed()));
                 int emplacement = result.getInt("emplacement");
                 int id_capacite = result.getInt("id_capacite");
                 int capacite_level = result.getInt("capacite_level");
 
                 List<String> listCapa = new ArrayList<>(Arrays.asList(Integer.toString(capacite_level), dicCapa.get(id_capacite)));
-                Bukkit.getConsoleSender().sendMessage(listCapa.toString());
                 playerHashMap.put(emplacement, listCapa);
-                Bukkit.getConsoleSender().sendMessage("ici => " + playerHashMap);
             }
         } catch (SQLException e) {
             e.printStackTrace();
             Bukkit.getConsoleSender().sendMessage("<< error >>");
         }
         playerCompetences.put(playerId, playerHashMap);
-        Bukkit.getConsoleSender().sendMessage(playerCompetences.toString());
 
         Player player = Bukkit.getServer().getPlayer(playerId);
         assert player != null;

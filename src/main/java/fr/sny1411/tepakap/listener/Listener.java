@@ -1,7 +1,6 @@
 package fr.sny1411.tepakap.listener;
 
 import fr.sny1411.tepakap.Main;
-import fr.sny1411.tepakap.commands.Admin;
 import fr.sny1411.tepakap.commands.Competences;
 import fr.sny1411.tepakap.commands.Fly;
 import fr.sny1411.tepakap.commands.secureChest.Lock;
@@ -16,13 +15,18 @@ import fr.sny1411.tepakap.utils.maire.GuiMaire;
 import fr.sny1411.tepakap.utils.pioches.Pioche3x3;
 import fr.sny1411.tepakap.utils.secureChest.Lockable;
 import io.papermc.lib.PaperLib;
-import net.kyori.adventure.text.Component;
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Statistic;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.*;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
@@ -36,6 +40,7 @@ import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -53,10 +58,6 @@ public class Listener implements org.bukkit.event.Listener {
 
     @EventHandler
     private void onPLayerJoin(PlayerJoinEvent e) {
-        if (!Admin.canJoin && !e.getPlayer().getName().equalsIgnoreCase("sny1411")) {
-            e.getPlayer().kick(Component.text("RDV 20H LES MECS"), PlayerKickEvent.Cause.WHITELIST);
-            return;
-        }
         e.setJoinMessage("§8[§a+§8] §e" + e.getPlayer().getName());
         Bukkit.getScheduler().runTaskAsynchronously(main, () -> {
             Player player = e.getPlayer();
@@ -180,7 +181,6 @@ public class Listener implements org.bukkit.event.Listener {
 
             if (chestBdd.next()) { // Si le coffre est dans la bdd
                 Player breakerPlayer = e.getPlayer();
-                Bukkit.getConsoleSender().sendMessage( "TEST - " + breakerPlayer.getUniqueId().toString().equalsIgnoreCase(chestBdd.getString("UUID")));
                 if (breakerPlayer.getUniqueId().toString().equalsIgnoreCase(chestBdd.getString("UUID"))) { // Si le joueur n'est pas le propriétaire du coffre
                     bdd.modifyItems("DELETE FROM COFFRE WHERE id_coffre=" + chestBdd.getInt("id_coffre"));
                 } else {
@@ -1140,10 +1140,9 @@ public class Listener implements org.bukkit.event.Listener {
     private void onPlayerClickArmorStand(PlayerInteractAtEntityEvent e) {
         Entity entity = e.getRightClicked();
         if (entity.getType().equals(EntityType.ARMOR_STAND)) {
-            e.getPlayer().sendMessage(String.valueOf(EventsManager.ChestAttack));
             ArmorStand armorStand = (ArmorStand) entity;
             UUID idArmorStand = armorStand.getUniqueId();
-            
+
             if (EventsManager.EventFinish.containsKey(idArmorStand)) {
                 ItemStack itemHand = e.getPlayer().getItemOnCursor();
                 if (!itemHand.hasItemMeta() && !itemHand.getItemMeta().hasCustomModelData()) {
@@ -1349,11 +1348,9 @@ public class Listener implements org.bukkit.event.Listener {
             Player player = (Player) e.getEntity().getShooter();
             UUID playerID = player.getUniqueId();
             if (player.getInventory().getItemInMainHand().getEnchantments().containsKey(Enchantment.ARROW_INFINITE)) {
-                Bukkit.getConsoleSender().sendMessage("arrow ARROW_INFINITE");
                 return;
             }
             if (player.getInventory().getItemInOffHand().getEnchantments().containsKey(Enchantment.ARROW_INFINITE)) {
-                Bukkit.getConsoleSender().sendMessage("arrow ARROW_INFINITE");
                 return;
             }
 
@@ -1476,7 +1473,6 @@ public class Listener implements org.bukkit.event.Listener {
                     e.setCancelled(true);
                 } else {
                     player.getInventory().setItemInMainHand(null);
-                    Bukkit.getConsoleSender().sendMessage(block.getLocation().toString());
                     Teleporteur.tempLoc.put(player.getUniqueId(),block.getLocation());
                     player.sendMessage("§aTéléporteur enregistré");
                     player.sendMessage("§aCliquez avec un bloc de diamant sur l'autre pour l'associer");
@@ -1546,4 +1542,10 @@ public class Listener implements org.bukkit.event.Listener {
             }
         }
     }
+
+    @EventHandler
+    private void portalTravel(PlayerPortalEvent e) {
+        Bukkit.getConsoleSender().sendMessage(e.getPlayer().getName() + " portail traverse en : " + e.getTo());
+    }
+
 }

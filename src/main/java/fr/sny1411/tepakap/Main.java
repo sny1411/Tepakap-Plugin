@@ -73,6 +73,10 @@ public final class Main extends JavaPlugin {
                     customConfigData.getInt("maire.yPres"),
                     customConfigData.getInt("maire.zPres"));
         }
+
+        // Armure
+        Objects.requireNonNull(getCommand("shop")).setExecutor(new Shop());
+        Objects.requireNonNull(getCommand("shop")).setTabCompleter(new ShopCompleter());
     }
 
     @Override

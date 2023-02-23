@@ -34,7 +34,7 @@ public class ClockEvents {
     public static void startEvent() {
         java.time.LocalTime time = java.time.LocalTime.now();
         int nextEventSeconds = Random.random(MIN_TIME_SECOND,MAX_TIME_SECOND);
-        if (((((nextEventSeconds/3600) +time.getHour())%24) < 3)) {
+        if (((((nextEventSeconds/3600) +time.getHour())%24) > 2)) {
             return;
         }
         try {

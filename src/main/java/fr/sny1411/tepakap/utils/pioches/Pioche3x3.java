@@ -1,5 +1,6 @@
 package fr.sny1411.tepakap.utils.pioches;
 
+import fr.sny1411.tepakap.utils.secureChest.Lockable;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -11,7 +12,8 @@ import java.util.Arrays;
 
 public class Pioche3x3 {
     private static void breakBlock(Block block){
-        if (!block.getType().equals(Material.BEDROCK)){
+        Material blockType = block.getType();
+        if (!blockType.equals(Material.BEDROCK) && !Lockable.inList(blockType)){
             block.breakNaturally();
         }
     }

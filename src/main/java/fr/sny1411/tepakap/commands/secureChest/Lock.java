@@ -86,7 +86,6 @@ public class Lock implements CommandExecutor {
                 Bukkit.getConsoleSender().sendMessage("§4[SecureCHEST] §cCommande non executable par la console");
             }
         });
-
         return false;
     }
 
@@ -108,7 +107,9 @@ public class Lock implements CommandExecutor {
         String world = Objects.requireNonNull(locBlock.getWorld()).getName();
         try {
             ResultSet result = searchCoffre(block,X,Y,Z,world, player);
-            assert result != null;
+            if (result == null) {
+                return;
+            }
             if (result.next()) {
                 String UUIDowner = result.getString("UUID");
                 int id_coffre = result.getInt("id_coffre");
@@ -175,7 +176,9 @@ public class Lock implements CommandExecutor {
         String world = Objects.requireNonNull(locBlock.getWorld()).getName();
         ResultSet result = searchCoffre(block,X,Y,Z,world, player);
         try {
-            assert result != null;
+            if (result == null) {
+                return;
+            }
             if (result.next()) {
                 int idCoffre = result.getInt("id_coffre");
                 String UUIDProprio = result.getString("UUID");
@@ -255,7 +258,9 @@ public class Lock implements CommandExecutor {
         String world = Objects.requireNonNull(locBlock.getWorld()).getName();
         ResultSet result = searchCoffre(block,X,Y,Z,world, player);
         try {
-            assert result != null;
+            if (result == null) {
+                return;
+            }
             if (!result.next()) {
                 bdd.putNewItems("INSERT INTO COFFRE(coordX,coordY,coordZ,monde,UUID) VALUES(" + X + "," + Y+","+Z + ",'" + world + "','" + player.getUniqueId() + "')");
                 player.sendMessage("§2[SecureChest] §aCoffre sécurisé");

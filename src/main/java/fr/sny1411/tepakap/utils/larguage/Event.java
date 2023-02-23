@@ -73,7 +73,25 @@ public class Event {
             //rarete = Rarete.choiceRare(); - A CHANGER
             coordApproximate(coordX,coordZ);
             armorStandSpawn(locChest);
-            // clock 30 min
+
+            int maxSecond = 1800;
+            int second = 0;
+            while (second < maxSecond) {
+                try {
+                    TimeUnit.SECONDS.sleep(1);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                second++;
+                if (second == 600) {
+                    Bukkit.broadcastMessage("[largage] Il reste 20 minutes");
+                } else if (second == 1200) {
+                    Bukkit.broadcastMessage("[largage] Il reste 10 minutes");
+                }
+            }
+            if (Bukkit.getEntity(armorStand.getUniqueId()) != null) {
+                Bukkit.getEntity(armorStand.getUniqueId()).remove();
+            }
         });
     }
 

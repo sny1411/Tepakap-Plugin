@@ -14,3 +14,5 @@ commands:
     description: permet d'executer des commandes competences
   fly:
     description: permet de voler
+  shop:
+    description: permet d'acheter des objets

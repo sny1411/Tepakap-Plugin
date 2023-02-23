@@ -151,13 +151,11 @@ public class Competences implements CommandExecutor {
 
     public static void selecteurCompetences(Player player) {
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            Bukkit.getConsoleSender().sendMessage("ici ^^");
             Inventory inv = Bukkit.createInventory(null, 54, "§lVos compétences");
             baseGui(inv);
             ItemStack[] blockCapacite = new ItemStack[3];
             try {
                 ResultSet result = bdd.search("SELECT id_capacite,emplacement FROM EQUIPE WHERE UUID='" + player.getUniqueId() + "'");
-                Bukkit.getConsoleSender().sendMessage("ici 3^^");
                 while (!result.isClosed() && result.next()) {
                     int id_capa = result.getInt("id_capacite");
                     int emplacement = result.getInt("emplacement");
@@ -166,7 +164,6 @@ public class Competences implements CommandExecutor {
                 result.close();
             } catch (SQLException e) {
                 e.printStackTrace();
-                Bukkit.getConsoleSender().sendMessage("ici 3^^^");
             }
 
             ItemStack caseVide = new ItemStack(Material.BEACON);
