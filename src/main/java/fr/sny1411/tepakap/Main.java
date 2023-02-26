@@ -61,8 +61,6 @@ public final class Main extends JavaPlugin {
         Objects.requireNonNull(getCommand("competences")).setExecutor(new Competences(bdd,this));
         Objects.requireNonNull(getCommand("fly")).setExecutor(new Fly());
 
-        // Notif
-
         // Election
         GuiMaire.initGuiMaire(bdd,customConfigData.getInt("maire.nbElection"));
         GuiMaire.initItemStackBonus();

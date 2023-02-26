@@ -42,6 +42,7 @@ import org.bukkit.event.player.*;
 import org.bukkit.event.world.PortalCreateEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.sql.ResultSet;
@@ -1212,6 +1213,11 @@ public class Listener implements org.bukkit.event.Listener {
     @EventHandler
     private void onPrepareAnvilCraft(PrepareAnvilEvent e) {
         ItemStack itemResult = e.getInventory().getResult();
+        ItemStack secondItem = e.getInventory().getSecondItem();
+        ItemStack firstItem = e.getInventory().getFirstItem();
+        if (secondItem == null || firstItem == null) {
+            return;
+        }
         if (itemResult != null && itemResult.getItemMeta().hasCustomModelData()) {
             Map<Enchantment, Integer> enchants = itemResult.getEnchantments();
             int nData = itemResult.getItemMeta().getCustomModelData();
@@ -1220,7 +1226,7 @@ public class Listener implements org.bukkit.event.Listener {
                 e.setResult(BlocksUtils.itemBarrier);
                 return;
             }
-            if (Objects.requireNonNull(e.getInventory().getSecondItem()).getType() == Material.DIAMOND || enchants.containsKey(Enchantment.MENDING) || enchants.containsKey(Enchantment.SILK_TOUCH) ) {
+            if (secondItem.getType() == Material.DIAMOND || enchants.containsKey(Enchantment.MENDING) || enchants.containsKey(Enchantment.SILK_TOUCH) ) {
                 e.setResult(BlocksUtils.itemBarrier);
                 return;
             }
@@ -1230,9 +1236,38 @@ public class Listener implements org.bukkit.event.Listener {
                     e.setResult(BlocksUtils.itemBarrier);
                 }
             }
+        } else {
+            if (firstItem.getType() == Material.DIAMOND_PICKAXE && firstItem.getItemMeta().hasCustomModelData() && firstItem.getItemMeta().getCustomModelData() == 1) {
+                if (secondItem.getType() == Material.BLAZE_POWDER && secondItem.getItemMeta().hasCustomModelData()) {
+                    ItemStack firstItemCopy = firstItem.clone();
+                    Damageable damage = (Damageable) firstItemCopy.getItemMeta();
+                    if ((damage.getDamage()-100) > 0) {
+                        damage.setDamage(damage.getDamage()-100);
+                    } else {
+                        damage.setDamage(0);
+                    }
+                    firstItemCopy.setItemMeta(damage);
+                    e.setResult(firstItemCopy);
+                }
+            }
         }
     }
-
+/*
+else {
+                Bukkit.getConsoleSender().sendMessage("ici");
+                if (secondItem.getType() == Material.BLAZE_POWDER && secondItem.getItemMeta().hasCustomModelData()) {
+                    Bukkit.getConsoleSender().sendMessage("ici2");
+                    Damageable damage = (Damageable) itemResult.getItemMeta();
+                    if ((damage.getDamage()-100) <= itemResult.getMaxItemUseDuration()) {
+                        damage.setDamage(damage.getDamage()-100);
+                    } else {
+                        damage.setDamage(0);
+                    }
+                    itemResult.setItemMeta(damage);
+                    e.setResult(itemResult);
+                }
+            }
+ */
     @EventHandler
     private void onPrepareEnchant(PrepareItemEnchantEvent e) {
         if (e.getItem().getItemMeta().hasCustomModelData()) {
@@ -1367,6 +1402,9 @@ public class Listener implements org.bukkit.event.Listener {
                 return;
             }
 
+            if (e.getEntity().getType() != EntityType.ARROW) {
+                return;
+            }
             if (CapaciteManager.isInCapacite("Carquois Amélioré", playerID)) {
                 int levelComp = CapaciteManager.getLevelCapacite("Carquois Amélioré", playerID);
                 int rand = Random.random(1, 100);

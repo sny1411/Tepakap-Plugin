@@ -2,6 +2,7 @@ package fr.sny1411.tepakap.commands;
 
 import fr.sny1411.tepakap.Main;
 import fr.sny1411.tepakap.sql.MysqlDb;
+import fr.sny1411.tepakap.utils.BlocksUtils;
 import fr.sny1411.tepakap.utils.RessourcePack;
 import fr.sny1411.tepakap.utils.larguage.ClockEvents;
 import fr.sny1411.tepakap.utils.larguage.Event;
@@ -86,6 +87,7 @@ public class Admin implements CommandExecutor {
                     player.getInventory().addItem(PiocheIncinerator.get());
                     player.getInventory().addItem(PiocheSpawner.get());
                     player.getInventory().addItem(PiocheMultiTool.get());
+                    player.getInventory().addItem(BlocksUtils.braiseMiraculeuse);
                     break;
                 case "info":
                     assert commandSender instanceof Player;
