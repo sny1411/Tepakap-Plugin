@@ -78,13 +78,13 @@ public class MysqlDb {
     }
 
     /***
-     * @param requete sql
+     * @param request sql
      * @return ResultSet ou null si la requête échoue
      */
-    public ResultSet search(String requete) {
+    public ResultSet search(String request) {
         try {
             if (connected) {
-                return statement.executeQuery(requete);
+                return statement.executeQuery(request);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -96,41 +96,41 @@ public class MysqlDb {
             } catch (InterruptedException ex) {
                 throw new RuntimeException(ex);
             }
-            return search(requete);
+            return search(request);
         }
         return null;
     }
 
     /***
-     * @param requete sql
+     * @param request sql
      */
-    public void putNewItems(String requete) {
+    public void putNewItems(String request) {
         try {
             if (connected) {
-                statement.executeUpdate(requete);
+                statement.executeUpdate(request);
             }
         } catch (SQLException e) {
             e.printStackTrace();
             Bukkit.getServer().getConsoleSender().sendMessage("§4[ERREUR BDD] §cLA BDD N'EST PAS CONNECTE !");
             connected = false;
             connect();
-            putNewItems(requete);
+            putNewItems(request);
         }
     }
 
     /***
-     * @param requete sql
+     * @param request sql
      */
-    public void modifyItems(String requete) {
+    public void modifyItems(String request) {
         try {
             if (connected) {
-                statement.executeUpdate(requete);
+                statement.executeUpdate(request);
             }
         } catch (SQLException e) {
             Bukkit.getServer().getConsoleSender().sendMessage("§4[ERREUR BDD] §cLA BDD N'EST PAS CONNECTE !");
             connected = false;
             connect();
-            modifyItems(requete);
+            modifyItems(request);
         }
     }
 }

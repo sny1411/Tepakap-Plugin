@@ -519,7 +519,7 @@ public class Listener implements org.bukkit.event.Listener {
                         } else {
                             player.sendMessage("§cVous n'avez pas les ressources requises");
                         }
-                        e.setCancelled(true);
+                        e. celled(true);
                         return;
                     }
 
