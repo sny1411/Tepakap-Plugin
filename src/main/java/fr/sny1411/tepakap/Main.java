@@ -31,6 +31,7 @@ public final class Main extends JavaPlugin {
         // Global
         createConfigDate();
         MysqlDb bdd = new MysqlDb(this,
+                                  // c'est un serveur de test qui n'existe plus :)
                 "minecraft_390685", // minecraft_395992
                 "123456",
                 "minecraft1051.omgserv.com", // minecraft3145.omgserv.com
